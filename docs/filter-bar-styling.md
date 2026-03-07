@@ -16,8 +16,8 @@
 import { FilterBar, filtro } from "filtro";
 
 const fields = [
-  filtro.string("keyword").meta({ label: "Keyword" }),
-  filtro.select("status").meta({ label: "Status" }).options([
+  filtro.string("keyword").label("Keyword"),
+  filtro.select("status").label("Status").options([
     { label: "Open", value: "open" },
     { label: "Closed", value: "closed" },
   ]),

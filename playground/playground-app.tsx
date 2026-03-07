@@ -96,24 +96,27 @@ function useFiltroFields() {
     () => [
       filtro.group("Basic", [
         filtro.string("keyword")
-          .meta({ label: "Keyword", placeholder: "Search name or email" }),
+          .label("Keyword")
+          .placeholder("Search name or email"),
         filtro.number("amount")
-          .meta({ label: "Amount", placeholder: "Enter amount" }),
+          .label("Amount")
+          .placeholder("Enter amount"),
         filtro.date("createdAt")
-          .meta({ label: "Created At" }),
+          .label("Created At"),
       ]),
       filtro.group("Attributes", [
-        filtro.select("status").meta({ label: "Status" }).options([
+        filtro.select("status").label("Status").options([
           { label: "Open", value: "open" },
           { label: "Closed", value: "closed" },
           { label: "Pending", value: "pending" },
         ]),
         filtro.select("owner")
-          .meta({ label: "Owner", placeholder: "Async options after 5s" })
+          .label("Owner")
+          .placeholder("Async options after 5s")
           .options(async () => loadAsyncOwners())
           .loadOptions("open"),
         filtro.multiSelect("tags")
-          .meta({ label: "Tags" })
+          .label("Tags")
           .renderValueLabel((values) => `${values.length} tags`)
           .options([
             { label: "VIP", value: "vip" },
@@ -121,7 +124,8 @@ function useFiltroFields() {
             { label: "Churn Risk", value: "churn-risk" },
           ]),
         filtro.multiSelect("reviewers")
-          .meta({ label: "Reviewers", placeholder: "Pick up to 3 reviewers" })
+          .label("Reviewers")
+          .placeholder("Pick up to 3 reviewers")
           .maxSelections(3)
           .options([
             {
@@ -146,7 +150,7 @@ function useFiltroFields() {
             },
           ])
           .renderValueLabel((options) => `${options.length} reviewers`),
-        filtro.boolean("archived").meta({ label: "Archived" }).options([
+        filtro.boolean("archived").label("Archived").options([
           { label: "Archived", value: true },
           { label: "Not Archived", value: false },
         ]),
