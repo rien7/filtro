@@ -118,6 +118,40 @@ h1 {
   gap: 6px;
 }
 
+.demo-option-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.demo-option-icon-amber {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.demo-option-icon-emerald {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.demo-option-icon-sky {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.demo-option-icon-rose {
+  background: #ffe4e6;
+  color: #be123c;
+}
+
 @media (min-width: 920px) {
   .demo-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

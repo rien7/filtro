@@ -9,6 +9,11 @@ import {
   SelectValue,
 } from "@/ui/baseui/select";
 import { useSelectableFieldOptions } from "@/ui/filter-bar/select-options";
+import {
+  hasSelectOptionIcon,
+  SelectOptionIconStack,
+  SelectOptionLabel,
+} from "@/ui/filter-bar/select-option-content";
 import { filterBarThemeSlot, useFilterBarTheme } from "@/ui/filter-bar/theme";
 import { cn } from "@/ui/lib/utils";
 
@@ -22,6 +27,7 @@ export function MultiSelectValueEditor<FieldId extends string>({
   const theme = useFilterBarTheme();
   const currentValue = item.value as string[] | null;
   const value = Array.isArray(currentValue) ? currentValue : [];
+  const maxSelections = field.maxSelections;
   const {
     error,
     handleOpenChange,
@@ -35,6 +41,13 @@ export function MultiSelectValueEditor<FieldId extends string>({
   } = useSelectableFieldOptions(field, {
     selectedValues: value,
   });
+  const selectedLabel = selectedOptions.length > 0
+    ? value.map((selectedValue) => {
+        return selectedOptions.find((option) => option.value === selectedValue)?.label ?? selectedValue;
+      }).join(", ")
+    : field.placeholder || "Select options";
+  const selectedOptionsWithIcons = selectedOptions.filter(hasSelectOptionIcon);
+  const limitReached = maxSelections !== undefined && value.length >= maxSelections;
 
   return (
     <div
@@ -46,7 +59,18 @@ export function MultiSelectValueEditor<FieldId extends string>({
         open={open}
         value={value}
         onOpenChange={handleOpenChange}
-        onValueChange={onChange}
+        onValueChange={(nextValue) => {
+          if (!Array.isArray(nextValue)) {
+            return;
+          }
+
+          if (maxSelections === undefined || nextValue.length <= maxSelections) {
+            onChange(nextValue);
+            return;
+          }
+
+          onChange(nextValue.slice(0, maxSelections));
+        }}
       >
         <SelectTrigger
           data-theme-slot={filterBarThemeSlot("selectTrigger", "editorControl")}
@@ -59,12 +83,15 @@ export function MultiSelectValueEditor<FieldId extends string>({
           <SelectValue>
             {(selectedValue) => {
               const selectedValues = Array.isArray(selectedValue) ? selectedValue : value;
+              const renderedLabel =
+                field.renderValueLabel?.(selectedValues) ?? selectedLabel;
 
-              if (field.renderLabel) {
-                return field.renderLabel(selectedValues);
-              }
-
-              return selectedValues.join(", ") || field.placeholder || "Select options";
+              return (
+                <span className="flex min-w-0 items-center gap-2">
+                  <SelectOptionIconStack options={selectedOptionsWithIcons} />
+                  <span className="truncate">{renderedLabel}</span>
+                </span>
+              );
             }}
           </SelectValue>
         </SelectTrigger>
@@ -116,11 +143,12 @@ export function MultiSelectValueEditor<FieldId extends string>({
               <SelectItem
                 key={option.value}
                 value={option.value}
+                disabled={limitReached && !value.includes(option.value)}
                 data-theme-slot={filterBarThemeSlot("selectItem")}
                 unstyled={theme.unstyledPrimitives}
                 className={theme.classNames.selectItem}
               >
-                {option.label}
+                <SelectOptionLabel option={option} />
               </SelectItem>
             ))
           ) : (
@@ -144,7 +172,7 @@ export function MultiSelectValueEditor<FieldId extends string>({
                 unstyled={theme.unstyledPrimitives}
                 className={cn(theme.classNames.selectItem, "hidden")}
               >
-                {option.label}
+                <SelectOptionLabel option={option} />
               </SelectItem>
             ))}
         </SelectContent>

@@ -20,6 +20,7 @@ export * from "./filter-bar";
 export type {
   BooleanOptions,
   BooleanUIField,
+  MultiSelectValueLabelRenderer,
   SelectKind,
   SelectOptionLoader,
   SelectOption,

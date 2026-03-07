@@ -7,6 +7,7 @@ import {
 } from "@/logical/operator";
 import type { FilterBarValue, FilterBarValueType } from "@/ui/filter-bar/context";
 import type {
+  FlattenedSelectOption,
   SelectKind,
   SelectOption,
   SelectUIField,
@@ -25,11 +26,12 @@ export function isEmptyOperator(operator: string) {
 export function flattenSelectOptions(
   options: SelectOption[],
   path: string[] = [],
-): Array<{ label: string; value: string }> {
+): FlattenedSelectOption[] {
   return options.flatMap((option) => {
     const nextPath = [...path, option.label];
     if (!option.children?.length) {
-      return [{ label: nextPath.join(" / "), value: option.value }];
+      const { children: _children, ...resolvedOption } = option;
+      return [{ ...resolvedOption, label: nextPath.join(" / ") }];
     }
 
     return flattenSelectOptions(option.children, nextPath);

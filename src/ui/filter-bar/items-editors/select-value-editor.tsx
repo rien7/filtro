@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/ui/baseui/select";
 import { useSelectableFieldOptions } from "@/ui/filter-bar/select-options";
+import { SelectOptionLabel } from "@/ui/filter-bar/select-option-content";
 import { filterBarThemeSlot, useFilterBarTheme } from "@/ui/filter-bar/theme";
 import { cn } from "@/ui/lib/utils";
 
@@ -120,7 +121,7 @@ export function SelectValueEditor<FieldId extends string>({
                 unstyled={theme.unstyledPrimitives}
                 className={theme.classNames.selectItem}
               >
-                {option.label}
+                <SelectOptionLabel option={option} />
               </SelectItem>
             ))
           ) : (
@@ -144,7 +145,7 @@ export function SelectValueEditor<FieldId extends string>({
                 unstyled={theme.unstyledPrimitives}
                 className={cn(theme.classNames.selectItem, "hidden")}
               >
-                {option.label}
+                <SelectOptionLabel option={option} />
               </SelectItem>
             ))}
         </SelectContent>

@@ -3,7 +3,7 @@ import { operatorsForKind, type OperatorKindFor } from "../logical/operator.js";
 import type {
   BooleanKind,
   BooleanOptions,
-  MultiSelectLabelRenderer,
+  MultiSelectValueLabelRenderer,
   SelectKind,
   SelectOptionsLoadMode,
   SelectOptions,
@@ -20,7 +20,8 @@ type SelectFieldBuilderMethod =
   | "searchable";
 type MultiSelectFieldBuilderMethod =
   | SelectFieldBuilderMethod
-  | "renderLabel";
+  | "renderValueLabel"
+  | "maxSelections";
 type BooleanFieldBuilderMethod = BaseFieldBuilderMethod | "options";
 
 type FieldBuilderMethod<Kind extends EnumFieldKind> = Kind extends SelectKind
@@ -106,7 +107,8 @@ export type SelectFieldBuilder<
       ): SelectFieldBuilder<FieldId, Kind, Used | "searchable">;
     } & (Kind extends typeof FieldKind.multiSelect
       ? {
-          renderLabel(fn: MultiSelectLabelRenderer): SelectFieldBuilder<FieldId, Kind, Used | "renderLabel">;
+          renderValueLabel(fn: MultiSelectValueLabelRenderer): SelectFieldBuilder<FieldId, Kind, Used | "renderValueLabel">;
+          maxSelections(max: number): SelectFieldBuilder<FieldId, Kind, Used | "maxSelections">;
         }
       : {}),
     Used
@@ -269,8 +271,13 @@ class SelectBuilderBase<
     return this;
   }
 
-  renderLabel(fn: MultiSelectLabelRenderer) {
-    this.field.renderLabel = fn;
+  renderValueLabel(fn: MultiSelectValueLabelRenderer) {
+    this.field.renderValueLabel = fn;
+    return this;
+  }
+
+  maxSelections(max: number) {
+    this.field.maxSelections = Math.max(1, Math.trunc(max));
     return this;
   }
 }

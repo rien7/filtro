@@ -33,9 +33,12 @@ export interface UIFieldBase<
 export interface SelectOption {
   label: string;
   value: string;
+  icon?: ReactNode;
   prefix?: ReactNode;
   children?: SelectOption[];
 }
+
+export type FlattenedSelectOption = Omit<SelectOption, "children">;
 
 export type SelectOptionsLoadMode = "render" | "open";
 
@@ -54,7 +57,7 @@ export type SelectKind =
   | typeof FieldKind.select
   | typeof FieldKind.multiSelect;
 export type BooleanKind = typeof FieldKind.boolean
-export type MultiSelectLabelRenderer = (values: string[]) => ReactNode;
+export type MultiSelectValueLabelRenderer = (values: string[]) => ReactNode;
 
 export interface SelectUIField<
   FieldId extends string = string,
@@ -63,7 +66,8 @@ export interface SelectUIField<
   options?: SelectOptions;
   optionsLoadMode?: SelectOptionsLoadMode;
   optionsSearchable?: boolean;
-  renderLabel?: MultiSelectLabelRenderer;
+  renderValueLabel?: MultiSelectValueLabelRenderer;
+  maxSelections?: number;
 }
 
 export interface BooleanUIField<

@@ -1,12 +1,18 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
-import type { SelectKind, SelectOption, SelectOptionLoader, SelectUIField } from "@/ui/types";
+import type {
+  FlattenedSelectOption,
+  SelectKind,
+  SelectOption,
+  SelectOptionLoader,
+  SelectUIField,
+} from "@/ui/types";
 import { flattenSelectOptions } from "@/ui/filter-bar/state";
 
 type SelectOptionsStatus = "idle" | "loading" | "success" | "error";
 
 const resolvedOptionsCache = new Map<string, SelectOption[]>();
 const pendingOptionsCache = new Map<string, Promise<SelectOption[]>>();
-const knownOptionsCache = new Map<string, Map<string, { label: string; value: string }>>();
+const knownOptionsCache = new Map<string, Map<string, FlattenedSelectOption>>();
 
 function getOptionsCacheKey(fieldId: string, query: string) {
   return `${fieldId}::${query}`;
@@ -14,7 +20,7 @@ function getOptionsCacheKey(fieldId: string, query: string) {
 
 function rememberKnownOptions(fieldId: string, options: SelectOption[]) {
   const nextOptions = flattenSelectOptions(options);
-  const cachedOptions = knownOptionsCache.get(fieldId) ?? new Map<string, { label: string; value: string }>();
+  const cachedOptions = knownOptionsCache.get(fieldId) ?? new Map<string, FlattenedSelectOption>();
 
   for (const option of nextOptions) {
     cachedOptions.set(option.value, option);
@@ -290,7 +296,7 @@ export function getKnownSelectedOptions(
     return [];
   }
 
-  const nextOptions: Array<{ label: string; value: string }> = [];
+  const nextOptions: FlattenedSelectOption[] = [];
 
   for (const value of selectedValues) {
     const cachedOption = cachedOptions.get(value);

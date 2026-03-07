@@ -1,5 +1,6 @@
 import type { EnumFieldKind } from "@/logical/field";
 import type { FilterBarValue } from "@/ui/filter-bar/context";
+import type { FlattenedSelectOption } from "@/ui/types";
 import type { UIFieldForKind } from "@/ui/types";
 
 export interface FilterValueEditorProps<
@@ -23,7 +24,7 @@ export function stringifyArrayValue(value: string[]) {
 
 export function getOptionLabel(
   value: string | null | undefined,
-  options: Array<{ label: string; value: string }>,
+  options: FlattenedSelectOption[],
 ) {
   if (!value) {
     return null;

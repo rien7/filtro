@@ -18,6 +18,7 @@ import {
 } from "@/ui/baseui/dropdown-menu";
 import { SelectSearchInput, SelectSeparator } from "@/ui/baseui/select";
 import { type FilterBarValueType, useFilterBar } from "@/ui/filter-bar/context";
+import { SelectOptionLabel } from "@/ui/filter-bar/select-option-content";
 import { useSelectableFieldOptions } from "@/ui/filter-bar/select-options";
 import { createFilterBarValue, upsertFilterBarValue } from "@/ui/filter-bar/state";
 import {
@@ -108,8 +109,7 @@ function renderSelectOption<FieldId extends string, Kind extends SelectKind>({
         unstyled={theme.unstyledPrimitives}
         className={theme.classNames.triggerFieldItem}
       >
-        {option.prefix}
-        {option.label}
+        <SelectOptionLabel option={option} />
       </DropdownMenuItem>
     );
   }
@@ -121,8 +121,7 @@ function renderSelectOption<FieldId extends string, Kind extends SelectKind>({
         unstyled={theme.unstyledPrimitives}
         className={theme.classNames.triggerSubmenuTrigger}
       >
-        {option.prefix}
-        {option.label}
+        <SelectOptionLabel option={option} />
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal>
         <DropdownMenuSubContent

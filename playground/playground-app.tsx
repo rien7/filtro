@@ -21,6 +21,20 @@ function loadAsyncOwners() {
   });
 }
 
+function DemoAvatar({
+  initials,
+  tone,
+}: {
+  initials: string;
+  tone: "amber" | "emerald" | "sky" | "rose";
+}) {
+  return (
+    <span className={`demo-option-icon demo-option-icon-${tone}`} aria-hidden="true">
+      {initials}
+    </span>
+  );
+}
+
 type DemoView = "headless" | "default" | "both";
 
 function DemoCard({
@@ -100,12 +114,38 @@ function useFiltroFields() {
           .loadOptions("open"),
         filtro.multiSelect("tags")
           .meta({ label: "Tags" })
-          .renderLabel((values) => `${values.length} tags`)
+          .renderValueLabel((values) => `${values.length} tags`)
           .options([
             { label: "VIP", value: "vip" },
             { label: "Trial", value: "trial" },
             { label: "Churn Risk", value: "churn-risk" },
           ]),
+        filtro.multiSelect("reviewers")
+          .meta({ label: "Reviewers", placeholder: "Pick up to 3 reviewers" })
+          .maxSelections(3)
+          .options([
+            {
+              label: "Alice Johnson",
+              value: "alice",
+              icon: <DemoAvatar initials="AJ" tone="amber" />,
+            },
+            {
+              label: "Ben Carter",
+              value: "ben",
+              icon: <DemoAvatar initials="BC" tone="emerald" />,
+            },
+            {
+              label: "Chris Wong",
+              value: "chris",
+              icon: <DemoAvatar initials="CW" tone="sky" />,
+            },
+            {
+              label: "Diana Ross",
+              value: "diana",
+              icon: <DemoAvatar initials="DR" tone="rose" />,
+            },
+          ])
+          .renderValueLabel((options) => `${options.length} reviewers`),
         filtro.boolean("archived").meta({ label: "Archived" }).options([
           { label: "Archived", value: true },
           { label: "Not Archived", value: false },
