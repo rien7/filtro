@@ -162,12 +162,12 @@ type OperatorValueMapForFieldKind<Value extends FieldValueType = string> =
     };
 
 function values<const T extends Record<string, string>>(obj: T) {
-  return Object.values(obj) as unknown as readonly T[keyof T][];
+  return Object.values(obj) as unknown as T[keyof T][];
 }
 
 export function operatorsForKind<K extends EnumFieldKind>(
   kind: K,
-): readonly OperatorKindFor<K>[] {
+): OperatorKindFor<K>[] {
   const kindsByField = {
     [FieldKind.string]: values(StringOperatorKind),
     [FieldKind.number]: values(NumberOperatorKind),
@@ -175,9 +175,9 @@ export function operatorsForKind<K extends EnumFieldKind>(
     [FieldKind.select]: values(SelectOperatorKind),
     [FieldKind.multiSelect]: values(MultiSelectOperatorKind),
     [FieldKind.boolean]: values(BooleanOperatorKind),
-  } as const satisfies { [P in EnumFieldKind]: readonly OperatorKindFor<P>[] };
+  } as const satisfies { [P in EnumFieldKind]: OperatorKindFor<P>[] };
 
-  return kindsByField[kind] as readonly OperatorKindFor<K>[];
+  return kindsByField[kind] as OperatorKindFor<K>[];
 }
 
 const s = operatorsForKind(FieldKind.number);

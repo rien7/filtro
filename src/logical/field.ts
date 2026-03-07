@@ -19,5 +19,5 @@ export interface LogicalFieldBase<
 > {
   id: FieldId
   kind: Kind
-  allowedOperators?: OperatorKindFor<Kind>[]
+  allowedOperators: OperatorKindFor<Kind>[]
 }
