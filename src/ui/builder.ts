@@ -12,7 +12,13 @@ import type {
   UIFieldRender,
 } from "./types.js";
 
-type BaseFieldBuilderMethod = "meta" | "operator" | "render";
+type BaseFieldBuilderMethod =
+  | "label"
+  | "icon"
+  | "description"
+  | "placeholder"
+  | "operator"
+  | "render";
 type SelectFieldBuilderMethod =
   | BaseFieldBuilderMethod
   | "options"
@@ -36,8 +42,6 @@ type OmitUsedMethods<Builder, Used extends PropertyKey> = Omit<
   Builder,
   Extract<keyof Builder, Used>
 >;
-
-type BaseBuilderUsed<Used extends string> = Extract<Used, BaseFieldBuilderMethod>;
 declare const fieldBuilderBrand: unique symbol;
 
 export interface AnyFieldBuilder<
@@ -57,14 +61,14 @@ export type BaseFieldBuilder<
 > = AnyFieldBuilder<FieldId, Kind> &
   OmitUsedMethods<
     {
-      meta(
-        meta: Partial<
-          Pick<
-            UIFieldBase<FieldId, Kind>,
-            "label" | "icon" | "description" | "placeholder"
-          >
-        >,
-      ): BaseFieldBuilder<FieldId, Kind, Used | "meta">;
+      label(label: NonNullable<UIFieldBase<FieldId, Kind>["label"]>): BaseFieldBuilder<FieldId, Kind, Used | "label">;
+      icon(icon: NonNullable<UIFieldBase<FieldId, Kind>["icon"]>): BaseFieldBuilder<FieldId, Kind, Used | "icon">;
+      description(
+        description: NonNullable<UIFieldBase<FieldId, Kind>["description"]>,
+      ): BaseFieldBuilder<FieldId, Kind, Used | "description">;
+      placeholder(
+        placeholder: NonNullable<UIFieldBase<FieldId, Kind>["placeholder"]>,
+      ): BaseFieldBuilder<FieldId, Kind, Used | "placeholder">;
       operator(
         ops:
           | readonly OperatorKindFor<Kind>[]
@@ -84,14 +88,14 @@ export type SelectFieldBuilder<
 > = AnyFieldBuilder<FieldId, Kind> &
   OmitUsedMethods<
     {
-      meta(
-        meta: Partial<
-          Pick<
-            UIFieldBase<FieldId, Kind>,
-            "label" | "icon" | "description" | "placeholder"
-          >
-        >,
-      ): SelectFieldBuilder<FieldId, Kind, Used | "meta">;
+      label(label: NonNullable<UIFieldBase<FieldId, Kind>["label"]>): SelectFieldBuilder<FieldId, Kind, Used | "label">;
+      icon(icon: NonNullable<UIFieldBase<FieldId, Kind>["icon"]>): SelectFieldBuilder<FieldId, Kind, Used | "icon">;
+      description(
+        description: NonNullable<UIFieldBase<FieldId, Kind>["description"]>,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "description">;
+      placeholder(
+        placeholder: NonNullable<UIFieldBase<FieldId, Kind>["placeholder"]>,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "placeholder">;
       operator(
         ops:
           | readonly OperatorKindFor<Kind>[]
@@ -121,14 +125,14 @@ export type BooleanFieldBuilder<
 > = AnyFieldBuilder<FieldId, Kind> &
   OmitUsedMethods<
     {
-      meta(
-        meta: Partial<
-          Pick<
-            UIFieldBase<FieldId, Kind>,
-            "label" | "icon" | "description" | "placeholder"
-          >
-        >,
-      ): BooleanFieldBuilder<FieldId, Kind, Used | "meta">;
+      label(label: NonNullable<UIFieldBase<FieldId, Kind>["label"]>): BooleanFieldBuilder<FieldId, Kind, Used | "label">;
+      icon(icon: NonNullable<UIFieldBase<FieldId, Kind>["icon"]>): BooleanFieldBuilder<FieldId, Kind, Used | "icon">;
+      description(
+        description: NonNullable<UIFieldBase<FieldId, Kind>["description"]>,
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "description">;
+      placeholder(
+        placeholder: NonNullable<UIFieldBase<FieldId, Kind>["placeholder"]>,
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "placeholder">;
       operator(
         ops:
           | readonly OperatorKindFor<Kind>[]
@@ -211,21 +215,23 @@ class BuilderBase<
     builderFieldStore.set(this, field as AnyUIField);
   }
 
-  meta({
-    label,
-    icon,
-    description,
-    placeholder,
-  }: Partial<
-    Pick<
-      UIFieldBase<FieldId, Kind>,
-      "label" | "icon" | "description" | "placeholder"
-    >
-  >) {
-    if (label !== undefined) this.#field.label = label;
-    if (icon !== undefined) this.#field.icon = icon;
-    if (description !== undefined) this.#field.description = description;
-    if (placeholder !== undefined) this.#field.placeholder = placeholder;
+  label(label: NonNullable<UIFieldBase<FieldId, Kind>["label"]>) {
+    this.#field.label = label;
+    return this;
+  }
+
+  icon(icon: NonNullable<UIFieldBase<FieldId, Kind>["icon"]>) {
+    this.#field.icon = icon;
+    return this;
+  }
+
+  description(description: NonNullable<UIFieldBase<FieldId, Kind>["description"]>) {
+    this.#field.description = description;
+    return this;
+  }
+
+  placeholder(placeholder: NonNullable<UIFieldBase<FieldId, Kind>["placeholder"]>) {
+    this.#field.placeholder = placeholder;
     return this;
   }
 
