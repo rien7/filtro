@@ -1,11 +1,11 @@
 import { FieldKind, type EnumFieldKind } from "@/logical/field";
 import {
   DateOperatorKind,
-  EmptyOperatorKind,
   NumberOperatorKind,
   type OperatorKindFor,
 } from "@/logical/operator";
 import type { FilterBarValue, FilterBarValueType } from "@/ui/filter-bar/context";
+import { isEmptyOperator } from "@/ui/filter-bar/value";
 import type {
   FlattenedSelectOption,
   SelectKind,
@@ -13,15 +13,6 @@ import type {
   SelectUIField,
   UIFieldForKind,
 } from "@/ui/types";
-
-const EMPTY_OPERATORS = new Set<string>([
-  EmptyOperatorKind.isEmpty,
-  EmptyOperatorKind.isNotEmpty,
-]);
-
-export function isEmptyOperator(operator: string) {
-  return EMPTY_OPERATORS.has(operator);
-}
 
 export function flattenSelectOptions(
   options: SelectOption[],
@@ -153,3 +144,5 @@ export function removeFilterBarValue(values: FilterBarValueType, fieldId: string
   const nextValues = values.filter((value) => value.fieldId !== fieldId);
   return nextValues.length === values.length ? values : nextValues;
 }
+
+export { isEmptyOperator };

@@ -1,16 +1,28 @@
-import { useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+} from "react";
 import { type EnumFieldKind } from "@/logical/field";
 import type { FieldDefinition } from "@/ui/builder";
-import { getUIFieldFromBuilder, isFieldGroupDefinition } from "@/ui/builder";
 import {
   FilterBarContextProvider,
+  type FilterBarContextType,
   type FilterBarValueType,
 } from "@/ui/filter-bar/context";
+import {
+  areFilterBarValuesEqual,
+  resolveFilterBarFields,
+  sanitizeFilterBarValues,
+} from "@/ui/filter-bar/value";
 import {
   FilterBarThemeProvider,
   type FilterBarThemeInput,
 } from "@/ui/filter-bar/theme";
-import type { UIFieldEntry } from "@/ui/types";
 
 export interface FilterBarRootProps<
   FieldId extends string = string,
@@ -20,35 +32,85 @@ export interface FilterBarRootProps<
   children?: ReactNode;
   iconMapping?: boolean | Partial<Record<EnumFieldKind, ReactNode>>;
   theme?: FilterBarThemeInput | null;
+  value?: FilterBarValueType<FieldId, Kind>;
+  defaultValue?: FilterBarValueType<FieldId, Kind>;
+  onValueChange?: (nextValue: FilterBarValueType<FieldId, Kind>) => void;
 }
 
 export function FilterBarRoot<FieldId extends string, Kind extends EnumFieldKind>({
   fields,
   children,
   theme,
+  value,
+  defaultValue,
+  onValueChange,
 }: FilterBarRootProps<FieldId, Kind>) {
-  const uiFieldEntries = fields.map((field) => {
-    if (isFieldGroupDefinition(field)) {
-      return {
-        label: field.label,
-        fields: field.fields.map((groupField) => getUIFieldFromBuilder(groupField)),
-      };
+  const { uiFieldEntries, uiFields } = useMemo(
+    () => resolveFilterBarFields(fields),
+    [fields],
+  );
+  const [uncontrolledValues, setUncontrolledValues] = useState<FilterBarValueType<FieldId, Kind>>(
+    () => sanitizeFilterBarValues(uiFields, defaultValue ?? []),
+  );
+  const isControlled = value !== undefined;
+  const controlledValues = useMemo(
+    () => sanitizeFilterBarValues(uiFields, value ?? []),
+    [uiFields, value],
+  );
+  const values = isControlled ? controlledValues : uncontrolledValues;
+
+  useEffect(() => {
+    if (isControlled) {
+      return;
     }
 
-    return getUIFieldFromBuilder(field);
-  }) as UIFieldEntry<FieldId, Kind>[];
-  const uiFields = uiFieldEntries.flatMap((entry) =>
-    "fields" in entry ? entry.fields : [entry],
+    setUncontrolledValues((previous) => {
+      const sanitizedValues = sanitizeFilterBarValues(uiFields, previous);
+      return areFilterBarValuesEqual(previous, sanitizedValues) ? previous : sanitizedValues;
+    });
+  }, [isControlled, uiFields]);
+
+  const setValues = useCallback<Dispatch<SetStateAction<FilterBarValueType<FieldId, Kind>>>>(
+    (nextState) => {
+      if (isControlled) {
+        const resolvedValue =
+          typeof nextState === "function" ? nextState(controlledValues) : nextState;
+        const sanitizedValues = sanitizeFilterBarValues(uiFields, resolvedValue);
+
+        if (!onValueChange || areFilterBarValuesEqual(controlledValues, sanitizedValues)) {
+          return;
+        }
+
+        onValueChange(sanitizedValues);
+        return;
+      }
+
+      setUncontrolledValues((previous) => {
+        const resolvedValue =
+          typeof nextState === "function" ? nextState(previous) : nextState;
+        const sanitizedValues = sanitizeFilterBarValues(uiFields, resolvedValue);
+
+        if (areFilterBarValuesEqual(previous, sanitizedValues)) {
+          return previous;
+        }
+
+        onValueChange?.(sanitizedValues);
+        return sanitizedValues;
+      });
+    },
+    [controlledValues, isControlled, onValueChange, uiFields],
   );
-  const [values, setValues] = useState<FilterBarValueType>([])
+
   return (
     <FilterBarThemeProvider theme={theme}>
-      <FilterBarContextProvider value={{
-        uiFieldEntries,
-        uiFields,
-        values,
-        setValues
-      }}>
+      <FilterBarContextProvider
+        value={{
+          uiFieldEntries,
+          uiFields,
+          values,
+          setValues,
+        } as unknown as FilterBarContextType}
+      >
         {children}
       </FilterBarContextProvider>
     </FilterBarThemeProvider>
