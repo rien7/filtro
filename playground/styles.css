@@ -35,6 +35,10 @@ h1 {
   padding: 20px;
 }
 
+.card + .card {
+  margin-top: 20px;
+}
+
 .view-switcher {
   display: inline-flex;
   gap: 8px;
@@ -76,6 +80,17 @@ h1 {
   background: #fcfcfd;
 }
 
+.demo-card-accent {
+  background: linear-gradient(180deg, #fbfdff 0%, #f4f8ff 100%);
+  border-color: #c7d7fe;
+}
+
+.demo-card-group {
+  background:
+    radial-gradient(circle at top right, rgba(147, 197, 253, 0.18), transparent 36%),
+    #ffffff;
+}
+
 .demo-card-header {
   margin-bottom: 14px;
 }
@@ -100,6 +115,19 @@ h1 {
 
 .demo-items {
   margin-top: 12px;
+}
+
+.demo-url-preview {
+  overflow-x: auto;
+  margin-bottom: 12px;
+  border: 1px solid #dbe4ff;
+  border-radius: 10px;
+  background: #eef4ff;
+  color: #1e3a8a;
+  padding: 10px 12px;
+  font-family: "SF Mono", "SFMono-Regular", ui-monospace, monospace;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .demo-button {

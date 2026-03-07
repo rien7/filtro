@@ -8,6 +8,7 @@ import {
   filtro,
   type FilterBarThemeInput,
 } from "../src/ui/index";
+import { useNuqsFilterBarState } from "../src/nuqs/index";
 
 function loadAsyncOwners() {
   return new Promise<Array<{ label: string; value: string }>>((resolve) => {
@@ -82,6 +83,49 @@ function DemoCard({
               )
             }
           >
+            Clear
+          </FilterBar.Clear>
+        </div>
+        <FilterBar.Items className="demo-items" />
+      </FilterBar.Root>
+    </section>
+  );
+}
+
+function NuqsDemoCard({
+  fields,
+}: {
+  fields: ReturnType<typeof useFiltroFields>;
+}) {
+  const { onValueChange, value } = useNuqsFilterBarState({
+    fields,
+  });
+  const currentSearch = typeof window === "undefined" ? "" : window.location.search;
+
+  return (
+    <section className="demo-card demo-card-accent">
+      <div className="demo-card-header">
+        <h2>nuqs URL Sync</h2>
+        <p>
+          This FilterBar is controlled by <code>filtro/nuqs</code>. Add, edit, clear,
+          refresh, and use browser back/forward to verify URL round-tripping.
+        </p>
+      </div>
+      <div className="demo-url-preview">{currentSearch || "?demo_=..."}</div>
+      <FilterBar.Root
+        fields={fields}
+        theme={defaultFilterBarTheme}
+        value={value}
+        onValueChange={onValueChange}
+      >
+        <div className="demo-toolbar">
+          <FilterBar.Trigger iconMapping render={<Button variant="outline" />}>
+            <span className="demo-trigger-content">
+              <Filter />
+              Add Filter
+            </span>
+          </FilterBar.Trigger>
+          <FilterBar.Clear render={<Button variant="outline" />}>
             Clear
           </FilterBar.Clear>
         </div>
@@ -218,6 +262,10 @@ export function PlaygroundApp() {
             />
           ) : null}
         </div>
+      </section>
+
+      <section className="card demo-card-group">
+        <NuqsDemoCard fields={fields} />
       </section>
     </main>
   );

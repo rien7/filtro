@@ -25,8 +25,8 @@ export interface FilterBarContextType<
 > {
   uiFieldEntries: UIFieldEntry<FieldId, Kind>[],
   uiFields: UIFieldForKind<FieldId, Kind>[],
-  values: FilterBarValueType,
-  setValues: Dispatch<SetStateAction<FilterBarValueType>> | null,
+  values: FilterBarValueType<FieldId, Kind>,
+  setValues: Dispatch<SetStateAction<FilterBarValueType<FieldId, Kind>>> | null,
 }
 
 const FilterBarContext = createContext<FilterBarContextType>({

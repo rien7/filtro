@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { NuqsAdapter } from "nuqs/adapters/react";
 import { PlaygroundApp } from "./playground-app";
 import "../src/index.css";
 import "./styles.css";
@@ -11,6 +12,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <PlaygroundApp />
+    <NuqsAdapter>
+      <PlaygroundApp />
+    </NuqsAdapter>
   </StrictMode>,
 );

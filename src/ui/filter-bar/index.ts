@@ -38,3 +38,21 @@ export {
   FilterBarContextProvider,
   useFilterBar,
 } from "./context";
+export {
+  areFilterBarValuesEqual,
+  deserializeFilterBarValue,
+  getFilterBarQueryKeys,
+  isEmptyOperator,
+  isFilterBarValueEqual,
+  resolveFilterBarFields,
+  sanitizeFilterBarValue,
+  sanitizeFilterBarValues,
+  serializeFilterBarValue,
+} from "./value";
+export type {
+  FilterBarQueryKeys,
+  FilterBarQueryState,
+  FilterBarQueryStatePrimitive,
+  ResolvedFilterBarFields,
+  SerializedFilterBarValue,
+} from "./value";
