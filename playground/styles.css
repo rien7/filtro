@@ -34,3 +34,92 @@ h1 {
   background: #ffffff;
   padding: 20px;
 }
+
+.view-switcher {
+  display: inline-flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 6px;
+  border: 1px solid #d8dbe2;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.switch-button {
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #4b5563;
+  padding: 8px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.switch-button.active {
+  background: #111827;
+  color: #ffffff;
+}
+
+.demo-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.demo-stack {
+  display: grid;
+}
+
+.demo-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fcfcfd;
+}
+
+.demo-card-header {
+  margin-bottom: 14px;
+}
+
+.demo-card-header h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.demo-card-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.demo-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.demo-items {
+  margin-top: 12px;
+}
+
+.demo-button {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  padding: 8px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.demo-trigger-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (min-width: 920px) {
+  .demo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -14,7 +14,7 @@
   },
   "files": [
     "dist",
-    "src/index.css"
+    "src"
   ],
   "sideEffects": [
     "**/*.css"

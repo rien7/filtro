@@ -11,14 +11,6 @@ export interface FilterValueEditorProps<
   onChange: (value: FilterBarValue<FieldId, Kind>["value"]) => void;
 }
 
-export const FILTER_ITEM_EDITOR_ROOT_CLASS = "flex h-full w-full min-w-0 items-stretch";
-
-export const FILTER_ITEM_EDITOR_CONTROL_CLASS =
-  "h-full min-h-0 w-full rounded-none border-0 px-3 py-0 shadow-none hover:bg-muted focus-visible:ring-0";
-
-export const FILTER_ITEM_EDITOR_SPLIT_CLASS =
-  "grid h-full min-w-0 w-full grid-cols-2 items-stretch [&>*]:h-full";
-
 export function updateTupleValue<T>(value: T[] | null, index: number, nextValue: T) {
   const nextTuple = value ? [...value] : [];
   nextTuple[index] = nextValue;

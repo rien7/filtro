@@ -1,6 +1,7 @@
 import { type EnumFieldKind } from "@/logical/field";
 import { type FilterBarValue, useFilterBar } from "@/ui/filter-bar/context";
 import { removeFilterBarValue } from "@/ui/filter-bar/state";
+import { filterBarThemeSlot, useFilterBarTheme } from "@/ui/filter-bar/theme";
 import { cn } from "@/ui/lib/utils";
 import type { UIFieldForKind } from "@/ui/types";
 
@@ -12,6 +13,7 @@ export function FilterItems({
   className?: string;
 }) {
   const { uiFields, values, setValues } = useFilterBar();
+  const theme = useFilterBarTheme();
   const fieldById = new Map(uiFields.map((field) => [field.id, field] as const));
   const activeItems = values.flatMap((item) => {
     const field = fieldById.get(item.fieldId);
@@ -52,18 +54,22 @@ export function FilterItems({
   if (!activeItems.length) {
     return (
       <div
+        data-theme-slot={filterBarThemeSlot("emptyState")}
         className={cn(
-          "text-muted-foreground flex min-h-24 items-center justify-center rounded-2xl border border-dashed px-4 text-sm",
+          theme.classNames.emptyState,
           className,
         )}
       >
-        Add a filter to start building conditions.
+        {theme.texts.emptyState}
       </div>
     );
   }
 
   return (
-    <div className={cn("flex flex-row flex-wrap gap-3", className)}>
+    <div
+      data-theme-slot={filterBarThemeSlot("itemsRoot")}
+      className={cn(theme.classNames.itemsRoot, className)}
+    >
       {activeItems.map(({ field, item }) => (
         <FilterItemRow
           key={field.id}
