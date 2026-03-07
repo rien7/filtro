@@ -1,25 +1,30 @@
 import { FieldKind } from "@/logical/field";
 import { DateOperatorKind } from "@/logical/operator";
 import { Input } from "@/ui/baseui/input";
+import { filterBarThemeSlot, useFilterBarTheme } from "@/ui/filter-bar/theme";
 
 import type { FilterValueEditorProps } from "./shared";
-import {
-  FILTER_ITEM_EDITOR_CONTROL_CLASS,
-  FILTER_ITEM_EDITOR_ROOT_CLASS,
-  FILTER_ITEM_EDITOR_SPLIT_CLASS,
-  getToday,
-  updateTupleValue,
-} from "./shared";
+import { getToday, updateTupleValue } from "./shared";
 
 export function DateValueEditor<FieldId extends string>({
   item,
   onChange,
 }: FilterValueEditorProps<FieldId, typeof FieldKind.date>) {
-  if (item.operator === DateOperatorKind.lastNDays || item.operator === DateOperatorKind.nextNDays) {
+  const theme = useFilterBarTheme();
+
+  if (
+    item.operator === DateOperatorKind.lastNDays ||
+    item.operator === DateOperatorKind.nextNDays
+  ) {
     return (
-      <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
+      <div
+        data-theme-slot={filterBarThemeSlot("editorRoot")}
+        className={theme.classNames.editorRoot}
+      >
         <Input
-          className={FILTER_ITEM_EDITOR_CONTROL_CLASS}
+          data-theme-slot={filterBarThemeSlot("editorControl")}
+          unstyled={theme.unstyledPrimitives}
+          className={theme.classNames.editorControl}
           type="number"
           min="1"
           value={typeof item.value === "number" ? String(item.value) : "7"}
@@ -29,23 +34,40 @@ export function DateValueEditor<FieldId extends string>({
     );
   }
 
-  if (item.operator === DateOperatorKind.between || item.operator === DateOperatorKind.notBetween) {
+  if (
+    item.operator === DateOperatorKind.between ||
+    item.operator === DateOperatorKind.notBetween
+  ) {
     const tuple = Array.isArray(item.value) ? item.value : [getToday(), getToday()];
 
     return (
-      <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
-        <div className={FILTER_ITEM_EDITOR_SPLIT_CLASS}>
+      <div
+        data-theme-slot={filterBarThemeSlot("editorRoot")}
+        className={theme.classNames.editorRoot}
+      >
+        <div
+          data-theme-slot={filterBarThemeSlot("editorSplit")}
+          className={theme.classNames.editorSplit}
+        >
           <Input
-            className={FILTER_ITEM_EDITOR_CONTROL_CLASS}
+            data-theme-slot={filterBarThemeSlot("editorControl")}
+            unstyled={theme.unstyledPrimitives}
+            className={theme.classNames.editorControl}
             type="date"
             value={tuple[0] ?? getToday()}
-            onChange={(event) => onChange(updateTupleValue(tuple, 0, event.currentTarget.value))}
+            onChange={(event) =>
+              onChange(updateTupleValue(tuple, 0, event.currentTarget.value))
+            }
           />
           <Input
-            className={`${FILTER_ITEM_EDITOR_CONTROL_CLASS} border-l`}
+            data-theme-slot={filterBarThemeSlot("editorControl")}
+            unstyled={theme.unstyledPrimitives}
+            className={theme.classNames.editorControl}
             type="date"
             value={tuple[1] ?? getToday()}
-            onChange={(event) => onChange(updateTupleValue(tuple, 1, event.currentTarget.value))}
+            onChange={(event) =>
+              onChange(updateTupleValue(tuple, 1, event.currentTarget.value))
+            }
           />
         </div>
       </div>
@@ -53,9 +75,14 @@ export function DateValueEditor<FieldId extends string>({
   }
 
   return (
-    <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
+    <div
+      data-theme-slot={filterBarThemeSlot("editorRoot")}
+      className={theme.classNames.editorRoot}
+    >
       <Input
-        className={FILTER_ITEM_EDITOR_CONTROL_CLASS}
+        data-theme-slot={filterBarThemeSlot("editorControl")}
+        unstyled={theme.unstyledPrimitives}
+        className={theme.classNames.editorControl}
         type="date"
         value={typeof item.value === "string" ? item.value : getToday()}
         onChange={(event) => onChange(event.currentTarget.value)}

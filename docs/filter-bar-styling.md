@@ -1,0 +1,195 @@
+# FilterBar Styling And Themes
+
+`FilterBar` 现在默认以 headless 模式运行。
+
+这意味着：
+
+- 不传 `theme` 时，`FilterBar` 只保留交互、状态和结构，不附带内部视觉样式。
+- 想使用库内置的样式，需要显式传入 `defaultFilterBarTheme`。
+- 想继续用默认配色 token，需要同时引入 `filtro/ui.css`。
+
+当前这份 `ui.css` 仍然是 Tailwind CSS v4 source file，不是预编译后的静态 CSS。
+
+## 1. Headless 用法
+
+```tsx
+import { FilterBar, filtro } from "filtro";
+
+const fields = [
+  filtro.string("keyword").meta({ label: "Keyword" }),
+  filtro.select("status").meta({ label: "Status" }).options([
+    { label: "Open", value: "open" },
+    { label: "Closed", value: "closed" },
+  ]),
+];
+
+export function HeadlessExample() {
+  return (
+    <FilterBar.Root fields={fields}>
+      <FilterBar.Trigger render={<button type="button" />}>
+        Add Filter
+      </FilterBar.Trigger>
+      <FilterBar.Clear render={<button type="button" />}>
+        Clear
+      </FilterBar.Clear>
+      <FilterBar.Items />
+    </FilterBar.Root>
+  );
+}
+```
+
+这种模式下，库内部的 `Button`、`Select`、`DropdownMenu` primitive 都会走 `unstyled` 分支，FilterBar 自己的 row / empty state / menu 也不会再附带默认 class。
+
+## 2. 启用默认主题
+
+```tsx
+import "filtro/ui.css";
+import {
+  Button,
+  defaultFilterBarTheme,
+  FilterBar,
+  filtro,
+} from "filtro";
+
+export function DefaultThemeExample() {
+  return (
+    <FilterBar.Root fields={fields} theme={defaultFilterBarTheme}>
+      <FilterBar.Trigger iconMapping render={<Button variant="outline" />}>
+        Add Filter
+      </FilterBar.Trigger>
+      <FilterBar.Clear render={<Button variant="outline" />}>
+        Clear
+      </FilterBar.Clear>
+      <FilterBar.Items />
+    </FilterBar.Root>
+  );
+}
+```
+
+`defaultFilterBarTheme` 做了两件事：
+
+- 打开内部 primitive 的默认样式。
+- 给 FilterBar 自己的 slot 注入当前这套默认布局 class。
+
+## 3. 只改一部分样式
+
+使用 `mergeFilterBarTheme` 从默认主题增量覆盖即可。
+
+```tsx
+import "filtro/ui.css";
+import {
+  defaultFilterBarTheme,
+  FilterBar,
+  mergeFilterBarTheme,
+} from "filtro";
+
+const compactTheme = mergeFilterBarTheme(defaultFilterBarTheme, {
+  classNames: {
+    itemsRoot: "flex flex-wrap gap-2",
+    row: "h-8",
+    rowRemoveButton: "h-full min-h-0 px-2 !border-l text-red-600",
+    selectContent: "rounded-md border shadow-lg",
+  },
+});
+
+export function CompactExample() {
+  return <FilterBar.Root fields={fields} theme={compactTheme}>...</FilterBar.Root>;
+}
+```
+
+`theme` 是按层 merge 的：
+
+- `unstyledPrimitives`
+- `classNames`
+- `texts`
+- `icons`
+
+每个可主题化的 DOM 节点还会带一个 `data-theme-slot` 属性，值和 `FilterBarThemeClassNameSlot` 完全对齐。
+
+当一个节点同时承载多个 slot 时，这个属性会是空格分隔的 token 列表，例如：
+
+```css
+[data-theme-slot~="rowRemoveButton"] {
+  color: red;
+}
+
+[data-theme-slot~="editorControl"] {
+  min-height: 2rem;
+}
+```
+
+## 4. 可覆盖的主题字段
+
+### `unstyledPrimitives`
+
+- `true`: 内部 primitive 不附带默认视觉样式。
+- `false`: 内部 primitive 使用库内置样式。
+
+### `texts`
+
+可替换这些文案：
+
+- `emptyState`
+- `searchFieldsPlaceholder`
+- `searchOptionsPlaceholder`
+- `loadingOptions`
+- `failedToLoadOptions`
+- `noOptions`
+- `noMatchingFields`
+- `booleanTrueFallback`
+- `booleanFalseFallback`
+- `removeLabelFallback`
+
+### `icons`
+
+- `remove`
+- `fieldKinds`
+
+`fieldKinds` 会在 `FilterBar.Trigger` 传入 `iconMapping={true}` 时作为默认字段图标映射。
+
+### `classNames`
+
+目前支持这些 slot：
+
+- `itemsRoot`
+- `emptyState`
+- `row`
+- `rowField`
+- `rowFieldText`
+- `rowOperatorTrigger`
+- `rowOperatorText`
+- `rowValue`
+- `rowRemoveButton`
+- `triggerMenuContent`
+- `triggerMenuSeparator`
+- `triggerGroupLabel`
+- `triggerFieldItem`
+- `triggerSubmenuTrigger`
+- `triggerSubmenuContent`
+- `triggerEmptyItem`
+- `selectTrigger`
+- `selectContent`
+- `selectItem`
+- `selectSearchInput`
+- `selectSeparator`
+- `editorRoot`
+- `editorControl`
+- `editorSplit`
+- `booleanTrueButton`
+- `booleanFalseButton`
+
+## 5. 什么时候需要 `ui.css`
+
+只有在你使用默认主题，或者想复用库里现在这套 `background / border / accent / destructive` token 时，才需要引入 `filtro/ui.css`。
+
+为了让第三方项目能扫描到默认主题 preset 里用到的 Tailwind class，包发布时会保留 `src` 目录。这样 `ui.css` 中的 `@source "./**/*.{ts,tsx}"` 能在消费端继续找到这些 class 定义。
+
+如果你完全按 headless 模式使用，并且自己提供所有样式，可以不引入这个 CSS 文件。
+
+如果消费端没有 Tailwind v4 编译链路，这份默认主题 CSS 目前不会自动工作；这种情况下需要你自己提供样式，或者后续把默认主题改成预编译 CSS 产物。
+
+## 6. 设计建议
+
+- 想保留现有视觉风格时，用 `defaultFilterBarTheme` 作为 base，再增量覆盖。
+- 想接入自己的 design system 时，优先保持 `unstyledPrimitives: true`，然后从 `classNames` 开始接管。
+- 如果后面需要更深层的结构替换，再继续往 `components`/render slot 方向扩展，不要把更多视觉 class 重新写回 `FilterBar` 组件内部。

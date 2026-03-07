@@ -1,7 +1,13 @@
-import { useMemo } from "react";
-import { FilterBar, filtro } from "../src/ui/index";
-import { Button } from "../src/ui/baseui/button";
+import { useMemo, useState } from "react";
 import { Filter } from "lucide-react";
+
+import {
+  Button,
+  defaultFilterBarTheme,
+  FilterBar,
+  filtro,
+  type FilterBarThemeInput,
+} from "../src/ui/index";
 
 function loadAsyncOwners() {
   return new Promise<Array<{ label: string; value: string }>>((resolve) => {
@@ -15,8 +21,64 @@ function loadAsyncOwners() {
   });
 }
 
-export function PlaygroundApp() {
-  const fields = useMemo(
+type DemoView = "headless" | "default" | "both";
+
+function DemoCard({
+  title,
+  description,
+  fields,
+  theme,
+  styled,
+}: {
+  title: string;
+  description: string;
+  fields: ReturnType<typeof useFiltroFields>;
+  theme?: FilterBarThemeInput | null;
+  styled: boolean;
+}) {
+  return (
+    <section className="demo-card">
+      <div className="demo-card-header">
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+      <FilterBar.Root fields={fields} theme={theme}>
+        <div className="demo-toolbar">
+          <FilterBar.Trigger
+            iconMapping={styled}
+            render={
+              styled ? (
+                <Button variant="outline" />
+              ) : (
+                <button type="button" className="demo-button" />
+              )
+            }
+          >
+            <span className="demo-trigger-content">
+              {styled ? <Filter /> : null}
+              Add Filter
+            </span>
+          </FilterBar.Trigger>
+          <FilterBar.Clear
+            render={
+              styled ? (
+                <Button variant="outline" />
+              ) : (
+                <button type="button" className="demo-button" />
+              )
+            }
+          >
+            Clear
+          </FilterBar.Clear>
+        </div>
+        <FilterBar.Items className="demo-items" />
+      </FilterBar.Root>
+    </section>
+  );
+}
+
+function useFiltroFields() {
+  return useMemo(
     () => [
       filtro.group("Basic", [
         filtro.string("keyword")
@@ -52,26 +114,66 @@ export function PlaygroundApp() {
     ],
     [],
   );
+}
+
+export function PlaygroundApp() {
+  const fields = useFiltroFields();
+  const [view, setView] = useState<DemoView>("both");
+  const showHeadless = view === "headless" || view === "both";
+  const showDefault = view === "default" || view === "both";
 
   return (
     <main className="playground">
       <h1>Filtro UI Playground</h1>
-      <p className="sub">Use this page to debug src/ui components with HMR.</p>
+      <p className="sub">
+        Compare the headless FilterBar with the default themed preset and use
+        this page to debug the UI with HMR.
+      </p>
+
+      <div className="view-switcher" role="group" aria-label="Choose playground view">
+        <button
+          type="button"
+          className={view === "headless" ? "switch-button active" : "switch-button"}
+          onClick={() => setView("headless")}
+        >
+          Headless Only
+        </button>
+        <button
+          type="button"
+          className={view === "default" ? "switch-button active" : "switch-button"}
+          onClick={() => setView("default")}
+        >
+          Default Theme Only
+        </button>
+        <button
+          type="button"
+          className={view === "both" ? "switch-button active" : "switch-button"}
+          onClick={() => setView("both")}
+        >
+          Show Both
+        </button>
+      </div>
+
       <section className="card">
-        <FilterBar.Root fields={fields}>
-          <span className="grid grid-cols-[auto_auto] items-center w-fit gap-2">
-            <FilterBar.Trigger iconMapping render={<Button variant="outline" />}>
-              <span className="grid grid-cols-[auto_1fr] gap-1.5 items-center">
-                <Filter />
-                Filter
-              </span>
-            </FilterBar.Trigger>
-            <FilterBar.Clear render={<Button variant="outline" />}>
-              Clear
-            </FilterBar.Clear>
-          </span>
-          <FilterBar.Items className="mt-2" />
-        </FilterBar.Root>
+        <div className={view === "both" ? "demo-grid" : "demo-stack"}>
+          {showHeadless ? (
+            <DemoCard
+              title="Headless"
+              description="No FilterBar theme preset. Internal controls render with no visual classes."
+              fields={fields}
+              styled={false}
+            />
+          ) : null}
+          {showDefault ? (
+            <DemoCard
+              title="Default Theme"
+              description="Uses defaultFilterBarTheme and the exported styled Button primitive."
+              fields={fields}
+              theme={defaultFilterBarTheme}
+              styled
+            />
+          ) : null}
+        </div>
       </section>
     </main>
   );

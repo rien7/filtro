@@ -9,19 +9,18 @@ import {
   SelectValue,
 } from "@/ui/baseui/select";
 import { useSelectableFieldOptions } from "@/ui/filter-bar/select-options";
+import { filterBarThemeSlot, useFilterBarTheme } from "@/ui/filter-bar/theme";
+import { cn } from "@/ui/lib/utils";
 
 import type { FilterValueEditorProps } from "./shared";
-import {
-  FILTER_ITEM_EDITOR_CONTROL_CLASS,
-  FILTER_ITEM_EDITOR_ROOT_CLASS,
-  getOptionLabel,
-} from "./shared";
+import { getOptionLabel } from "./shared";
 
 export function SelectValueEditor<FieldId extends string>({
   field,
   item,
   onChange,
 }: FilterValueEditorProps<FieldId, typeof FieldKind.select>) {
+  const theme = useFilterBarTheme();
   const currentValue = item.value as string | null;
   const {
     displayOptions,
@@ -40,14 +39,24 @@ export function SelectValueEditor<FieldId extends string>({
   const value = typeof currentValue === "string" ? currentValue : null;
 
   return (
-    <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
+    <div
+      data-theme-slot={filterBarThemeSlot("editorRoot")}
+      className={theme.classNames.editorRoot}
+    >
       <Select<string>
         open={open}
         value={value}
         onOpenChange={handleOpenChange}
         onValueChange={onChange}
       >
-        <SelectTrigger className={FILTER_ITEM_EDITOR_CONTROL_CLASS}>
+        <SelectTrigger
+          data-theme-slot={filterBarThemeSlot("selectTrigger", "editorControl")}
+          unstyled={theme.unstyledPrimitives}
+          className={cn(
+            theme.classNames.selectTrigger,
+            theme.classNames.editorControl,
+          )}
+        >
           <SelectValue>
             {(selectedValue) =>
               getOptionLabel(
@@ -59,41 +68,82 @@ export function SelectValueEditor<FieldId extends string>({
             }
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent
+          data-theme-slot={filterBarThemeSlot("selectContent")}
+          unstyled={theme.unstyledPrimitives}
+          className={theme.classNames.selectContent}
+        >
           {isSearchEnabled ? (
             <>
               <SelectSearchInput
+                data-theme-slot={filterBarThemeSlot("selectSearchInput")}
+                unstyled={theme.unstyledPrimitives}
                 value={query}
-                placeholder="Search options..."
+                className={theme.classNames.selectSearchInput}
+                placeholder={theme.texts.searchOptionsPlaceholder}
                 onChange={(event) => setQuery(event.currentTarget.value)}
                 onKeyDown={(event) => event.stopPropagation()}
               />
-              <SelectSeparator />
+              <SelectSeparator
+                data-theme-slot={filterBarThemeSlot("selectSeparator")}
+                unstyled={theme.unstyledPrimitives}
+                className={theme.classNames.selectSeparator}
+              />
             </>
           ) : null}
           {status === "loading" ? (
-            <SelectItem disabled value="__loading__">
-              Loading options...
+            <SelectItem
+              disabled
+              value="__loading__"
+              data-theme-slot={filterBarThemeSlot("selectItem")}
+              unstyled={theme.unstyledPrimitives}
+              className={theme.classNames.selectItem}
+            >
+              {theme.texts.loadingOptions}
             </SelectItem>
           ) : status === "error" ? (
-            <SelectItem disabled value="__error__">
-              {error?.message ?? "Failed to load options"}
+            <SelectItem
+              disabled
+              value="__error__"
+              data-theme-slot={filterBarThemeSlot("selectItem")}
+              unstyled={theme.unstyledPrimitives}
+              className={theme.classNames.selectItem}
+            >
+              {error?.message ?? theme.texts.failedToLoadOptions}
             </SelectItem>
           ) : visibleOptions.length > 0 ? (
             visibleOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem
+                key={option.value}
+                value={option.value}
+                data-theme-slot={filterBarThemeSlot("selectItem")}
+                unstyled={theme.unstyledPrimitives}
+                className={theme.classNames.selectItem}
+              >
                 {option.label}
               </SelectItem>
             ))
           ) : (
-            <SelectItem disabled value="__empty__">
-              No options
+            <SelectItem
+              disabled
+              value="__empty__"
+              data-theme-slot={filterBarThemeSlot("selectItem")}
+              unstyled={theme.unstyledPrimitives}
+              className={theme.classNames.selectItem}
+            >
+              {theme.texts.noOptions}
             </SelectItem>
           )}
           {selectedOptions
             .filter((option) => !visibleOptions.some((entry) => entry.value === option.value))
             .map((option) => (
-              <SelectItem key={`${option.value}__hidden`} value={option.value} className="hidden">
+              <SelectItem
+                key={`${option.value}__hidden`}
+                value={option.value}
+                data-theme-slot={filterBarThemeSlot("selectItem")}
+                unstyled={theme.unstyledPrimitives}
+                className={cn(theme.classNames.selectItem, "hidden")}
+              >
                 {option.label}
               </SelectItem>
             ))}

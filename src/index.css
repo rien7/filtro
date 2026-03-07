@@ -66,12 +66,6 @@
   --radius-lg: var(--radius);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-}
-
 @layer utilities {
   [dir="rtl"] .cn-rtl-flip {
     transform: rotate(180deg);

@@ -39,12 +39,16 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  unstyled = false,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants> & {
+    unstyled?: boolean;
+  }) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(!unstyled && buttonVariants({ variant, size }), className)}
       {...props}
     />
   )

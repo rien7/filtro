@@ -25,14 +25,18 @@ const buttonGroupVariants = cva(
 function ButtonGroup({
   className,
   orientation,
+  unstyled = false,
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof buttonGroupVariants>) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof buttonGroupVariants> & {
+    unstyled?: boolean;
+  }) {
   return (
     <div
       role="group"
       data-slot="button-group"
       data-orientation={orientation}
-      className={cn(buttonGroupVariants({ orientation }), className)}
+      className={cn(!unstyled && buttonGroupVariants({ orientation }), className)}
       {...props}
     />
   )
@@ -41,14 +45,18 @@ function ButtonGroup({
 function ButtonGroupText({
   className,
   render,
+  unstyled = false,
   ...props
-}: useRender.ComponentProps<"div">) {
+}: useRender.ComponentProps<"div"> & {
+  unstyled?: boolean;
+}) {
   return useRender({
     defaultTagName: "div",
     props: mergeProps<"div">(
       {
         className: cn(
-          "bg-muted gap-2 rounded-lg border px-2.5 text-sm font-medium [&_svg:not([class*='size-'])]:size-4 flex items-center [&_svg]:pointer-events-none",
+          !unstyled &&
+            "bg-muted gap-2 rounded-lg border px-2.5 text-sm font-medium [&_svg:not([class*='size-'])]:size-4 flex items-center [&_svg]:pointer-events-none",
           className
         ),
       },
@@ -64,14 +72,19 @@ function ButtonGroupText({
 function ButtonGroupSeparator({
   className,
   orientation = "vertical",
+  unstyled = false,
   ...props
-}: React.ComponentProps<typeof Separator>) {
+}: React.ComponentProps<typeof Separator> & {
+  unstyled?: boolean;
+}) {
   return (
     <Separator
       data-slot="button-group-separator"
       orientation={orientation}
+      unstyled={unstyled}
       className={cn(
-        "bg-input relative self-stretch data-horizontal:mx-px data-horizontal:w-auto data-vertical:my-px data-vertical:h-auto",
+        !unstyled &&
+          "bg-input relative self-stretch data-horizontal:mx-px data-horizontal:w-auto data-vertical:my-px data-vertical:h-auto",
         className
       )}
       {...props}

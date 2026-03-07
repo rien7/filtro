@@ -3,7 +3,6 @@ import { type OperatorKindFor } from "@/logical/operator";
 import { Button } from "@/ui/baseui/button";
 import {
   ButtonGroup,
-  ButtonGroupSeparator,
   ButtonGroupText,
 } from "@/ui/baseui/button-group";
 import {
@@ -15,8 +14,9 @@ import {
 } from "@/ui/baseui/select";
 import type { FilterBarValue } from "@/ui/filter-bar/context";
 import { isEmptyOperator, normalizeValueForOperator } from "@/ui/filter-bar/state";
+import { filterBarThemeSlot, useFilterBarTheme } from "@/ui/filter-bar/theme";
+import { cn } from "@/ui/lib/utils";
 import type { UIFieldForKind } from "@/ui/types";
-import { X } from "lucide-react";
 
 import { OPERATOR_LABELS } from "./items.constants";
 import { FilterValueEditor } from "./items.value-editor";
@@ -32,13 +32,25 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
   onUpdate: (updater: (current: FilterBarValue<FieldId, Kind>) => FilterBarValue<FieldId, Kind>) => void;
   onRemove: () => void;
 }) {
+  const theme = useFilterBarTheme();
   const operatorLabel = OPERATOR_LABELS[item.operator] ?? item.operator;
   const hasMultipleOperators = field.allowedOperators.length > 1;
 
   return (
-    <ButtonGroup className="h-9 md:flex-nowrap">
-      <ButtonGroupText className="h-full bg-background border-r-0 select-none">
-        <span className="block truncate text-sm font-medium">
+    <ButtonGroup
+      data-theme-slot={filterBarThemeSlot("row")}
+      unstyled={theme.unstyledPrimitives}
+      className={theme.classNames.row}
+    >
+      <ButtonGroupText
+        data-theme-slot={filterBarThemeSlot("rowField")}
+        unstyled={theme.unstyledPrimitives}
+        className={theme.classNames.rowField}
+      >
+        <span
+          data-theme-slot={filterBarThemeSlot("rowFieldText")}
+          className={theme.classNames.rowFieldText}
+        >
           {field.label ?? field.id}
         </span>
       </ButtonGroupText>
@@ -60,24 +72,43 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
           }
         >
           <SelectTrigger
-            className="h-full w-fit shadow-none font-normal !border-l text-muted-foreground"
-            render={<Button variant="outline" />}
+            data-theme-slot={filterBarThemeSlot("selectTrigger", "rowOperatorTrigger")}
+            unstyled={theme.unstyledPrimitives}
+            className={cn(
+              theme.classNames.selectTrigger,
+              theme.classNames.rowOperatorTrigger,
+            )}
+            render={<Button unstyled={theme.unstyledPrimitives} variant="outline" />}
           >
             <SelectValue>
               {(value) => OPERATOR_LABELS[String(value)] ?? String(value ?? "")}
             </SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent
+            data-theme-slot={filterBarThemeSlot("selectContent")}
+            unstyled={theme.unstyledPrimitives}
+            className={theme.classNames.selectContent}
+          >
             {field.allowedOperators.map((operator) => (
-              <SelectItem key={operator} value={operator}>
+              <SelectItem
+                key={operator}
+                value={operator}
+                data-theme-slot={filterBarThemeSlot("selectItem")}
+                unstyled={theme.unstyledPrimitives}
+                className={theme.classNames.selectItem}
+              >
                 {OPERATOR_LABELS[operator] ?? operator}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       ) : (
-          <ButtonGroupText className="h-full select-none w-fit bg-background px-3 py-2 font-normal !border-l text-muted-foreground">
-          <span className="block whitespace-nowrap">{operatorLabel}</span>
+        <ButtonGroupText
+          data-theme-slot={filterBarThemeSlot("rowOperatorText")}
+          unstyled={theme.unstyledPrimitives}
+          className={theme.classNames.rowOperatorText}
+        >
+          <span>{operatorLabel}</span>
         </ButtonGroupText>
       )}
 
@@ -85,7 +116,8 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
         <>
           <div
             data-slot="button-group-text"
-            className="flex h-full min-w-0 grow overflow-hidden border border-border bg-background border-r-0"
+            data-theme-slot={filterBarThemeSlot("rowValue")}
+            className={theme.classNames.rowValue}
           >
             <FilterValueEditor
               field={field}
@@ -102,13 +134,15 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
       )}
 
       <Button
+        data-theme-slot={filterBarThemeSlot("rowRemoveButton")}
+        unstyled={theme.unstyledPrimitives}
         variant="outline"
         size="lg"
         aria-label={`Remove ${field.label ?? field.id} filter`}
         onClick={onRemove}
-        className="h-full min-h-0 px-2.5 !border-l hover:bg-destructive/20 hover:text-destructive focus-visible:border-destructive/40 hover:border-destructive/30"
+        className={theme.classNames.rowRemoveButton}
       >
-        <X className="size-4" />
+        {theme.icons.remove ?? theme.texts.removeLabelFallback}
       </Button>
     </ButtonGroup>
   );

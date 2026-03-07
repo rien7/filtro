@@ -19,6 +19,7 @@ export * from "./baseui/switch";
 export * from "./filter-bar";
 export type {
   BooleanOptions,
+  BooleanUIField,
   SelectKind,
   SelectOptionLoader,
   SelectOption,

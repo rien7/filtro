@@ -1,20 +1,8 @@
 import { Fragment, useDeferredValue, useMemo, useState, type ReactNode } from "react";
+
+import type { MenuTrigger } from "@base-ui/react";
+
 import { FieldKind, type EnumFieldKind } from "@/logical/field";
-import {
-  CalendarIcon,
-  CheckSquareIcon,
-  HashIcon,
-  ListChecksIcon,
-  ToggleLeftIcon,
-  TypeIcon,
-} from "lucide-react";
-import type {
-  SelectKind,
-  SelectOption,
-  SelectUIField,
-  UIFieldEntry,
-  UIFieldForKind,
-} from "@/ui/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,10 +17,21 @@ import {
   DropdownMenuTrigger,
 } from "@/ui/baseui/dropdown-menu";
 import { SelectSearchInput, SelectSeparator } from "@/ui/baseui/select";
-import type { MenuTrigger } from "@base-ui/react";
 import { type FilterBarValueType, useFilterBar } from "@/ui/filter-bar/context";
 import { useSelectableFieldOptions } from "@/ui/filter-bar/select-options";
 import { createFilterBarValue, upsertFilterBarValue } from "@/ui/filter-bar/state";
+import {
+  filterBarThemeSlot,
+  useFilterBarTheme,
+  type FilterBarTheme,
+} from "@/ui/filter-bar/theme";
+import type {
+  SelectKind,
+  SelectOption,
+  SelectUIField,
+  UIFieldEntry,
+  UIFieldForKind,
+} from "@/ui/types";
 
 function isSelectionKind<FieldId extends string, Kind extends EnumFieldKind>(
   field: UIFieldForKind<FieldId, Kind>,
@@ -43,24 +42,18 @@ function isSelectionKind<FieldId extends string, Kind extends EnumFieldKind>(
   return field.kind === FieldKind.select || field.kind === FieldKind.multiSelect;
 }
 
-const DEFAULT_FIELD_ICON_MAPPING: Record<EnumFieldKind, ReactNode> = {
-  [FieldKind.string]: <TypeIcon />,
-  [FieldKind.number]: <HashIcon />,
-  [FieldKind.date]: <CalendarIcon />,
-  [FieldKind.select]: <CheckSquareIcon />,
-  [FieldKind.multiSelect]: <ListChecksIcon />,
-  [FieldKind.boolean]: <ToggleLeftIcon />,
-};
-
 function resolveIconMapping(
   mapping: boolean | Partial<Record<EnumFieldKind, ReactNode>>,
+  themeFieldKinds: Partial<Record<EnumFieldKind, ReactNode>> | undefined,
 ): Partial<Record<EnumFieldKind, ReactNode>> | null {
   if (mapping === true) {
-    return DEFAULT_FIELD_ICON_MAPPING;
+    return themeFieldKinds ?? null;
   }
+
   if (mapping && typeof mapping === "object") {
     return mapping;
   }
+
   return null;
 }
 
@@ -96,16 +89,25 @@ function renderSelectOption<FieldId extends string, Kind extends SelectKind>({
   option,
   keyPath,
   onSelect,
+  theme,
 }: {
   field: SelectUIField<FieldId, Kind>;
   option: SelectOption;
   keyPath: string;
   onSelect: (field: SelectUIField<FieldId, Kind>, value: string) => void;
+  theme: FilterBarTheme;
 }): ReactNode {
   const hasChildren = !!option.children?.length;
+
   if (!hasChildren) {
     return (
-      <DropdownMenuItem key={keyPath} onClick={() => onSelect(field, option.value)}>
+      <DropdownMenuItem
+        key={keyPath}
+        onClick={() => onSelect(field, option.value)}
+        data-theme-slot={filterBarThemeSlot("triggerFieldItem")}
+        unstyled={theme.unstyledPrimitives}
+        className={theme.classNames.triggerFieldItem}
+      >
         {option.prefix}
         {option.label}
       </DropdownMenuItem>
@@ -114,18 +116,27 @@ function renderSelectOption<FieldId extends string, Kind extends SelectKind>({
 
   return (
     <DropdownMenuSub key={keyPath}>
-      <DropdownMenuSubTrigger>
+      <DropdownMenuSubTrigger
+        data-theme-slot={filterBarThemeSlot("triggerSubmenuTrigger")}
+        unstyled={theme.unstyledPrimitives}
+        className={theme.classNames.triggerSubmenuTrigger}
+      >
         {option.prefix}
         {option.label}
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal>
-        <DropdownMenuSubContent>
+        <DropdownMenuSubContent
+          data-theme-slot={filterBarThemeSlot("triggerSubmenuContent")}
+          unstyled={theme.unstyledPrimitives}
+          className={theme.classNames.triggerSubmenuContent}
+        >
           {option.children?.map((child, index) =>
             renderSelectOption({
               field,
               option: child,
               keyPath: `${keyPath}.${index}`,
               onSelect,
+              theme,
             }),
           )}
         </DropdownMenuSubContent>
@@ -143,6 +154,7 @@ function TriggerSelectionField<FieldId extends string, Kind extends SelectKind>(
   handleSelectField: (field: SelectUIField<FieldId, Kind>, value: string) => void;
   resolvedIconMapping: Partial<Record<EnumFieldKind, ReactNode>> | null;
 }) {
+  const theme = useFilterBarTheme();
   const {
     error,
     handleOpenChange,
@@ -155,45 +167,76 @@ function TriggerSelectionField<FieldId extends string, Kind extends SelectKind>(
   } = useSelectableFieldOptions(field);
 
   return (
-    <DropdownMenuSub
-      key={field.id}
-      open={open}
-      onOpenChange={handleOpenChange}
-    >
-      <DropdownMenuSubTrigger>
+    <DropdownMenuSub key={field.id} open={open} onOpenChange={handleOpenChange}>
+      <DropdownMenuSubTrigger
+        data-theme-slot={filterBarThemeSlot("triggerSubmenuTrigger")}
+        unstyled={theme.unstyledPrimitives}
+        className={theme.classNames.triggerSubmenuTrigger}
+      >
         {renderFieldIcon(field, resolvedIconMapping)}
         {field.label ?? field.id}
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal>
-        <DropdownMenuSubContent>
+        <DropdownMenuSubContent
+          data-theme-slot={filterBarThemeSlot("triggerSubmenuContent")}
+          unstyled={theme.unstyledPrimitives}
+          className={theme.classNames.triggerSubmenuContent}
+        >
           {isSearchEnabled ? (
             <>
               <SelectSearchInput
+                data-theme-slot={filterBarThemeSlot("selectSearchInput")}
+                unstyled={theme.unstyledPrimitives}
                 value={query}
-                placeholder="Search options..."
+                className={theme.classNames.selectSearchInput}
+                placeholder={theme.texts.searchOptionsPlaceholder}
                 onChange={(event) => setQuery(event.currentTarget.value)}
                 onKeyDown={(event) => event.stopPropagation()}
               />
-              <SelectSeparator />
+              <SelectSeparator
+                data-theme-slot={filterBarThemeSlot("selectSeparator")}
+                unstyled={theme.unstyledPrimitives}
+                className={theme.classNames.selectSeparator}
+              />
             </>
           ) : null}
           {status === "loading" ? (
-            <DropdownMenuItem disabled>Loading options...</DropdownMenuItem>
+            <DropdownMenuItem
+              disabled
+              data-theme-slot={filterBarThemeSlot("triggerEmptyItem")}
+              unstyled={theme.unstyledPrimitives}
+              className={theme.classNames.triggerEmptyItem}
+            >
+              {theme.texts.loadingOptions}
+            </DropdownMenuItem>
           ) : status === "error" ? (
-            <DropdownMenuItem disabled>
-              {error?.message ?? "Failed to load options"}
+            <DropdownMenuItem
+              disabled
+              data-theme-slot={filterBarThemeSlot("triggerEmptyItem")}
+              unstyled={theme.unstyledPrimitives}
+              className={theme.classNames.triggerEmptyItem}
+            >
+              {error?.message ?? theme.texts.failedToLoadOptions}
             </DropdownMenuItem>
           ) : visibleTreeOptions.length > 0 ? (
-            visibleTreeOptions.map((option: SelectOption, index: number) =>
+            visibleTreeOptions.map((option, index) =>
               renderSelectOption({
                 field,
                 option,
                 keyPath: `${String(field.id)}.${index}`,
                 onSelect: handleSelectField,
+                theme,
               }),
             )
           ) : (
-            <DropdownMenuItem disabled>No options</DropdownMenuItem>
+            <DropdownMenuItem
+              disabled
+              data-theme-slot={filterBarThemeSlot("triggerEmptyItem")}
+              unstyled={theme.unstyledPrimitives}
+              className={theme.classNames.triggerEmptyItem}
+            >
+              {theme.texts.noOptions}
+            </DropdownMenuItem>
           )}
         </DropdownMenuSubContent>
       </DropdownMenuPortal>
@@ -204,6 +247,7 @@ function TriggerSelectionField<FieldId extends string, Kind extends SelectKind>(
 function renderFieldEntry<FieldId extends string, Kind extends EnumFieldKind>(
   uiField: UIFieldForKind<FieldId, Kind>,
   resolvedIconMapping: Partial<Record<EnumFieldKind, ReactNode>> | null,
+  theme: FilterBarTheme,
   handleSelectField: <SelectedFieldId extends string, SelectedKind extends SelectKind>(
     field: SelectUIField<SelectedFieldId, SelectedKind>,
     value: string,
@@ -217,7 +261,13 @@ function renderFieldEntry<FieldId extends string, Kind extends EnumFieldKind>(
       resolvedIconMapping={resolvedIconMapping}
     />
   ) : (
-    <DropdownMenuItem key={uiField.id} onClick={() => handleSelectValue(uiField)}>
+    <DropdownMenuItem
+      key={uiField.id}
+      onClick={() => handleSelectValue(uiField)}
+      data-theme-slot={filterBarThemeSlot("triggerFieldItem")}
+      unstyled={theme.unstyledPrimitives}
+      className={theme.classNames.triggerFieldItem}
+    >
       {renderFieldIcon(uiField, resolvedIconMapping)}
       {uiField.label ?? uiField.id}
     </DropdownMenuItem>
@@ -232,10 +282,11 @@ export function FilterBarTrigger({
   iconMapping: Partial<Record<EnumFieldKind, ReactNode>> | boolean;
 }) {
   const { uiFieldEntries, values, setValues } = useFilterBar();
+  const theme = useFilterBarTheme();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
-  const resolvedIconMapping = resolveIconMapping(iconMapping);
+  const resolvedIconMapping = resolveIconMapping(iconMapping, theme.icons.fieldKinds);
   const normalizedQuery = deferredQuery.trim().toLowerCase();
   const availableEntries = useMemo(() => {
     const activeFieldIds = new Set(values.map((value) => value.fieldId));
@@ -243,7 +294,9 @@ export function FilterBarTrigger({
 
     for (const entry of uiFieldEntries) {
       if ("fields" in entry) {
-        const availableFields = entry.fields.filter((uiField) => !activeFieldIds.has(uiField.id));
+        const availableFields = entry.fields.filter(
+          (uiField) => !activeFieldIds.has(uiField.id),
+        );
         if (availableFields.length === 0) {
           continue;
         }
@@ -256,7 +309,9 @@ export function FilterBarTrigger({
         const groupMatches = entry.label.toLowerCase().includes(normalizedQuery);
         const filteredFields = groupMatches
           ? availableFields
-          : availableFields.filter((uiField) => matchesFieldQuery(uiField, normalizedQuery));
+          : availableFields.filter((uiField) =>
+              matchesFieldQuery(uiField, normalizedQuery),
+            );
 
         if (filteredFields.length > 0) {
           nextEntries.push({ ...entry, fields: filteredFields });
@@ -317,24 +372,48 @@ export function FilterBarTrigger({
       }}
     >
       <DropdownMenuTrigger {...props}>{children}</DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-48">
+      <DropdownMenuContent
+        data-theme-slot={filterBarThemeSlot("triggerMenuContent")}
+        unstyled={theme.unstyledPrimitives}
+        className={theme.classNames.triggerMenuContent}
+      >
         <SelectSearchInput
+          data-theme-slot={filterBarThemeSlot("selectSearchInput")}
+          unstyled={theme.unstyledPrimitives}
           value={query}
-          placeholder="Search fields..."
+          className={theme.classNames.selectSearchInput}
+          placeholder={theme.texts.searchFieldsPlaceholder}
           onChange={(event) => setQuery(event.currentTarget.value)}
           onKeyDown={(event) => event.stopPropagation()}
         />
-        <SelectSeparator />
+        <SelectSeparator
+          data-theme-slot={filterBarThemeSlot("triggerMenuSeparator")}
+          unstyled={theme.unstyledPrimitives}
+          className={theme.classNames.triggerMenuSeparator}
+        />
         {availableEntries.map((entry, index) => (
           <Fragment key={"fields" in entry ? `group:${entry.label}` : `field:${entry.id}`}>
-            {index > 0 ? <DropdownMenuSeparator /> : null}
+            {index > 0 ? (
+              <DropdownMenuSeparator
+                data-theme-slot={filterBarThemeSlot("triggerMenuSeparator")}
+                unstyled={theme.unstyledPrimitives}
+                className={theme.classNames.triggerMenuSeparator}
+              />
+            ) : null}
             {"fields" in entry ? (
               <DropdownMenuGroup>
-                <DropdownMenuLabel>{entry.label}</DropdownMenuLabel>
+                <DropdownMenuLabel
+                  data-theme-slot={filterBarThemeSlot("triggerGroupLabel")}
+                  unstyled={theme.unstyledPrimitives}
+                  className={theme.classNames.triggerGroupLabel}
+                >
+                  {entry.label}
+                </DropdownMenuLabel>
                 {entry.fields.map((uiField) =>
                   renderFieldEntry(
                     uiField,
                     resolvedIconMapping,
+                    theme,
                     handleSelectField,
                     handleSelectValue,
                   ),
@@ -344,6 +423,7 @@ export function FilterBarTrigger({
               renderFieldEntry(
                 entry,
                 resolvedIconMapping,
+                theme,
                 handleSelectField,
                 handleSelectValue,
               )
@@ -351,7 +431,14 @@ export function FilterBarTrigger({
           </Fragment>
         ))}
         {availableEntries.length === 0 ? (
-          <DropdownMenuItem disabled>No matching fields</DropdownMenuItem>
+          <DropdownMenuItem
+            disabled
+            data-theme-slot={filterBarThemeSlot("triggerEmptyItem")}
+            unstyled={theme.unstyledPrimitives}
+            className={theme.classNames.triggerEmptyItem}
+          >
+            {theme.texts.noMatchingFields}
+          </DropdownMenuItem>
         ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
