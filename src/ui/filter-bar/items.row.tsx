@@ -32,51 +32,63 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
   onUpdate: (updater: (current: FilterBarValue<FieldId, Kind>) => FilterBarValue<FieldId, Kind>) => void;
   onRemove: () => void;
 }) {
+  const operatorLabel = OPERATOR_LABELS[item.operator] ?? item.operator;
+  const hasMultipleOperators = field.allowedOperators.length > 1;
+
   return (
-    <ButtonGroup className="md:flex-nowrap">
-      <ButtonGroupText className="bg-background">
+    <ButtonGroup className="h-9 md:flex-nowrap">
+      <ButtonGroupText className="h-full bg-background border-r-0">
         <span className="block truncate text-sm font-medium">
           {field.label ?? field.id}
         </span>
       </ButtonGroupText>
 
-      <Select<string>
-        value={item.operator}
-        onValueChange={(nextOperator) =>
-          onUpdate((current) => ({
-            ...current,
-            operator: nextOperator as typeof current.operator,
-            allowOperators: [...field.allowedOperators] as typeof current.allowOperators,
-            value: normalizeValueForOperator({
-              field,
-              operator: nextOperator as OperatorKindFor<typeof field.kind>,
-              previousValue: current.value as never,
-            }) as typeof current.value,
-          }))
-        }
-      >
-        <SelectTrigger
-          className="h-full w-fit shadow-none font-normal text-muted-foreground"
-          render={<Button variant="outline" />}
+      {hasMultipleOperators ? (
+        <Select<string>
+          value={item.operator}
+          onValueChange={(nextOperator) =>
+            onUpdate((current) => ({
+              ...current,
+              operator: nextOperator as typeof current.operator,
+              allowOperators: [...field.allowedOperators] as typeof current.allowOperators,
+              value: normalizeValueForOperator({
+                field,
+                operator: nextOperator as OperatorKindFor<typeof field.kind>,
+                previousValue: current.value as never,
+              }) as typeof current.value,
+            }))
+          }
         >
-          <SelectValue>
-            {(value) => OPERATOR_LABELS[String(value)] ?? String(value ?? "")}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {field.allowedOperators.map((operator) => (
-            <SelectItem key={operator} value={operator}>
-              {OPERATOR_LABELS[operator] ?? operator}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          <SelectTrigger
+            className="h-full w-fit shadow-none font-normal !border-l text-muted-foreground"
+            render={<Button variant="outline" />}
+          >
+            <SelectValue>
+              {(value) => OPERATOR_LABELS[String(value)] ?? String(value ?? "")}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {field.allowedOperators.map((operator) => (
+              <SelectItem key={operator} value={operator}>
+                {OPERATOR_LABELS[operator] ?? operator}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : (
+        <ButtonGroupText className="h-full w-fit bg-background px-3 py-2 font-normal !border-l text-muted-foreground">
+          <span className="block whitespace-nowrap">{operatorLabel}</span>
+        </ButtonGroupText>
+      )}
 
       {isEmptyOperator(item.operator) ? null : (
         <>
           <ButtonGroupSeparator className="hidden md:block" />
 
-          <div data-slot="button-group-text" className="min-w-0 grow border border-border">
+          <div
+            data-slot="button-group-text"
+            className="flex h-full min-w-0 grow overflow-hidden border border-border bg-background"
+          >
             <FilterValueEditor
               field={field}
               item={item}
@@ -95,9 +107,10 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
 
       <Button
         variant="outline"
+        size="lg"
         aria-label={`Remove ${field.label ?? field.id} filter`}
         onClick={onRemove}
-        className="h-auto"
+        className="h-full min-h-0 px-2.5"
       >
         <X className="size-4" />
       </Button>

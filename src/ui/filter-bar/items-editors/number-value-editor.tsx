@@ -3,7 +3,12 @@ import { NumberOperatorKind } from "@/logical/operator";
 import { Input } from "@/ui/baseui/input";
 
 import type { FilterValueEditorProps } from "./shared";
-import { updateTupleValue } from "./shared";
+import {
+  FILTER_ITEM_EDITOR_CONTROL_CLASS,
+  FILTER_ITEM_EDITOR_ROOT_CLASS,
+  FILTER_ITEM_EDITOR_SPLIT_CLASS,
+  updateTupleValue,
+} from "./shared";
 
 export function NumberValueEditor<FieldId extends string>({
   field,
@@ -14,32 +19,36 @@ export function NumberValueEditor<FieldId extends string>({
     const tuple = Array.isArray(item.value) ? item.value : [0, 0];
 
     return (
-      <div className="grid gap-2 sm:grid-cols-2">
-        <Input
-          className="rounded-none border-0 shadow-none focus-visible:ring-0"
-          type="number"
-          value={String(tuple[0] ?? 0)}
-          placeholder="Min"
-          onChange={(event) => onChange(updateTupleValue(tuple, 0, Number(event.currentTarget.value || 0)))}
-        />
-        <Input
-          className="rounded-none border-0 border-l shadow-none focus-visible:ring-0"
-          type="number"
-          value={String(tuple[1] ?? 0)}
-          placeholder="Max"
-          onChange={(event) => onChange(updateTupleValue(tuple, 1, Number(event.currentTarget.value || 0)))}
-        />
+      <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
+        <div className={FILTER_ITEM_EDITOR_SPLIT_CLASS}>
+          <Input
+            className={FILTER_ITEM_EDITOR_CONTROL_CLASS}
+            type="number"
+            value={String(tuple[0] ?? 0)}
+            placeholder="Min"
+            onChange={(event) => onChange(updateTupleValue(tuple, 0, Number(event.currentTarget.value || 0)))}
+          />
+          <Input
+            className={`${FILTER_ITEM_EDITOR_CONTROL_CLASS} border-l`}
+            type="number"
+            value={String(tuple[1] ?? 0)}
+            placeholder="Max"
+            onChange={(event) => onChange(updateTupleValue(tuple, 1, Number(event.currentTarget.value || 0)))}
+          />
+        </div>
       </div>
     );
   }
 
   return (
-    <Input
-      className="rounded-none border-0 shadow-none focus-visible:ring-0"
-      type="number"
-      value={typeof item.value === "number" ? String(item.value) : "0"}
-      placeholder={field.placeholder ?? "Enter a number"}
-      onChange={(event) => onChange(Number(event.currentTarget.value || 0))}
-    />
+    <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
+      <Input
+        className={FILTER_ITEM_EDITOR_CONTROL_CLASS}
+        type="number"
+        value={typeof item.value === "number" ? String(item.value) : "0"}
+        placeholder={field.placeholder ?? "Enter a number"}
+        onChange={(event) => onChange(Number(event.currentTarget.value || 0))}
+      />
+    </div>
   );
 }

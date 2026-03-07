@@ -10,6 +10,11 @@ import {
 import { flattenSelectOptions, isStaticSelectField } from "@/ui/filter-bar/state";
 
 import type { FilterValueEditorProps } from "./shared";
+import {
+  FILTER_ITEM_EDITOR_CONTROL_CLASS,
+  FILTER_ITEM_EDITOR_ROOT_CLASS,
+  getOptionLabel,
+} from "./shared";
 
 export function SelectValueEditor<FieldId extends string>({
   field,
@@ -20,12 +25,14 @@ export function SelectValueEditor<FieldId extends string>({
 
   if (!isStaticSelectField(field)) {
     return (
-      <Input
-        className="rounded-none border-0 shadow-none focus-visible:ring-0"
-        value={currentValue ?? ""}
-        placeholder={field.placeholder ?? "Enter a value"}
-        onChange={(event) => onChange(event.currentTarget.value)}
-      />
+      <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
+        <Input
+          className={FILTER_ITEM_EDITOR_CONTROL_CLASS}
+          value={currentValue ?? ""}
+          placeholder={field.placeholder ?? "Enter a value"}
+          onChange={(event) => onChange(event.currentTarget.value)}
+        />
+      </div>
     );
   }
 
@@ -33,17 +40,28 @@ export function SelectValueEditor<FieldId extends string>({
   const value = typeof currentValue === "string" ? currentValue : null;
 
   return (
-    <Select<string> value={value} onValueChange={onChange}>
-      <SelectTrigger className="rounded-none border-0 shadow-none focus-visible:ring-0">
-        <SelectValue placeholder={field.placeholder ?? "Select an option"} />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
+      <Select<string> value={value} onValueChange={onChange}>
+        <SelectTrigger className={FILTER_ITEM_EDITOR_CONTROL_CLASS}>
+          <SelectValue>
+            {(selectedValue) =>
+              getOptionLabel(
+                typeof selectedValue === "string" ? selectedValue : value,
+                options,
+              ) ??
+              field.placeholder ??
+              "Select an option"
+            }
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
