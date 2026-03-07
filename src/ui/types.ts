@@ -61,6 +61,7 @@ export interface SelectUIField<
 > extends UIFieldBase<FieldId, Kind> {
   options?: SelectOptions;
   optionsLoadMode?: SelectOptionsLoadMode;
+  optionsSearchable?: boolean;
 }
 
 export interface BooleanUIField<

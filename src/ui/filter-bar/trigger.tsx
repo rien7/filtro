@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from "react";
+import { Fragment, useDeferredValue, useMemo, useState, type ReactNode } from "react";
 import { FieldKind, type EnumFieldKind } from "@/logical/field";
 import {
   CalendarIcon,
@@ -28,9 +28,10 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/ui/baseui/dropdown-menu";
+import { SelectSearchInput, SelectSeparator } from "@/ui/baseui/select";
 import type { MenuTrigger } from "@base-ui/react";
 import { type FilterBarValueType, useFilterBar } from "@/ui/filter-bar/context";
-import { useSelectOptions } from "@/ui/filter-bar/select-options";
+import { useSelectableFieldOptions } from "@/ui/filter-bar/select-options";
 import { createFilterBarValue, upsertFilterBarValue } from "@/ui/filter-bar/state";
 
 function isSelectionKind<FieldId extends string, Kind extends EnumFieldKind>(
@@ -76,6 +77,18 @@ function renderFieldIcon(
   }
 
   return defaultIconMapping[field.kind] ?? null;
+}
+
+function matchesFieldQuery<FieldId extends string, Kind extends EnumFieldKind>(
+  field: UIFieldForKind<FieldId, Kind>,
+  query: string,
+) {
+  if (!query) {
+    return true;
+  }
+
+  const haystack = `${field.label ?? ""} ${field.id}`.toLowerCase();
+  return haystack.includes(query);
 }
 
 function renderSelectOption<FieldId extends string, Kind extends SelectKind>({
@@ -130,20 +143,22 @@ function TriggerSelectionField<FieldId extends string, Kind extends SelectKind>(
   handleSelectField: (field: SelectUIField<FieldId, Kind>, value: string) => void;
   resolvedIconMapping: Partial<Record<EnumFieldKind, ReactNode>> | null;
 }) {
-  const shouldLoadOnRender = field.optionsLoadMode === "render";
-  const { error, isAsync, load, options, status } = useSelectOptions(field, shouldLoadOnRender);
-  const resolvedOptions = isAsync ? options : (Array.isArray(field.options) ? field.options : []);
+  const {
+    error,
+    handleOpenChange,
+    isSearchEnabled,
+    open,
+    query,
+    setQuery,
+    status,
+    visibleTreeOptions,
+  } = useSelectableFieldOptions(field);
 
   return (
     <DropdownMenuSub
       key={field.id}
-      onOpenChange={(open) => {
-        if (!open || !isAsync || shouldLoadOnRender || status !== "idle") {
-          return;
-        }
-
-        void load();
-      }}
+      open={open}
+      onOpenChange={handleOpenChange}
     >
       <DropdownMenuSubTrigger>
         {renderFieldIcon(field, resolvedIconMapping)}
@@ -151,14 +166,25 @@ function TriggerSelectionField<FieldId extends string, Kind extends SelectKind>(
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal>
         <DropdownMenuSubContent>
+          {isSearchEnabled ? (
+            <>
+              <SelectSearchInput
+                value={query}
+                placeholder="Search options..."
+                onChange={(event) => setQuery(event.currentTarget.value)}
+                onKeyDown={(event) => event.stopPropagation()}
+              />
+              <SelectSeparator />
+            </>
+          ) : null}
           {status === "loading" ? (
             <DropdownMenuItem disabled>Loading options...</DropdownMenuItem>
           ) : status === "error" ? (
             <DropdownMenuItem disabled>
               {error?.message ?? "Failed to load options"}
             </DropdownMenuItem>
-          ) : resolvedOptions.length > 0 ? (
-            resolvedOptions.map((option: SelectOption, index: number) =>
+          ) : visibleTreeOptions.length > 0 ? (
+            visibleTreeOptions.map((option: SelectOption, index: number) =>
               renderSelectOption({
                 field,
                 option,
@@ -206,23 +232,48 @@ export function FilterBarTrigger({
   iconMapping: Partial<Record<EnumFieldKind, ReactNode>> | boolean;
 }) {
   const { uiFieldEntries, values, setValues } = useFilterBar();
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
   const resolvedIconMapping = resolveIconMapping(iconMapping);
-  const activeFieldIds = new Set(values.map((value) => value.fieldId));
-  const availableEntries: UIFieldEntry[] = [];
+  const normalizedQuery = deferredQuery.trim().toLowerCase();
+  const availableEntries = useMemo(() => {
+    const activeFieldIds = new Set(values.map((value) => value.fieldId));
+    const nextEntries: UIFieldEntry[] = [];
 
-  for (const entry of uiFieldEntries) {
-    if ("fields" in entry) {
-      const fields = entry.fields.filter((uiField) => !activeFieldIds.has(uiField.id));
-      if (fields.length > 0) {
-        availableEntries.push({ ...entry, fields });
+    for (const entry of uiFieldEntries) {
+      if ("fields" in entry) {
+        const availableFields = entry.fields.filter((uiField) => !activeFieldIds.has(uiField.id));
+        if (availableFields.length === 0) {
+          continue;
+        }
+
+        if (!normalizedQuery) {
+          nextEntries.push({ ...entry, fields: availableFields });
+          continue;
+        }
+
+        const groupMatches = entry.label.toLowerCase().includes(normalizedQuery);
+        const filteredFields = groupMatches
+          ? availableFields
+          : availableFields.filter((uiField) => matchesFieldQuery(uiField, normalizedQuery));
+
+        if (filteredFields.length > 0) {
+          nextEntries.push({ ...entry, fields: filteredFields });
+        }
+
+        continue;
       }
-      continue;
+
+      if (activeFieldIds.has(entry.id) || !matchesFieldQuery(entry, normalizedQuery)) {
+        continue;
+      }
+
+      nextEntries.push(entry);
     }
 
-    if (!activeFieldIds.has(entry.id)) {
-      availableEntries.push(entry);
-    }
-  }
+    return nextEntries;
+  }, [normalizedQuery, uiFieldEntries, values]);
 
   const handleSelectField = <FieldId extends string, Kind extends SelectKind>(
     field: SelectUIField<FieldId, Kind>,
@@ -256,9 +307,24 @@ export function FilterBarTrigger({
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          setQuery("");
+        }
+      }}
+    >
       <DropdownMenuTrigger {...props}>{children}</DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="min-w-48">
+        <SelectSearchInput
+          value={query}
+          placeholder="Search fields..."
+          onChange={(event) => setQuery(event.currentTarget.value)}
+          onKeyDown={(event) => event.stopPropagation()}
+        />
+        <SelectSeparator />
         {availableEntries.map((entry, index) => (
           <Fragment key={"fields" in entry ? `group:${entry.label}` : `field:${entry.id}`}>
             {index > 0 ? <DropdownMenuSeparator /> : null}
@@ -284,6 +350,9 @@ export function FilterBarTrigger({
             )}
           </Fragment>
         ))}
+        {availableEntries.length === 0 ? (
+          <DropdownMenuItem disabled>No matching fields</DropdownMenuItem>
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );

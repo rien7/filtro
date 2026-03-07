@@ -37,6 +37,7 @@ export interface SelectFieldBuilder<
 > extends BaseFieldBuilder<FieldId, Kind> {
   options(options: SelectOptions): this;
   loadOptions(mode: SelectOptionsLoadMode): this;
+  searchable(searchable?: boolean): this;
 }
 
 export interface BooleanFieldBuilder<
@@ -148,6 +149,11 @@ class BuilderBase<FieldId extends string, Kind extends EnumFieldKind>
 class SelectBuilderBase<FieldId extends string, Kind extends SelectKind>
   extends BuilderBase<FieldId, Kind>
   implements SelectFieldBuilder<FieldId, Kind> {
+  constructor(id: FieldId, kind: Kind) {
+    super(id, kind);
+    this.field.optionsSearchable = true;
+  }
+
   options(options: SelectOptions) {
     this.field.options = options;
     return this;
@@ -155,6 +161,11 @@ class SelectBuilderBase<FieldId extends string, Kind extends SelectKind>
 
   loadOptions(mode: SelectOptionsLoadMode) {
     this.field.optionsLoadMode = mode;
+    return this;
+  }
+
+  searchable(searchable = true) {
+    this.field.optionsSearchable = searchable;
     return this;
   }
 }

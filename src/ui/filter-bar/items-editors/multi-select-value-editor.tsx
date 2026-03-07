@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { FieldKind } from "@/logical/field";
 import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSearchInput,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/ui/baseui/select";
-import { useSelectOptions } from "@/ui/filter-bar/select-options";
-import { flattenSelectOptions } from "@/ui/filter-bar/state";
+import { useSelectableFieldOptions } from "@/ui/filter-bar/select-options";
 
 import type { FilterValueEditorProps } from "./shared";
 import {
@@ -24,15 +24,20 @@ export function MultiSelectValueEditor<FieldId extends string>({
 }: FilterValueEditorProps<FieldId, typeof FieldKind.multiSelect>) {
   const currentValue = item.value as string[] | null;
   const value = Array.isArray(currentValue) ? currentValue : [];
-  const [open, setOpen] = useState(false);
-  const shouldLoadOnRender = field.optionsLoadMode === "render";
-  const { error, isAsync, load, options: resolvedOptions, status } = useSelectOptions(
-    field,
-    shouldLoadOnRender,
-  );
-  const options = flattenSelectOptions(
-    isAsync ? resolvedOptions : (Array.isArray(field.options) ? field.options : []),
-  );
+  const {
+    displayOptions,
+    error,
+    handleOpenChange,
+    isSearchEnabled,
+    open,
+    query,
+    selectedOptions,
+    setQuery,
+    status,
+    visibleOptions,
+  } = useSelectableFieldOptions(field, {
+    selectedValues: value,
+  });
 
   return (
     <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
@@ -40,12 +45,7 @@ export function MultiSelectValueEditor<FieldId extends string>({
         multiple
         open={open}
         value={value}
-        onOpenChange={(nextOpen) => {
-          setOpen(nextOpen);
-          if (nextOpen && isAsync && !shouldLoadOnRender && status === "idle") {
-            void load();
-          }
-        }}
+        onOpenChange={handleOpenChange}
         onValueChange={onChange}
       >
         <SelectTrigger className={FILTER_ITEM_EDITOR_CONTROL_CLASS}>
@@ -53,7 +53,7 @@ export function MultiSelectValueEditor<FieldId extends string>({
             {(selectedValue) =>
               getOptionLabels(
                 Array.isArray(selectedValue) ? selectedValue : value,
-                options,
+                displayOptions,
               ) ||
               field.placeholder ||
               "Select options"
@@ -61,6 +61,17 @@ export function MultiSelectValueEditor<FieldId extends string>({
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
+          {isSearchEnabled ? (
+            <>
+              <SelectSearchInput
+                value={query}
+                placeholder="Search options..."
+                onChange={(event) => setQuery(event.currentTarget.value)}
+                onKeyDown={(event) => event.stopPropagation()}
+              />
+              <SelectSeparator />
+            </>
+          ) : null}
           {status === "loading" ? (
             <SelectItem disabled value="__loading__">
               Loading options...
@@ -69,8 +80,8 @@ export function MultiSelectValueEditor<FieldId extends string>({
             <SelectItem disabled value="__error__">
               {error?.message ?? "Failed to load options"}
             </SelectItem>
-          ) : options.length > 0 ? (
-            options.map((option) => (
+          ) : visibleOptions.length > 0 ? (
+            visibleOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>
@@ -80,6 +91,13 @@ export function MultiSelectValueEditor<FieldId extends string>({
               No options
             </SelectItem>
           )}
+          {selectedOptions
+            .filter((option) => !visibleOptions.some((entry) => entry.value === option.value))
+            .map((option) => (
+              <SelectItem key={`${option.value}__hidden`} value={option.value} className="hidden">
+                {option.label}
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
     </div>
