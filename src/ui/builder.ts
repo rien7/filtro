@@ -11,63 +11,143 @@ import type {
   UIFieldRender,
 } from "./types.js";
 
-export interface BaseFieldBuilder<
+type BaseFieldBuilderMethod = "meta" | "operator" | "render";
+type SelectFieldBuilderMethod =
+  | BaseFieldBuilderMethod
+  | "options"
+  | "loadOptions"
+  | "searchable";
+type BooleanFieldBuilderMethod = BaseFieldBuilderMethod | "options";
+
+type FieldBuilderMethod<Kind extends EnumFieldKind> = Kind extends SelectKind
+  ? SelectFieldBuilderMethod
+  : Kind extends BooleanKind
+  ? BooleanFieldBuilderMethod
+  : BaseFieldBuilderMethod;
+
+type OmitUsedMethods<Builder, Used extends PropertyKey> = Omit<
+  Builder,
+  Extract<keyof Builder, Used>
+>;
+
+type BaseBuilderUsed<Used extends string> = Extract<Used, BaseFieldBuilderMethod>;
+declare const fieldBuilderBrand: unique symbol;
+
+export interface AnyFieldBuilder<
+  FieldId extends string = string,
+  Kind extends EnumFieldKind = EnumFieldKind,
+> {
+  readonly [fieldBuilderBrand]: {
+    readonly fieldId: FieldId;
+    readonly kind: Kind;
+  };
+}
+
+export type BaseFieldBuilder<
   FieldId extends string,
   Kind extends EnumFieldKind,
-> {
-  meta(
-    meta: Partial<
-      Pick<
-        UIFieldBase<FieldId, Kind>,
-        "label" | "icon" | "description" | "placeholder"
-      >
-    >,
-  ): this;
-  operator(
-    ops:
-      | readonly OperatorKindFor<Kind>[]
-      | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
-  ): this;
-  render(fn: UIFieldRender): this;
-}
+  Used extends BaseFieldBuilderMethod = never,
+> = AnyFieldBuilder<FieldId, Kind> &
+  OmitUsedMethods<
+    {
+      meta(
+        meta: Partial<
+          Pick<
+            UIFieldBase<FieldId, Kind>,
+            "label" | "icon" | "description" | "placeholder"
+          >
+        >,
+      ): BaseFieldBuilder<FieldId, Kind, Used | "meta">;
+      operator(
+        ops:
+          | readonly OperatorKindFor<Kind>[]
+          | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
+      ): BaseFieldBuilder<FieldId, Kind, Used | "operator">;
+      render(fn: UIFieldRender): BaseFieldBuilder<FieldId, Kind, Used | "render">;
+    },
+    Used
+  >;
 
-export interface SelectFieldBuilder<
+export type SelectFieldBuilder<
   FieldId extends string,
   Kind extends SelectKind,
-> extends BaseFieldBuilder<FieldId, Kind> {
-  options(options: SelectOptions): this;
-  loadOptions(mode: SelectOptionsLoadMode): this;
-  searchable(searchable?: boolean): this;
-}
+  Used extends SelectFieldBuilderMethod = never,
+> = AnyFieldBuilder<FieldId, Kind> &
+  OmitUsedMethods<
+    {
+      meta(
+        meta: Partial<
+          Pick<
+            UIFieldBase<FieldId, Kind>,
+            "label" | "icon" | "description" | "placeholder"
+          >
+        >,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "meta">;
+      operator(
+        ops:
+          | readonly OperatorKindFor<Kind>[]
+          | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
+      ): SelectFieldBuilder<FieldId, Kind, Used | "operator">;
+      render(fn: UIFieldRender): SelectFieldBuilder<FieldId, Kind, Used | "render">;
+      options(options: SelectOptions): SelectFieldBuilder<FieldId, Kind, Used | "options">;
+      loadOptions(
+        mode: SelectOptionsLoadMode,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "loadOptions">;
+      searchable(
+        searchable?: boolean,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "searchable">;
+    },
+    Used
+  >;
 
-export interface BooleanFieldBuilder<
+export type BooleanFieldBuilder<
   FieldId extends string,
   Kind extends BooleanKind,
-> extends BaseFieldBuilder<FieldId, Kind> {
-  options(options: BooleanOptions): this;
-}
+  Used extends BooleanFieldBuilderMethod = never,
+> = AnyFieldBuilder<FieldId, Kind> &
+  OmitUsedMethods<
+    {
+      meta(
+        meta: Partial<
+          Pick<
+            UIFieldBase<FieldId, Kind>,
+            "label" | "icon" | "description" | "placeholder"
+          >
+        >,
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "meta">;
+      operator(
+        ops:
+          | readonly OperatorKindFor<Kind>[]
+          | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "operator">;
+      render(fn: UIFieldRender): BooleanFieldBuilder<FieldId, Kind, Used | "render">;
+      options(options: BooleanOptions): BooleanFieldBuilder<FieldId, Kind, Used | "options">;
+    },
+    Used
+  >;
 
 export type FieldBuilder<
   FieldId extends string,
   Kind extends EnumFieldKind,
+  Used extends FieldBuilderMethod<Kind> = never,
 > = Kind extends SelectKind
-  ? SelectFieldBuilder<FieldId, Kind>
+  ? SelectFieldBuilder<FieldId, Kind, Extract<Used, SelectFieldBuilderMethod>>
   : Kind extends BooleanKind
-  ? BooleanFieldBuilder<FieldId, Kind>
-  : BaseFieldBuilder<FieldId, Kind>;
+  ? BooleanFieldBuilder<FieldId, Kind, Extract<Used, BooleanFieldBuilderMethod>>
+  : BaseFieldBuilder<FieldId, Kind, Extract<Used, BaseFieldBuilderMethod>>;
 
 export interface FieldGroupDefinition<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind,
 > {
   label: string;
-  fields: FieldBuilder<FieldId, Kind>[];
+  fields: AnyFieldBuilder<FieldId, Kind>[];
 }
 
 export type FieldDefinition<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind,
-> = FieldBuilder<FieldId, Kind> | FieldGroupDefinition<FieldId, Kind>;
+> = AnyFieldBuilder<FieldId, Kind> | FieldGroupDefinition<FieldId, Kind>;
 
 type AnyUIField = UIFieldForKind<string, EnumFieldKind>;
 const builderFieldStore = new WeakMap<object, AnyUIField>();
@@ -84,7 +164,7 @@ export function isFieldGroupDefinition<
 export function getUIFieldFromBuilder<
   FieldId extends string,
   Kind extends EnumFieldKind,
->(builder: FieldBuilder<FieldId, Kind>): UIFieldForKind<FieldId, Kind> {
+>(builder: AnyFieldBuilder<FieldId, Kind>): UIFieldForKind<FieldId, Kind> {
   const field = builderFieldStore.get(builder as object);
   if (!field) {
     throw new Error("Invalid field builder instance.");
@@ -92,8 +172,15 @@ export function getUIFieldFromBuilder<
   return field as UIFieldForKind<FieldId, Kind>;
 }
 
-class BuilderBase<FieldId extends string, Kind extends EnumFieldKind>
-  implements BaseFieldBuilder<FieldId, Kind> {
+class BuilderBase<
+  FieldId extends string,
+  Kind extends EnumFieldKind,
+> {
+  declare readonly [fieldBuilderBrand]: {
+    readonly fieldId: FieldId;
+    readonly kind: Kind;
+  };
+
   #field: UIFieldForKind<FieldId, Kind>;
 
   protected get field() {
@@ -146,9 +233,10 @@ class BuilderBase<FieldId extends string, Kind extends EnumFieldKind>
   }
 }
 
-class SelectBuilderBase<FieldId extends string, Kind extends SelectKind>
-  extends BuilderBase<FieldId, Kind>
-  implements SelectFieldBuilder<FieldId, Kind> {
+class SelectBuilderBase<
+  FieldId extends string,
+  Kind extends SelectKind,
+> extends BuilderBase<FieldId, Kind> {
   constructor(id: FieldId, kind: Kind) {
     super(id, kind);
     this.field.optionsSearchable = true;
@@ -170,9 +258,10 @@ class SelectBuilderBase<FieldId extends string, Kind extends SelectKind>
   }
 }
 
-class BooleanBuilderBase<FieldId extends string, Kind extends BooleanKind>
-  extends BuilderBase<FieldId, Kind>
-  implements BooleanFieldBuilder<FieldId, Kind> {
+class BooleanBuilderBase<
+  FieldId extends string,
+  Kind extends BooleanKind,
+> extends BuilderBase<FieldId, Kind> {
   options(options: BooleanOptions) {
     this.field.options = options;
     return this;
@@ -187,42 +276,48 @@ class Filtro {
   string<FieldId extends string = string>(
     id: FieldId,
   ): FieldBuilder<FieldId, typeof FieldKind.string> {
-    return new BuilderBase(id, FieldKind.string);
+    return new BuilderBase<FieldId, typeof FieldKind.string>(id, FieldKind.string);
   }
 
   number<FieldId extends string = string>(
     id: FieldId,
   ): FieldBuilder<FieldId, typeof FieldKind.number> {
-    return new BuilderBase(id, FieldKind.number);
+    return new BuilderBase<FieldId, typeof FieldKind.number>(id, FieldKind.number);
   }
 
   date<FieldId extends string = string>(
     id: FieldId,
   ): FieldBuilder<FieldId, typeof FieldKind.date> {
-    return new BuilderBase(id, FieldKind.date);
+    return new BuilderBase<FieldId, typeof FieldKind.date>(id, FieldKind.date);
   }
 
   select<FieldId extends string = string>(
     id: FieldId,
   ): FieldBuilder<FieldId, typeof FieldKind.select> {
-    return new SelectBuilderBase(id, FieldKind.select);
+    return new SelectBuilderBase<FieldId, typeof FieldKind.select>(id, FieldKind.select);
   }
 
   multiSelect<FieldId extends string = string>(
     id: FieldId,
   ): FieldBuilder<FieldId, typeof FieldKind.multiSelect> {
-    return new SelectBuilderBase(id, FieldKind.multiSelect);
+    return new SelectBuilderBase<FieldId, typeof FieldKind.multiSelect>(
+      id,
+      FieldKind.multiSelect,
+    );
   }
 
   boolean<FieldId extends string = string>(
     id: FieldId,
   ): FieldBuilder<FieldId, typeof FieldKind.boolean> {
-    return new BooleanBuilderBase(id, FieldKind.boolean);
+    return new BooleanBuilderBase<FieldId, typeof FieldKind.boolean>(
+      id,
+      FieldKind.boolean,
+    );
   }
 
   group<FieldId extends string = string, Kind extends EnumFieldKind = EnumFieldKind>(
     label: string,
-    fields: FieldBuilder<FieldId, Kind>[],
+    fields: AnyFieldBuilder<FieldId, Kind>[],
   ): FieldGroupDefinition<FieldId, Kind> {
     return {
       label,

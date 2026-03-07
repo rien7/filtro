@@ -1,5 +1,5 @@
 import type { EnumFieldKind } from "../logical/field.js";
-import type { FieldBuilder, FieldGroupDefinition } from "./builder.js";
+import type { AnyFieldBuilder, FieldGroupDefinition } from "./builder.js";
 
 export type FieldGroup<
   FieldId extends string = string,
@@ -11,7 +11,7 @@ export function groupField<
   Kind extends EnumFieldKind = EnumFieldKind,
 >(
   label: string,
-  fields: FieldBuilder<FieldId, Kind>[],
+  fields: AnyFieldBuilder<FieldId, Kind>[],
 ): FieldGroup<FieldId, Kind> {
   return {
     label,

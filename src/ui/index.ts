@@ -1,4 +1,5 @@
 export {
+  type AnyFieldBuilder,
   filtro,
   type BaseFieldBuilder,
   type BooleanFieldBuilder,
