@@ -10,11 +10,11 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
-    "./ui.css": "./src/ui/index.css"
+    "./ui.css": "./src/index.css"
   },
   "files": [
     "dist",
-    "src/ui/index.css"
+    "src/index.css"
   ],
   "sideEffects": [
     "**/*.css"
