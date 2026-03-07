@@ -34,6 +34,18 @@ export type FilterBarThemeClassNameSlot =
   | "triggerSubmenuTrigger"
   | "triggerSubmenuContent"
   | "triggerEmptyItem"
+  | "viewsRoot"
+  | "viewsList"
+  | "viewsButton"
+  | "viewsButtonActive"
+  | "viewsOverflowTrigger"
+  | "viewsMenuContent"
+  | "viewsEmptyItem"
+  | "viewsItem"
+  | "saveViewContent"
+  | "saveViewForm"
+  | "saveViewInput"
+  | "saveViewSubmit"
   | "selectTrigger"
   | "selectContent"
   | "selectItem"
@@ -53,6 +65,13 @@ export interface FilterBarThemeTexts {
   failedToLoadOptions: string;
   noOptions: string;
   noMatchingFields: string;
+  noSavedViews: string;
+  viewsTriggerFallback: string;
+  moreViews: string;
+  saveViewTriggerFallback: string;
+  exitView: string;
+  saveViewNamePlaceholder: string;
+  saveViewSubmit: string;
   booleanTrueFallback: string;
   booleanFalseFallback: string;
   removeLabelFallback: string;
@@ -88,6 +107,13 @@ const defaultTexts: FilterBarThemeTexts = {
   failedToLoadOptions: "Failed to load options",
   noOptions: "No options",
   noMatchingFields: "No matching fields",
+  noSavedViews: "No saved views",
+  viewsTriggerFallback: "Views",
+  moreViews: "More",
+  saveViewTriggerFallback: "Save View",
+  exitView: "Exit view",
+  saveViewNamePlaceholder: "Enter a view name",
+  saveViewSubmit: "Save",
   booleanTrueFallback: "True",
   booleanFalseFallback: "False",
   removeLabelFallback: "Remove",
@@ -121,6 +147,19 @@ export const defaultFilterBarTheme: FilterBarTheme = {
     rowRemoveButton:
       "h-full min-h-0 px-2.5 !border-l hover:bg-destructive/20 hover:text-destructive focus-visible:border-destructive/40 hover:border-destructive/30",
     triggerMenuContent: "min-w-48",
+    viewsRoot: "relative flex w-full flex-wrap items-start gap-2",
+    viewsList: "flex flex-wrap gap-2",
+    viewsButton:
+      "max-w-48 truncate border-border bg-background text-muted-foreground hover:text-foreground",
+    viewsButtonActive:
+      "border-primary/30 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
+    viewsOverflowTrigger: "border-dashed",
+    viewsMenuContent: "min-w-48",
+    viewsItem: "justify-between",
+    saveViewContent: "min-w-64 p-2",
+    saveViewForm: "flex flex-col gap-2",
+    saveViewInput: "w-full",
+    saveViewSubmit: "w-full",
     editorRoot: "flex h-full w-full min-w-0 items-stretch",
     editorControl:
       "h-full min-h-0 w-full rounded-none border-0 px-3 py-0 shadow-none hover:bg-muted focus-visible:ring-0",

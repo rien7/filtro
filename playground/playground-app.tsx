@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Filter } from "lucide-react";
+import { Filter, LayoutGrid, Save } from "lucide-react";
 
 import {
   Button,
@@ -42,12 +42,14 @@ function DemoCard({
   title,
   description,
   fields,
+  storageKey,
   theme,
   styled,
 }: {
   title: string;
   description: string;
   fields: ReturnType<typeof useFiltroFields>;
+  storageKey: string;
   theme?: FilterBarThemeInput | null;
   styled: boolean;
 }) {
@@ -57,8 +59,36 @@ function DemoCard({
         <h2>{title}</h2>
         <p>{description}</p>
       </div>
-      <FilterBar.Root fields={fields} theme={theme}>
+      <FilterBar.Root fields={fields} theme={theme} viewsStorageKey={storageKey}>
         <div className="demo-toolbar">
+          <FilterBar.Views
+            render={
+              styled ? (
+                <Button variant="outline" />
+              ) : (
+                <button type="button" className="demo-button" />
+              )
+            }
+          >
+            <span className="demo-trigger-content">
+              {styled ? <LayoutGrid /> : null}
+              Views
+            </span>
+          </FilterBar.Views>
+          <FilterBar.SaveView
+            render={
+              styled ? (
+                <Button variant="outline" />
+              ) : (
+                <button type="button" className="demo-button" />
+              )
+            }
+          >
+            <span className="demo-trigger-content">
+              {styled ? <Save /> : null}
+              Save View
+            </span>
+          </FilterBar.SaveView>
           <FilterBar.Trigger
             iconMapping={styled}
             render={
@@ -94,8 +124,10 @@ function DemoCard({
 
 function NuqsDemoCard({
   fields,
+  storageKey,
 }: {
   fields: ReturnType<typeof useFiltroFields>;
+  storageKey: string;
 }) {
   const { onValueChange, value } = useNuqsFilterBarState({
     fields,
@@ -117,8 +149,21 @@ function NuqsDemoCard({
         theme={defaultFilterBarTheme}
         value={value}
         onValueChange={onValueChange}
+        viewsStorageKey={storageKey}
       >
         <div className="demo-toolbar">
+          <FilterBar.Views render={<Button variant="outline" />}>
+            <span className="demo-trigger-content">
+              <LayoutGrid />
+              Views
+            </span>
+          </FilterBar.Views>
+          <FilterBar.SaveView render={<Button variant="outline" />}>
+            <span className="demo-trigger-content">
+              <Save />
+              Save View
+            </span>
+          </FilterBar.SaveView>
           <FilterBar.Trigger iconMapping render={<Button variant="outline" />}>
             <span className="demo-trigger-content">
               <Filter />
@@ -249,6 +294,7 @@ export function PlaygroundApp() {
               title="Headless"
               description="No FilterBar theme preset. Internal controls render with no visual classes."
               fields={fields}
+              storageKey="playground:headless"
               styled={false}
             />
           ) : null}
@@ -257,6 +303,7 @@ export function PlaygroundApp() {
               title="Default Theme"
               description="Uses defaultFilterBarTheme and the exported styled Button primitive."
               fields={fields}
+              storageKey="playground:default-theme"
               theme={defaultFilterBarTheme}
               styled
             />
@@ -265,7 +312,7 @@ export function PlaygroundApp() {
       </section>
 
       <section className="card demo-card-group">
-        <NuqsDemoCard fields={fields} />
+        <NuqsDemoCard fields={fields} storageKey="playground:nuqs" />
       </section>
     </main>
   );

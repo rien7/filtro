@@ -2,8 +2,9 @@ import { Button } from "@base-ui/react";
 import { useFilterBar } from "@/ui/filter-bar/context";
 
 export function FilterBarClear({ children, ...props }: Button.Props) {
-  const { setValues } = useFilterBar()
+  const { clearActiveView, setValues } = useFilterBar()
   const handleButtonClick = () => {
+    clearActiveView?.()
     setValues?.([])
   }
   return (

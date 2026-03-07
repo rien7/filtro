@@ -280,13 +280,14 @@ export function FilterBarTrigger({
 }: MenuTrigger.Props & {
   iconMapping: Partial<Record<EnumFieldKind, ReactNode>> | boolean;
 }) {
-  const { uiFieldEntries, values, setValues } = useFilterBar();
+  const { activeView, clearActiveView, uiFieldEntries, values, setValues } = useFilterBar();
   const theme = useFilterBarTheme();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const resolvedIconMapping = resolveIconMapping(iconMapping, theme.icons.fieldKinds);
   const normalizedQuery = deferredQuery.trim().toLowerCase();
+  const allowActiveFields = activeView !== null;
   const availableEntries = useMemo(() => {
     const activeFieldIds = new Set(values.map((value) => value.fieldId));
     const nextEntries: UIFieldEntry[] = [];
@@ -294,7 +295,7 @@ export function FilterBarTrigger({
     for (const entry of uiFieldEntries) {
       if ("fields" in entry) {
         const availableFields = entry.fields.filter(
-          (uiField) => !activeFieldIds.has(uiField.id),
+          (uiField) => allowActiveFields || !activeFieldIds.has(uiField.id),
         );
         if (availableFields.length === 0) {
           continue;
@@ -319,7 +320,10 @@ export function FilterBarTrigger({
         continue;
       }
 
-      if (activeFieldIds.has(entry.id) || !matchesFieldQuery(entry, normalizedQuery)) {
+      if (
+        (!allowActiveFields && activeFieldIds.has(entry.id)) ||
+        !matchesFieldQuery(entry, normalizedQuery)
+      ) {
         continue;
       }
 
@@ -327,7 +331,7 @@ export function FilterBarTrigger({
     }
 
     return nextEntries;
-  }, [normalizedQuery, uiFieldEntries, values]);
+  }, [allowActiveFields, normalizedQuery, uiFieldEntries, values]);
 
   const handleSelectField = <FieldId extends string, Kind extends SelectKind>(
     field: SelectUIField<FieldId, Kind>,
@@ -339,6 +343,7 @@ export function FilterBarTrigger({
       return;
     }
 
+    clearActiveView?.();
     setValues?.((prev) =>
       upsertFilterBarValue(prev, nextValue as unknown as FilterBarValueType[number]),
     );
@@ -355,6 +360,7 @@ export function FilterBarTrigger({
       return;
     }
 
+    clearActiveView?.();
     setValues?.((prev) =>
       upsertFilterBarValue(prev, nextValue as unknown as FilterBarValueType[number]),
     );
