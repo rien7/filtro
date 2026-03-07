@@ -4,6 +4,7 @@ import type {
   BooleanKind,
   BooleanOptions,
   SelectKind,
+  SelectOptionsLoadMode,
   SelectOptions,
   UIFieldBase,
   UIFieldForKind,
@@ -35,6 +36,7 @@ export interface SelectFieldBuilder<
   Kind extends SelectKind,
 > extends BaseFieldBuilder<FieldId, Kind> {
   options(options: SelectOptions): this;
+  loadOptions(mode: SelectOptionsLoadMode): this;
 }
 
 export interface BooleanFieldBuilder<
@@ -148,6 +150,11 @@ class SelectBuilderBase<FieldId extends string, Kind extends SelectKind>
   implements SelectFieldBuilder<FieldId, Kind> {
   options(options: SelectOptions) {
     this.field.options = options;
+    return this;
+  }
+
+  loadOptions(mode: SelectOptionsLoadMode) {
+    this.field.optionsLoadMode = mode;
     return this;
   }
 }

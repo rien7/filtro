@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { FieldKind } from "@/logical/field";
-import { Input } from "@/ui/baseui/input";
 import {
   Select,
   SelectContent,
@@ -7,7 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/baseui/select";
-import { flattenSelectOptions, isStaticSelectField } from "@/ui/filter-bar/state";
+import { useSelectOptions } from "@/ui/filter-bar/select-options";
+import { flattenSelectOptions } from "@/ui/filter-bar/state";
 
 import type { FilterValueEditorProps } from "./shared";
 import {
@@ -22,26 +23,30 @@ export function SelectValueEditor<FieldId extends string>({
   onChange,
 }: FilterValueEditorProps<FieldId, typeof FieldKind.select>) {
   const currentValue = item.value as string | null;
-
-  if (!isStaticSelectField(field)) {
-    return (
-      <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
-        <Input
-          className={FILTER_ITEM_EDITOR_CONTROL_CLASS}
-          value={currentValue ?? ""}
-          placeholder={field.placeholder ?? "Enter a value"}
-          onChange={(event) => onChange(event.currentTarget.value)}
-        />
-      </div>
-    );
-  }
-
-  const options = flattenSelectOptions(field.options);
+  const [open, setOpen] = useState(false);
+  const shouldLoadOnRender = field.optionsLoadMode === "render";
+  const { error, isAsync, load, options: resolvedOptions, status } = useSelectOptions(
+    field,
+    shouldLoadOnRender,
+  );
+  const options = flattenSelectOptions(
+    isAsync ? resolvedOptions : (Array.isArray(field.options) ? field.options : []),
+  );
   const value = typeof currentValue === "string" ? currentValue : null;
 
   return (
     <div className={FILTER_ITEM_EDITOR_ROOT_CLASS}>
-      <Select<string> value={value} onValueChange={onChange}>
+      <Select<string>
+        open={open}
+        value={value}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (nextOpen && isAsync && !shouldLoadOnRender && status === "idle") {
+            void load();
+          }
+        }}
+        onValueChange={onChange}
+      >
         <SelectTrigger className={FILTER_ITEM_EDITOR_CONTROL_CLASS}>
           <SelectValue>
             {(selectedValue) =>
@@ -55,11 +60,25 @@ export function SelectValueEditor<FieldId extends string>({
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
+          {status === "loading" ? (
+            <SelectItem disabled value="__loading__">
+              Loading options...
             </SelectItem>
-          ))}
+          ) : status === "error" ? (
+            <SelectItem disabled value="__error__">
+              {error?.message ?? "Failed to load options"}
+            </SelectItem>
+          ) : options.length > 0 ? (
+            options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem disabled value="__empty__">
+              No options
+            </SelectItem>
+          )}
         </SelectContent>
       </Select>
     </div>

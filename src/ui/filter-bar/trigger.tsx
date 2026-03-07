@@ -30,6 +30,7 @@ import {
 } from "@/ui/baseui/dropdown-menu";
 import type { MenuTrigger } from "@base-ui/react";
 import { type FilterBarValueType, useFilterBar } from "@/ui/filter-bar/context";
+import { useSelectOptions } from "@/ui/filter-bar/select-options";
 import { createFilterBarValue, upsertFilterBarValue } from "@/ui/filter-bar/state";
 
 function isSelectionKind<FieldId extends string, Kind extends EnumFieldKind>(
@@ -38,7 +39,7 @@ function isSelectionKind<FieldId extends string, Kind extends EnumFieldKind>(
   UIFieldForKind<FieldId, Kind>,
   SelectUIField<FieldId, SelectKind>
 > {
-  return field.kind === FieldKind.select || field.kind === FieldKind.multiSelect
+  return field.kind === FieldKind.select || field.kind === FieldKind.multiSelect;
 }
 
 const DEFAULT_FIELD_ICON_MAPPING: Record<EnumFieldKind, ReactNode> = {
@@ -62,15 +63,18 @@ function resolveIconMapping(
   return null;
 }
 
-function renderFieldIcon<FieldId extends string, Kind extends EnumFieldKind>(
-  field: UIFieldForKind<FieldId, Kind>,
+function renderFieldIcon(
+  field: { icon?: ReactNode; kind: EnumFieldKind },
   defaultIconMapping: Partial<Record<EnumFieldKind, ReactNode>> | null,
 ): ReactNode {
   if (field.icon !== undefined) {
     return field.icon;
   }
 
-  if (!defaultIconMapping) return null;
+  if (!defaultIconMapping) {
+    return null;
+  }
+
   return defaultIconMapping[field.kind] ?? null;
 }
 
@@ -117,6 +121,60 @@ function renderSelectOption<FieldId extends string, Kind extends SelectKind>({
   );
 }
 
+function TriggerSelectionField<FieldId extends string, Kind extends SelectKind>({
+  field,
+  handleSelectField,
+  resolvedIconMapping,
+}: {
+  field: SelectUIField<FieldId, Kind>;
+  handleSelectField: (field: SelectUIField<FieldId, Kind>, value: string) => void;
+  resolvedIconMapping: Partial<Record<EnumFieldKind, ReactNode>> | null;
+}) {
+  const shouldLoadOnRender = field.optionsLoadMode === "render";
+  const { error, isAsync, load, options, status } = useSelectOptions(field, shouldLoadOnRender);
+  const resolvedOptions = isAsync ? options : (Array.isArray(field.options) ? field.options : []);
+
+  return (
+    <DropdownMenuSub
+      key={field.id}
+      onOpenChange={(open) => {
+        if (!open || !isAsync || shouldLoadOnRender || status !== "idle") {
+          return;
+        }
+
+        void load();
+      }}
+    >
+      <DropdownMenuSubTrigger>
+        {renderFieldIcon(field, resolvedIconMapping)}
+        {field.label ?? field.id}
+      </DropdownMenuSubTrigger>
+      <DropdownMenuPortal>
+        <DropdownMenuSubContent>
+          {status === "loading" ? (
+            <DropdownMenuItem disabled>Loading options...</DropdownMenuItem>
+          ) : status === "error" ? (
+            <DropdownMenuItem disabled>
+              {error?.message ?? "Failed to load options"}
+            </DropdownMenuItem>
+          ) : resolvedOptions.length > 0 ? (
+            resolvedOptions.map((option: SelectOption, index: number) =>
+              renderSelectOption({
+                field,
+                option,
+                keyPath: `${String(field.id)}.${index}`,
+                onSelect: handleSelectField,
+              }),
+            )
+          ) : (
+            <DropdownMenuItem disabled>No options</DropdownMenuItem>
+          )}
+        </DropdownMenuSubContent>
+      </DropdownMenuPortal>
+    </DropdownMenuSub>
+  );
+}
+
 function renderFieldEntry<FieldId extends string, Kind extends EnumFieldKind>(
   uiField: UIFieldForKind<FieldId, Kind>,
   resolvedIconMapping: Partial<Record<EnumFieldKind, ReactNode>> | null,
@@ -127,26 +185,11 @@ function renderFieldEntry<FieldId extends string, Kind extends EnumFieldKind>(
   handleSelectValue: (field: UIFieldForKind<FieldId, Kind>) => void,
 ) {
   return isSelectionKind(uiField) ? (
-    <DropdownMenuSub key={uiField.id}>
-      <DropdownMenuSubTrigger>
-        {renderFieldIcon(uiField, resolvedIconMapping)}
-        {uiField.label ?? uiField.id}
-      </DropdownMenuSubTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuSubContent>
-          {typeof uiField.options === "function"
-            ? undefined
-            : uiField.options?.map((option, index) =>
-                renderSelectOption({
-                  field: uiField,
-                  option,
-                  keyPath: `${String(uiField.id)}.${index}`,
-                  onSelect: handleSelectField,
-                }),
-              )}
-        </DropdownMenuSubContent>
-      </DropdownMenuPortal>
-    </DropdownMenuSub>
+    <TriggerSelectionField
+      field={uiField}
+      handleSelectField={handleSelectField}
+      resolvedIconMapping={resolvedIconMapping}
+    />
   ) : (
     <DropdownMenuItem key={uiField.id} onClick={() => handleSelectValue(uiField)}>
       {renderFieldIcon(uiField, resolvedIconMapping)}
@@ -160,9 +203,9 @@ export function FilterBarTrigger({
   children,
   ...props
 }: MenuTrigger.Props & {
-  iconMapping: Partial<Record<EnumFieldKind, ReactNode>> | boolean
+  iconMapping: Partial<Record<EnumFieldKind, ReactNode>> | boolean;
 }) {
-  const { uiFieldEntries, values, setValues } = useFilterBar()
+  const { uiFieldEntries, values, setValues } = useFilterBar();
   const resolvedIconMapping = resolveIconMapping(iconMapping);
   const activeFieldIds = new Set(values.map((value) => value.fieldId));
   const availableEntries: UIFieldEntry[] = [];
@@ -193,7 +236,7 @@ export function FilterBarTrigger({
 
     setValues?.((prev) =>
       upsertFilterBarValue(prev, nextValue as unknown as FilterBarValueType[number]),
-    )
+    );
   };
 
   const handleSelectValue = (uiField: UIFieldForKind<string, EnumFieldKind>) => {
@@ -214,9 +257,7 @@ export function FilterBarTrigger({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger {...props}>
-        {children}
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger {...props}>{children}</DropdownMenuTrigger>
       <DropdownMenuContent>
         {availableEntries.map((entry, index) => (
           <Fragment key={"fields" in entry ? `group:${entry.label}` : `field:${entry.id}`}>
@@ -245,5 +286,5 @@ export function FilterBarTrigger({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

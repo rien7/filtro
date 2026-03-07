@@ -37,7 +37,9 @@ export interface SelectOption {
   children?: SelectOption[];
 }
 
-type SelectOptionLoader = ({
+export type SelectOptionsLoadMode = "render" | "open";
+
+export type SelectOptionLoader = ({
   query,
   signal,
 }: {
@@ -58,6 +60,7 @@ export interface SelectUIField<
   Kind extends SelectKind = SelectKind,
 > extends UIFieldBase<FieldId, Kind> {
   options?: SelectOptions;
+  optionsLoadMode?: SelectOptionsLoadMode;
 }
 
 export interface BooleanUIField<

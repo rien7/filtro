@@ -3,6 +3,18 @@ import { FilterBar, filtro } from "../src/ui/index";
 import { Button } from "../src/ui/baseui/button";
 import { Filter } from "lucide-react";
 
+function loadAsyncOwners() {
+  return new Promise<Array<{ label: string; value: string }>>((resolve) => {
+    window.setTimeout(() => {
+      resolve([
+        { label: "Alice Johnson", value: "alice" },
+        { label: "Ben Carter", value: "ben" },
+        { label: "Chris Wong", value: "chris" },
+      ]);
+    }, 5000);
+  });
+}
+
 export function PlaygroundApp() {
   const fields = useMemo(
     () => [
@@ -20,14 +32,18 @@ export function PlaygroundApp() {
           { label: "Closed", value: "closed" },
           { label: "Pending", value: "pending" },
         ]),
+        filtro.select("owner")
+          .meta({ label: "Owner", placeholder: "Async options after 5s" })
+          .options(async () => loadAsyncOwners())
+          .loadOptions("open"),
         filtro.multiSelect("tags").meta({ label: "Tags" }).options([
           { label: "VIP", value: "vip" },
           { label: "Trial", value: "trial" },
           { label: "Churn Risk", value: "churn-risk" },
         ]),
         filtro.boolean("archived").meta({ label: "Archived" }).options([
-          { label: "已归档", value: true },
-          { label: "未归档", value: false },
+          { label: "Archived", value: true },
+          { label: "Not Archived", value: false },
         ]),
       ]),
     ],

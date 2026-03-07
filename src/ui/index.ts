@@ -19,7 +19,9 @@ export * from "./filter-bar";
 export type {
   BooleanOptions,
   SelectKind,
+  SelectOptionLoader,
   SelectOption,
+  SelectOptionsLoadMode,
   SelectOptions,
   UIFieldEntry,
   SelectUIField,
