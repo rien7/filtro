@@ -37,7 +37,7 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
 
   return (
     <ButtonGroup className="h-9 md:flex-nowrap">
-      <ButtonGroupText className="h-full bg-background border-r-0">
+      <ButtonGroupText className="h-full bg-background border-r-0 select-none">
         <span className="block truncate text-sm font-medium">
           {field.label ?? field.id}
         </span>
@@ -76,7 +76,7 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
           </SelectContent>
         </Select>
       ) : (
-        <ButtonGroupText className="h-full w-fit bg-background px-3 py-2 font-normal !border-l text-muted-foreground">
+          <ButtonGroupText className="h-full select-none w-fit bg-background px-3 py-2 font-normal !border-l text-muted-foreground">
           <span className="block whitespace-nowrap">{operatorLabel}</span>
         </ButtonGroupText>
       )}

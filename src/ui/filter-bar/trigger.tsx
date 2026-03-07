@@ -26,7 +26,7 @@ import {
 } from "@/ui/baseui/dropdown-menu";
 import type { MenuTrigger } from "@base-ui/react";
 import { type FilterBarValueType, useFilterBar } from "@/ui/filter-bar/context";
-import { createFilterBarValue } from "@/ui/filter-bar/state";
+import { createFilterBarValue, upsertFilterBarValue } from "@/ui/filter-bar/state";
 
 function isSelectionKind<FieldId extends string, Kind extends EnumFieldKind>(
   field: UIFieldForKind<FieldId, Kind>,
@@ -122,6 +122,9 @@ export function FilterBarTrigger({
 }) {
   const { uiFields, values, setValues } = useFilterBar()
   const resolvedIconMapping = resolveIconMapping(iconMapping);
+  const activeFieldIds = new Set(values.map((value) => value.fieldId));
+  const availableFields = uiFields.filter((uiField) => !activeFieldIds.has(uiField.id));
+
   const handleSelectField = <FieldId extends string, Kind extends SelectKind>(
     field: SelectUIField<FieldId, Kind>,
     value: string,
@@ -132,10 +135,9 @@ export function FilterBarTrigger({
       return;
     }
 
-    setValues?.((prev) => ({
-      ...prev,
-      [field.id]: nextValue,
-    } as FilterBarValueType))
+    setValues?.((prev) =>
+      upsertFilterBarValue(prev, nextValue as unknown as FilterBarValueType[number]),
+    )
   };
 
   return (
@@ -144,7 +146,7 @@ export function FilterBarTrigger({
         {children}
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {uiFields.filter(uiField => values[uiField.id] === undefined).map((uiField) => {
+        {availableFields.map((uiField) => {
           return isSelectionKind(uiField) ? (
             <DropdownMenuSub key={uiField.id}>
               <DropdownMenuSubTrigger>
@@ -174,10 +176,9 @@ export function FilterBarTrigger({
                 return;
               }
 
-              setValues?.((prev) => ({
-                ...prev,
-                [uiField.id]: nextValue,
-              } as FilterBarValueType))
+                setValues?.((prev) =>
+                  upsertFilterBarValue(prev, nextValue as unknown as FilterBarValueType[number]),
+                )
             }}>
               {renderFieldIcon(uiField, resolvedIconMapping)}
               {uiField.label ?? uiField.id}

@@ -46,10 +46,12 @@ type SelectOptionLoader = ({
 }) => Promise<SelectOption[]>;
 
 export type SelectOptions = SelectOption[] | SelectOptionLoader;
+export type BooleanOptions = [{ label: string, value: true }, { label: string, value: false }]
 
 export type SelectKind =
   | typeof FieldKind.select
   | typeof FieldKind.multiSelect;
+export type BooleanKind = typeof FieldKind.boolean
 
 export interface SelectUIField<
   FieldId extends string = string,
@@ -58,9 +60,18 @@ export interface SelectUIField<
   options?: SelectOptions;
 }
 
+export interface BooleanUIField<
+  FieldId extends string = string,
+  Kind extends BooleanKind = BooleanKind
+> extends UIFieldBase<FieldId, Kind> {
+  options?: BooleanOptions
+}
+
 export type UIFieldForKind<
   FieldId extends string,
   Kind extends EnumFieldKind,
 > = Kind extends SelectKind
   ? SelectUIField<FieldId, Kind>
+  : Kind extends BooleanKind
+  ? BooleanUIField<FieldId, Kind>
   : UIFieldBase<FieldId, Kind>;

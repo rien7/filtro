@@ -1,9 +1,6 @@
 import { type EnumFieldKind } from "@/logical/field";
-import {
-  type FilterBarValue,
-  type FilterBarValueType,
-  useFilterBar,
-} from "@/ui/filter-bar/context";
+import { type FilterBarValue, useFilterBar } from "@/ui/filter-bar/context";
+import { removeFilterBarValue } from "@/ui/filter-bar/state";
 import { cn } from "@/ui/lib/utils";
 import type { UIFieldForKind } from "@/ui/types";
 
@@ -15,7 +12,16 @@ export function FilterItems({
   className?: string;
 }) {
   const { uiFields, values, setValues } = useFilterBar();
-  const activeFields = uiFields.filter((field) => values[field.id] !== undefined);
+  const fieldById = new Map(uiFields.map((field) => [field.id, field] as const));
+  const activeItems = values.flatMap((item) => {
+    const field = fieldById.get(item.fieldId);
+
+    if (!field) {
+      return [];
+    }
+
+    return [{ field, item }];
+  });
 
   const updateItem = <FieldId extends string, Kind extends EnumFieldKind>(
     field: UIFieldForKind<FieldId, Kind>,
@@ -24,25 +30,26 @@ export function FilterItems({
     ) => FilterBarValue<FieldId, Kind>,
   ) => {
     setValues?.((previous) => {
-      const current = previous[field.id] as FilterBarValue<FieldId, Kind> | undefined;
-      if (!current) return previous;
+      const currentIndex = previous.findIndex((value) => value.fieldId === field.id);
+      const item = previous[currentIndex];
 
-      return {
-        ...previous,
-        [field.id]: updater(current),
-      } as FilterBarValueType;
-    });
-  };
+      if (currentIndex === -1 || item === undefined) {
+        return previous;
+      }
 
-  const removeItem = (fieldId: string) => {
-    setValues?.((previous) => {
-      const nextValues = { ...previous };
-      delete nextValues[fieldId];
+      const nextValues = [...previous];
+      nextValues[currentIndex] = updater(
+        item as unknown as FilterBarValue<FieldId, Kind>,
+      ) as (typeof previous)[number];
       return nextValues;
     });
   };
 
-  if (!activeFields.length) {
+  const removeItem = (fieldId: string) => {
+    setValues?.((previous) => removeFilterBarValue(previous, fieldId));
+  };
+
+  if (!activeItems.length) {
     return (
       <div
         className={cn(
@@ -56,22 +63,16 @@ export function FilterItems({
   }
 
   return (
-    <div className={cn("flex flex-col gap-3", className)}>
-      {activeFields.map((field) => {
-        const item = values[field.id];
-
-        if (!item) return null;
-
-        return (
-          <FilterItemRow
-            key={field.id}
-            field={field}
-            item={item as never}
-            onUpdate={(updater) => updateItem(field, updater)}
-            onRemove={() => removeItem(field.id)}
-          />
-        );
-      })}
+    <div className={cn("flex flex-row flex-wrap gap-3", className)}>
+      {activeItems.map(({ field, item }) => (
+        <FilterItemRow
+          key={field.id}
+          field={field as never}
+          item={item as never}
+          onUpdate={(updater) => updateItem(field as never, updater)}
+          onRemove={() => removeItem(field.id)}
+        />
+      ))}
     </div>
   );
 }

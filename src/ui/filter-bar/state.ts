@@ -3,10 +3,9 @@ import {
   DateOperatorKind,
   EmptyOperatorKind,
   NumberOperatorKind,
-  SelectOperatorKind,
   type OperatorKindFor,
 } from "@/logical/operator";
-import type { FilterBarValue } from "@/ui/filter-bar/context";
+import type { FilterBarValue, FilterBarValueType } from "@/ui/filter-bar/context";
 import type {
   SelectKind,
   SelectOption,
@@ -121,7 +120,7 @@ export function createFilterBarValue<FieldId extends string>(
   }
 
   return {
-    field: field.id,
+    fieldId: field.id,
     kind: field.kind,
     operator,
     allowOperators: [...field.allowedOperators],
@@ -131,4 +130,24 @@ export function createFilterBarValue<FieldId extends string>(
       previousValue: (initialValue ?? null) as FilterBarValue<FieldId, typeof field.kind>["value"],
     }),
   } as FilterBarValue<FieldId, typeof field.kind>;
+}
+
+export function upsertFilterBarValue(
+  values: FilterBarValueType,
+  nextValue: FilterBarValueType[number],
+) {
+  const currentIndex = values.findIndex((value) => value.fieldId === nextValue.fieldId);
+
+  if (currentIndex === -1) {
+    return [...values, nextValue];
+  }
+
+  const nextValues = [...values];
+  nextValues[currentIndex] = nextValue;
+  return nextValues;
+}
+
+export function removeFilterBarValue(values: FilterBarValueType, fieldId: string) {
+  const nextValues = values.filter((value) => value.fieldId !== fieldId);
+  return nextValues.length === values.length ? values : nextValues;
 }

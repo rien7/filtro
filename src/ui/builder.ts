@@ -1,6 +1,8 @@
 import { FieldKind, type EnumFieldKind } from "../logical/field.js";
 import { operatorsForKind, type OperatorKindFor } from "../logical/operator.js";
 import type {
+  BooleanKind,
+  BooleanOptions,
   SelectKind,
   SelectOptions,
   UIFieldBase,
@@ -35,11 +37,20 @@ export interface SelectFieldBuilder<
   options(options: SelectOptions): this;
 }
 
+export interface BooleanFieldBuilder<
+  FieldId extends string,
+  Kind extends BooleanKind,
+> extends BaseFieldBuilder<FieldId, Kind> {
+  options(options: BooleanOptions): this;
+}
+
 export type FieldBuilder<
   FieldId extends string,
   Kind extends EnumFieldKind,
 > = Kind extends SelectKind
   ? SelectFieldBuilder<FieldId, Kind>
+  : Kind extends BooleanKind
+  ? BooleanFieldBuilder<FieldId, Kind>
   : BaseFieldBuilder<FieldId, Kind>;
 
 type AnyUIField = UIFieldForKind<string, EnumFieldKind>;
@@ -119,6 +130,15 @@ class SelectBuilderBase<FieldId extends string, Kind extends SelectKind>
   }
 }
 
+class BooleanBuilderBase<FieldId extends string, Kind extends BooleanKind>
+  extends BuilderBase<FieldId, Kind>
+  implements BooleanFieldBuilder<FieldId, Kind> {
+  options(options: BooleanOptions) {
+    this.field.options = options;
+    return this;
+  }
+}
+
 class Filtro {
   static readonly instance = new Filtro();
 
@@ -157,7 +177,7 @@ class Filtro {
   boolean<FieldId extends string = string>(
     id: FieldId,
   ): FieldBuilder<FieldId, typeof FieldKind.boolean> {
-    return new BuilderBase(id, FieldKind.boolean);
+    return new BooleanBuilderBase(id, FieldKind.boolean);
   }
 }
 

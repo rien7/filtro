@@ -21,7 +21,7 @@ export function FilterBarRoot<FieldId extends string, Kind extends EnumFieldKind
   children,
 }: FilterBarRootProps<FieldId, Kind>) {
   const uiFields = fields.map((field) => getUIFieldFromBuilder(field));
-  const [values, setValues] = useState<FilterBarValueType>({})
+  const [values, setValues] = useState<FilterBarValueType>([])
   return (
     <FilterBarContextProvider value={{
       uiFields,

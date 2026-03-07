@@ -7,7 +7,7 @@ export interface FilterBarValue<
   Kind extends EnumFieldKind,
   Op extends OperatorKindFor<Kind> = OperatorKindFor<Kind>
 > {
-  field: FieldId,
+  fieldId: FieldId,
   kind: Kind,
   operator: Op
   allowOperators: Op[]
@@ -17,7 +17,7 @@ export interface FilterBarValue<
 export type FilterBarValueType<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind
-> = Record<FieldId, FilterBarValue<FieldId, Kind>>
+  > = Array<Kind extends EnumFieldKind ? FilterBarValue<FieldId, Kind> : never>
 
 export interface FilterBarContextType<
   FieldId extends string = string,
@@ -30,7 +30,7 @@ export interface FilterBarContextType<
 
 const FilterBarContext = createContext<FilterBarContextType>({
   uiFields: [],
-  values: {},
+  values: [],
   setValues: null
 })
 

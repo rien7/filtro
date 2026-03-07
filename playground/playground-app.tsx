@@ -1,40 +1,7 @@
-import { useEffect, useMemo } from "react";
-import { FieldKind } from "../src/logical/field";
-import type { FilterBarValueType } from "../src/ui/filter-bar/context";
-import { useFilterBar } from "../src/ui/filter-bar/context";
-import { createFilterBarValue } from "../src/ui/filter-bar/state";
+import { useMemo } from "react";
 import { FilterBar, filtro } from "../src/ui/index";
 import { Button } from "../src/ui/baseui/button";
 import { Filter } from "lucide-react";
-
-function PlaygroundSeedFilters() {
-  const { uiFields, values, setValues } = useFilterBar();
-
-  useEffect(() => {
-    if (!setValues || Object.keys(values).length > 0 || uiFields.length === 0) {
-      return;
-    }
-
-    const nextValues = uiFields.reduce((accumulator, field) => {
-      const nextValue =
-        field.kind === FieldKind.select
-          ? createFilterBarValue(field, "open")
-          : field.kind === FieldKind.multiSelect
-            ? createFilterBarValue(field, "vip")
-            : createFilterBarValue(field as never);
-
-      if (nextValue) {
-        accumulator[field.id] = nextValue;
-      }
-
-      return accumulator;
-    }, {} as FilterBarValueType);
-
-    setValues(nextValues);
-  }, [setValues, uiFields, values]);
-
-  return null;
-}
 
 export function PlaygroundApp() {
   const fields = useMemo(
@@ -55,7 +22,10 @@ export function PlaygroundApp() {
         { label: "Trial", value: "trial" },
         { label: "Churn Risk", value: "churn-risk" },
       ]),
-      filtro.boolean("archived").meta({ label: "Archived" }),
+      filtro.boolean("archived").meta({ label: "Archived" }).options([
+        { label: "已归档", value: true },
+        { label: '未归档', value: false }
+      ]),
     ],
     [],
   );
@@ -66,16 +36,18 @@ export function PlaygroundApp() {
       <p className="sub">Use this page to debug src/ui components with HMR.</p>
       <section className="card">
         <FilterBar.Root fields={fields}>
-          <PlaygroundSeedFilters />
-          <FilterBar.Trigger iconMapping render={<Button variant="outline" />}>
-            <span className="grid grid-cols-[auto_1fr] gap-1.5 items-center">
-              <Filter />
-              Filter
-            </span>
-          </FilterBar.Trigger>
-          <div className="mt-4">
-            <FilterBar.Items />
-          </div>
+          <span className="grid grid-cols-[auto_auto] items-center w-fit gap-2">
+            <FilterBar.Trigger iconMapping render={<Button variant="outline" />}>
+              <span className="grid grid-cols-[auto_1fr] gap-1.5 items-center">
+                <Filter />
+                Filter
+              </span>
+            </FilterBar.Trigger>
+            <FilterBar.Clear render={<Button variant="outline" />}>
+              Clear
+            </FilterBar.Clear>
+          </span>
+          <FilterBar.Items className="mt-2" />
         </FilterBar.Root>
       </section>
     </main>

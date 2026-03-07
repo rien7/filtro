@@ -8,6 +8,7 @@ import {
 } from "./shared";
 
 export function BooleanValueEditor<FieldId extends string>({
+  field,
   item,
   onChange,
 }: FilterValueEditorProps<FieldId, typeof FieldKind.boolean>) {
@@ -21,7 +22,7 @@ export function BooleanValueEditor<FieldId extends string>({
           aria-pressed={item.value === true}
           onClick={() => onChange(true)}
         >
-          True
+          {field.options?.[0].label ?? 'True'}
         </Button>
         <Button
           type="button"
@@ -30,7 +31,7 @@ export function BooleanValueEditor<FieldId extends string>({
           aria-pressed={item.value === false}
           onClick={() => onChange(false)}
         >
-          False
+          {field.options?.[1].label ?? 'True'}
         </Button>
       </div>
     </div>
