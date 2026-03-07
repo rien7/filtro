@@ -83,11 +83,9 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
 
       {isEmptyOperator(item.operator) ? null : (
         <>
-          <ButtonGroupSeparator className="hidden md:block" />
-
           <div
             data-slot="button-group-text"
-            className="flex h-full min-w-0 grow overflow-hidden border border-border bg-background"
+            className="flex h-full min-w-0 grow overflow-hidden border border-border bg-background border-r-0"
           >
             <FilterValueEditor
               field={field}
@@ -100,8 +98,6 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
               }
             />
           </div>
-
-          <ButtonGroupSeparator className="hidden md:block" />
         </>
       )}
 
@@ -110,7 +106,7 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
         size="lg"
         aria-label={`Remove ${field.label ?? field.id} filter`}
         onClick={onRemove}
-        className="h-full min-h-0 px-2.5"
+        className="h-full min-h-0 px-2.5 !border-l hover:bg-destructive/20 hover:text-destructive focus-visible:border-destructive/40 hover:border-destructive/30"
       >
         <X className="size-4" />
       </Button>
