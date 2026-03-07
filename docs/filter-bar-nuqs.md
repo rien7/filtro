@@ -176,6 +176,9 @@ useNuqsFilterBarState({
 
 不同字段的编码规则：
 
+- 固定 operator 字段
+  - 不写 `${fieldId}Op`
+  - 直接使用字段定义上的固定 operator 解析 value
 - `string`
   - 值写到 `${fieldId}`
   - operator 写到 `${fieldId}Op`
@@ -216,6 +219,7 @@ useNuqsFilterBarState({
 
 - 分享旧 URL 到新版本页面时，失效条件会被自动丢弃
 - 字段或 operator 配置变化后，不会把非法状态塞回 UI
+- 字段改成固定 operator 后，旧的 `${fieldId}Op` 会被忽略，当前值按固定 operator 解释
 
 ## 8. 高级用法：自己接 `useQueryStates`
 

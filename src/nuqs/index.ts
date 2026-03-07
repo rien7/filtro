@@ -5,6 +5,7 @@ import type { FilterBarValueType } from "@/ui/filter-bar/context";
 import {
   areFilterBarValuesEqual,
   deserializeFilterBarValue,
+  getFieldAllowedOperators,
   getFilterBarQueryKeys,
   resolveFilterBarFields,
   sanitizeFilterBarValues,
@@ -48,8 +49,9 @@ export function createFilterBarNuqsParsers<
 
   for (const field of uiFields) {
     const keys = getFilterBarQueryKeys(field.id, prefix);
+    const allowedOperators = getFieldAllowedOperators(field);
 
-    parsers[keys.operator] = parseAsStringLiteral([...field.allowedOperators] as readonly string[]);
+    parsers[keys.operator] = parseAsStringLiteral(allowedOperators as readonly string[]);
 
     switch (field.kind) {
       case FieldKind.boolean:

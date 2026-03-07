@@ -176,7 +176,20 @@ export function operatorsForKind<K extends EnumFieldKind>(
   return kindsByField[kind] as OperatorKindFor<K>[];
 }
 
-const s = operatorsForKind(FieldKind.number);
+export function defaultOperatorForKind<K extends EnumFieldKind>(
+  kind: K,
+): OperatorKindFor<K> {
+  const defaultsByField = {
+    [FieldKind.string]: StringOperatorKind.contains,
+    [FieldKind.number]: NumberOperatorKind.eq,
+    [FieldKind.date]: DateOperatorKind.eq,
+    [FieldKind.select]: SelectOperatorKind.eq,
+    [FieldKind.multiSelect]: MultiSelectOperatorKind.hasAny,
+    [FieldKind.boolean]: BooleanOperatorKind.eq,
+  } as const satisfies { [P in EnumFieldKind]: OperatorKindFor<P> };
+
+  return defaultsByField[kind] as unknown as OperatorKindFor<K>;
+}
 
 export type OperatorKindFor<K extends EnumFieldKind> =
   K extends typeof FieldKind.string

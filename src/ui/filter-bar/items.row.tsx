@@ -15,6 +15,7 @@ import {
 import type { FilterBarValue } from "@/ui/filter-bar/context";
 import { isEmptyOperator, normalizeValueForOperator } from "@/ui/filter-bar/state";
 import { filterBarThemeSlot, useFilterBarTheme } from "@/ui/filter-bar/theme";
+import { getFieldAllowedOperators, hasFieldFixedOperator } from "@/ui/filter-bar/value";
 import { cn } from "@/ui/lib/utils";
 import type { UIFieldForKind } from "@/ui/types";
 
@@ -33,8 +34,9 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
   onRemove: () => void;
 }) {
   const theme = useFilterBarTheme();
-  const operatorLabel = OPERATOR_LABELS[item.operator] ?? item.operator;
-  const hasMultipleOperators = field.allowedOperators.length > 1;
+  const allowedOperators = getFieldAllowedOperators(field);
+  const hasLockedOperator = hasFieldFixedOperator(field);
+  const hasMultipleOperators = allowedOperators.length > 1;
 
   return (
     <ButtonGroup
@@ -45,7 +47,10 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
       <ButtonGroupText
         data-theme-slot={filterBarThemeSlot("rowField")}
         unstyled={theme.unstyledPrimitives}
-        className={theme.classNames.rowField}
+        className={cn(
+          theme.classNames.rowField,
+          hasLockedOperator ? "border-r" : null,
+        )}
       >
         <span
           data-theme-slot={filterBarThemeSlot("rowFieldText")}
@@ -62,7 +67,7 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
             onUpdate((current) => ({
               ...current,
               operator: nextOperator as typeof current.operator,
-              allowOperators: [...field.allowedOperators] as typeof current.allowOperators,
+              allowOperators: [...allowedOperators] as typeof current.allowOperators,
               value: normalizeValueForOperator({
                 field,
                 operator: nextOperator as OperatorKindFor<typeof field.kind>,
@@ -89,7 +94,7 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
             unstyled={theme.unstyledPrimitives}
             className={theme.classNames.selectContent}
           >
-            {field.allowedOperators.map((operator) => (
+            {allowedOperators.map((operator) => (
               <SelectItem
                 key={operator}
                 value={operator}
@@ -102,13 +107,13 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
             ))}
           </SelectContent>
         </Select>
-      ) : (
+      ) : hasLockedOperator ? null : (
         <ButtonGroupText
           data-theme-slot={filterBarThemeSlot("rowOperatorText")}
           unstyled={theme.unstyledPrimitives}
           className={theme.classNames.rowOperatorText}
         >
-          <span>{operatorLabel}</span>
+          <span>{OPERATOR_LABELS[item.operator] ?? item.operator}</span>
         </ButtonGroupText>
       )}
 

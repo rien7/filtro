@@ -1,5 +1,9 @@
 import { FieldKind, type EnumFieldKind } from "../logical/field.js";
-import { operatorsForKind, type OperatorKindFor } from "../logical/operator.js";
+import {
+  defaultOperatorForKind,
+  operatorsForKind,
+  type OperatorKindFor,
+} from "../logical/operator.js";
 import type {
   BooleanKind,
   BooleanOptions,
@@ -70,6 +74,9 @@ export type BaseFieldBuilder<
         placeholder: NonNullable<UIFieldBase<FieldId, Kind>["placeholder"]>,
       ): BaseFieldBuilder<FieldId, Kind, Used | "placeholder">;
       operator(
+        op: OperatorKindFor<Kind>,
+      ): BaseFieldBuilder<FieldId, Kind, Used | "operator">;
+      operator(
         ops:
           | readonly OperatorKindFor<Kind>[]
           | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
@@ -96,6 +103,9 @@ export type SelectFieldBuilder<
       placeholder(
         placeholder: NonNullable<UIFieldBase<FieldId, Kind>["placeholder"]>,
       ): SelectFieldBuilder<FieldId, Kind, Used | "placeholder">;
+      operator(
+        op: OperatorKindFor<Kind>,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "operator">;
       operator(
         ops:
           | readonly OperatorKindFor<Kind>[]
@@ -133,6 +143,9 @@ export type BooleanFieldBuilder<
       placeholder(
         placeholder: NonNullable<UIFieldBase<FieldId, Kind>["placeholder"]>,
       ): BooleanFieldBuilder<FieldId, Kind, Used | "placeholder">;
+      operator(
+        op: OperatorKindFor<Kind>,
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "operator">;
       operator(
         ops:
           | readonly OperatorKindFor<Kind>[]
@@ -210,6 +223,7 @@ class BuilderBase<
       id,
       kind,
       allowedOperators: operatorsForKind(kind),
+      fixedOperator: defaultOperatorForKind(kind),
     } as UIFieldForKind<FieldId, Kind>;
     this.#field = field;
     builderFieldStore.set(this, field as AnyUIField);
@@ -237,13 +251,20 @@ class BuilderBase<
 
   operator(
     ops:
+      | OperatorKindFor<Kind>
       | readonly OperatorKindFor<Kind>[]
       | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
   ) {
     const field = this.#field as UIFieldBase<FieldId, Kind>;
     const currentOps = [...field.allowedOperators];
-    const resolvedOps = typeof ops === "function" ? ops(currentOps) : ops;
+    const resolvedOps = typeof ops === "function"
+      ? ops(currentOps)
+      : Array.isArray(ops)
+        ? ops
+        : [ops];
+
     field.allowedOperators = [...resolvedOps];
+    field.fixedOperator = resolvedOps.length === 1 ? resolvedOps[0] : undefined;
     return this;
   }
 

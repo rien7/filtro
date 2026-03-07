@@ -5,7 +5,7 @@ import {
   type OperatorKindFor,
 } from "@/logical/operator";
 import type { FilterBarValue, FilterBarValueType } from "@/ui/filter-bar/context";
-import { isEmptyOperator } from "@/ui/filter-bar/value";
+import { getFieldAllowedOperators, isEmptyOperator } from "@/ui/filter-bar/value";
 import type {
   FlattenedSelectOption,
   SelectKind,
@@ -106,7 +106,8 @@ export function createFilterBarValue<FieldId extends string>(
   field: UIFieldForKind<FieldId, EnumFieldKind>,
   initialValue?: string,
 ) {
-  const operator = field.allowedOperators[0];
+  const allowedOperators = getFieldAllowedOperators(field);
+  const operator = allowedOperators[0];
 
   if (operator === undefined) {
     return null;
@@ -116,7 +117,7 @@ export function createFilterBarValue<FieldId extends string>(
     fieldId: field.id,
     kind: field.kind,
     operator,
-    allowOperators: [...field.allowedOperators],
+    allowOperators: allowedOperators,
     value: normalizeValueForOperator({
       field: field as UIFieldForKind<FieldId, typeof field.kind>,
       operator: operator as OperatorKindFor<typeof field.kind>,

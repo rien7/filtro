@@ -3,6 +3,7 @@ import {
   DateOperatorKind,
   EmptyOperatorKind,
   NumberOperatorKind,
+  type OperatorKindFor,
 } from "@/logical/operator";
 import type { FieldDefinition } from "@/ui/builder";
 import { getUIFieldFromBuilder, isFieldGroupDefinition } from "@/ui/builder";
@@ -72,6 +73,24 @@ function cloneFilterValue(value: FilterBarValue<string, EnumFieldKind>["value"])
   }
 
   return value;
+}
+
+export function getFieldAllowedOperators<
+  FieldId extends string,
+  Kind extends EnumFieldKind,
+>(field: UIFieldForKind<FieldId, Kind>): OperatorKindFor<Kind>[] {
+  if (field.fixedOperator !== undefined) {
+    return [field.fixedOperator] as OperatorKindFor<Kind>[];
+  }
+
+  return [...field.allowedOperators] as OperatorKindFor<Kind>[];
+}
+
+export function hasFieldFixedOperator<
+  FieldId extends string,
+  Kind extends EnumFieldKind,
+>(field: UIFieldForKind<FieldId, Kind>) {
+  return field.fixedOperator !== undefined;
 }
 
 function isValueCompatible(
@@ -276,7 +295,8 @@ export function sanitizeFilterBarValue<
   field: UIFieldForKind<FieldId, Kind>,
   input: FilterBarValue<FieldId, Kind>,
 ): FilterBarValue<FieldId, Kind> | null {
-  const operator = field.allowedOperators.find((candidate) => candidate === input.operator);
+  const allowedOperators = getFieldAllowedOperators(field);
+  const operator = allowedOperators.find((candidate) => candidate === input.operator);
 
   if (
     operator === undefined ||
@@ -291,7 +311,7 @@ export function sanitizeFilterBarValue<
       fieldId: field.id,
       kind: field.kind,
       operator,
-      allowOperators: [...field.allowedOperators],
+      allowOperators: allowedOperators,
       value: null,
     } as FilterBarValue<FieldId, Kind>;
   }
@@ -310,7 +330,7 @@ export function sanitizeFilterBarValue<
     fieldId: field.id,
     kind: field.kind,
     operator,
-    allowOperators: [...field.allowedOperators],
+    allowOperators: allowedOperators,
     value: cloneFilterValue(input.value) as FilterBarValue<FieldId, Kind>["value"],
   } as FilterBarValue<FieldId, Kind>;
 }
@@ -368,19 +388,22 @@ export function serializeFilterBarValue<
   { prefix = "" }: { prefix?: string } = {},
 ): SerializedFilterBarValue {
   const keys = getFilterBarQueryKeys(field.id, prefix);
+  const hasFixedOperator = hasFieldFixedOperator(field);
   const serialized: SerializedFilterBarValue = {
-    [keys.operator]: null,
     [keys.value]: null,
     [keys.from]: null,
     [keys.to]: null,
   };
+  serialized[keys.operator] = null;
   const value = input ? sanitizeFilterBarValue(field, input) : null;
 
   if (!value) {
     return serialized;
   }
 
-  serialized[keys.operator] = value.operator;
+  if (!hasFixedOperator) {
+    serialized[keys.operator] = value.operator;
+  }
 
   if (isEmptyOperator(value.operator)) {
     return serialized;
@@ -428,7 +451,7 @@ export function deserializeFilterBarValue<
   { prefix = "" }: { prefix?: string } = {},
 ): FilterBarValue<FieldId, Kind> | null {
   const keys = getFilterBarQueryKeys(field.id, prefix);
-  const operator = queryState[keys.operator];
+  const operator = field.fixedOperator ?? queryState[keys.operator];
 
   if (typeof operator !== "string") {
     return null;
@@ -446,7 +469,7 @@ export function deserializeFilterBarValue<
     fieldId: field.id,
     kind: field.kind,
     operator: operator as FilterBarValue<FieldId, Kind>["operator"],
-    allowOperators: [...field.allowedOperators] as FilterBarValue<FieldId, Kind>["allowOperators"],
+    allowOperators: getFieldAllowedOperators(field) as FilterBarValue<FieldId, Kind>["allowOperators"],
     value: parsedValue as FilterBarValue<FieldId, Kind>["value"],
   } as FilterBarValue<FieldId, Kind>);
 }

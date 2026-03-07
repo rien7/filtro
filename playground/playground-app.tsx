@@ -186,12 +186,15 @@ function useFiltroFields() {
       filtro.group("Basic", [
         filtro.string("keyword")
           .label("Keyword")
-          .placeholder("Search name or email"),
+          .placeholder("Search name or email")
+          .operator((ops) => ops),
         filtro.number("amount")
           .label("Amount")
-          .placeholder("Enter amount"),
+          .placeholder("Enter amount")
+          .operator((ops) => ops),
         filtro.date("createdAt")
-          .label("Created At"),
+          .label("Created At")
+          .operator((ops) => ops),
       ]),
       filtro.group("Attributes", [
         filtro.select("status").label("Status").options([
