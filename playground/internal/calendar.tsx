@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 import {
   Button,
   buttonVariants,
-} from "@/presets/default-theme/internal/baseui/button"
+} from "@/filter-bar/internal/primitives/baseui/button"
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react"
 
 function Calendar({

@@ -49,8 +49,8 @@
 - [`src/filter-bar/builder.ts`](https://github.com/rien7/filtro/blob/main/src/filter-bar/builder.ts): `filtro.string/number/select/...` builder API
 - [`src/filter-bar/types.ts`](https://github.com/rien7/filtro/blob/main/src/filter-bar/types.ts): UI 字段类型、选项加载类型、自定义 render 类型
 - [`src/filter-bar`](https://github.com/rien7/filtro/tree/main/src/filter-bar): `FilterBar.Root/Trigger/Items/Clear/SaveView/Views` 及其状态逻辑
+- [`src/filter-bar/internal/primitives/baseui`](https://github.com/rien7/filtro/tree/main/src/filter-bar/internal/primitives/baseui): 当前 `FilterBar` 实现依赖的内部 Base UI 包装件
 - [`src/presets/default-theme/index.tsx`](https://github.com/rien7/filtro/blob/main/src/presets/default-theme/index.tsx): `defaultFilterBarTheme` 和默认 preset 导出
-- [`src/presets/default-theme/internal/baseui`](https://github.com/rien7/filtro/tree/main/src/presets/default-theme/internal/baseui): 默认 preset 内部使用的 Base UI 包装件
 - [`src/presets/default-theme/styles.css`](https://github.com/rien7/filtro/blob/main/src/presets/default-theme/styles.css): 默认主题样式源文件
 - [`src/nuqs/index.ts`](https://github.com/rien7/filtro/blob/main/src/nuqs/index.ts): URL 同步
 - [`playground`](https://github.com/rien7/filtro/tree/main/playground): 本地调试页面

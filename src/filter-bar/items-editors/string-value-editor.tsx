@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { FieldKind } from "@/logical/field";
-import { Input } from "@/presets/default-theme/internal/baseui/input";
+import { Input } from "@/filter-bar/internal/primitives/baseui/input";
 import { validateFieldValue } from "@/filter-bar/validation";
 import { filterBarThemeSlot, useFilterBarTheme } from "@/filter-bar/theme";
 

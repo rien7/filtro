@@ -2,18 +2,18 @@ import { useId, useState } from "react";
 
 import { type EnumFieldKind } from "@/logical/field";
 import { type OperatorKindFor } from "@/logical/operator";
-import { Button } from "@/presets/default-theme/internal/baseui/button";
+import { Button } from "@/filter-bar/internal/primitives/baseui/button";
 import {
   ButtonGroup,
   ButtonGroupText,
-} from "@/presets/default-theme/internal/baseui/button-group";
+} from "@/filter-bar/internal/primitives/baseui/button-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/presets/default-theme/internal/baseui/select";
+} from "@/filter-bar/internal/primitives/baseui/select";
 import type { FilterBarValue } from "@/filter-bar/context";
 import { isEmptyOperator, normalizeValueForOperator } from "@/filter-bar/state";
 import { filterBarThemeSlot, useFilterBarTheme } from "@/filter-bar/theme";

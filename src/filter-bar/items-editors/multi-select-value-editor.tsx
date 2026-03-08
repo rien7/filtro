@@ -7,7 +7,7 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@/presets/default-theme/internal/baseui/select";
+} from "@/filter-bar/internal/primitives/baseui/select";
 import { useSelectableFieldOptions } from "@/filter-bar/select-options";
 import {
   hasSelectOptionIcon,

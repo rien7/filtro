@@ -11,13 +11,13 @@ import {
 import { headlessFilterBarTheme, type FilterBarTheme } from "@/filter-bar/theme";
 import { FieldKind } from "@/logical/field";
 
-export * from "./internal/baseui/button";
-export * from "./internal/baseui/button-group";
-export * from "./internal/baseui/dropdown-menu";
-export * from "./internal/baseui/input";
-export * from "./internal/baseui/select";
-export * from "./internal/baseui/separator";
-export * from "./internal/baseui/switch";
+export * from "@/filter-bar/internal/primitives/baseui/button";
+export * from "@/filter-bar/internal/primitives/baseui/button-group";
+export * from "@/filter-bar/internal/primitives/baseui/dropdown-menu";
+export * from "@/filter-bar/internal/primitives/baseui/input";
+export * from "@/filter-bar/internal/primitives/baseui/select";
+export * from "@/filter-bar/internal/primitives/baseui/separator";
+export * from "@/filter-bar/internal/primitives/baseui/switch";
 
 export const defaultFilterBarTheme: FilterBarTheme = {
   ...headlessFilterBarTheme,

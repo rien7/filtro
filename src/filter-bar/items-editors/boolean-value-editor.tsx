@@ -1,5 +1,5 @@
 import { FieldKind } from "@/logical/field";
-import { Button } from "@/presets/default-theme/internal/baseui/button";
+import { Button } from "@/filter-bar/internal/primitives/baseui/button";
 import { filterBarThemeSlot, useFilterBarTheme } from "@/filter-bar/theme";
 
 import type { FilterValueEditorProps } from "./shared";
