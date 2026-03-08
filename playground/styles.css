@@ -180,8 +180,89 @@ h1 {
   color: #be123c;
 }
 
+.demo-date-number-field {
+  display: grid;
+  min-width: 140px;
+  gap: 4px;
+  padding: 8px 10px;
+}
+
+.demo-date-number-label {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.demo-date-number-input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.demo-date-trigger {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+  padding: 0 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.demo-date-trigger[data-popup-open] {
+  background: transparent;
+}
+
+.demo-date-trigger-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.demo-date-positioner {
+  z-index: 60;
+}
+
+.demo-date-popup {
+  width: fit-content;
+  max-width: calc(100vw - 24px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  outline: none;
+  overflow: hidden;
+  padding: 0;
+}
+
+.demo-date-calendar {
+  width: fit-content;
+}
+
+.demo-date-calendar .rdp-months {
+  justify-content: center;
+}
+
 @media (min-width: 920px) {
   .demo-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .demo-date-trigger {
+    width: fit-content;
   }
 }

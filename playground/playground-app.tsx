@@ -9,6 +9,7 @@ import {
   type FilterBarThemeInput,
 } from "../src/ui/index";
 import { useNuqsFilterBarState } from "../src/nuqs/index";
+import { PlaygroundCalendarDateEditor } from "./calendar-date-editor";
 
 function loadAsyncOwners() {
   return new Promise<Array<{ label: string; value: string }>>((resolve) => {
@@ -195,6 +196,16 @@ function useFiltroFields() {
         filtro.date("createdAt")
           .label("Created At")
           .operator((ops) => ops),
+        filtro.date("releaseWindow")
+          .label("Release Window")
+          .operator((ops) => ops)
+          .render(({ op, value, onChange }) => (
+            <PlaygroundCalendarDateEditor
+              op={op}
+              value={value}
+              onChange={onChange}
+            />
+          )),
       ]),
       filtro.group("Attributes", [
         filtro.select("status").label("Status").options([
