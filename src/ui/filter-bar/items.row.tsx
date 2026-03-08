@@ -1,3 +1,5 @@
+import { useId, useState } from "react";
+
 import { type EnumFieldKind } from "@/logical/field";
 import { type OperatorKindFor } from "@/logical/operator";
 import { Button } from "@/ui/baseui/button";
@@ -34,91 +36,96 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
   onRemove: () => void;
 }) {
   const theme = useFilterBarTheme();
+  const errorId = useId();
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const allowedOperators = getFieldAllowedOperators(field);
   const hasLockedOperator = hasFieldFixedOperator(field);
   const hasMultipleOperators = allowedOperators.length > 1;
 
   return (
-    <ButtonGroup
-      data-theme-slot={filterBarThemeSlot("row")}
-      unstyled={theme.unstyledPrimitives}
-      className={theme.classNames.row}
+    <div
+      data-theme-slot={filterBarThemeSlot("rowRoot")}
+      className={theme.classNames.rowRoot}
     >
-      <ButtonGroupText
-        data-theme-slot={filterBarThemeSlot("rowField")}
+      <ButtonGroup
+        data-theme-slot={filterBarThemeSlot("row")}
         unstyled={theme.unstyledPrimitives}
-        className={cn(
-          theme.classNames.rowField,
-          hasLockedOperator ? "border-r" : null,
-        )}
+        className={theme.classNames.row}
       >
-        <span
-          data-theme-slot={filterBarThemeSlot("rowFieldText")}
-          className={theme.classNames.rowFieldText}
-        >
-          {field.label ?? field.id}
-        </span>
-      </ButtonGroupText>
-
-      {hasMultipleOperators ? (
-        <Select<string>
-          value={item.operator}
-          onValueChange={(nextOperator) =>
-            onUpdate((current) => ({
-              ...current,
-              operator: nextOperator as typeof current.operator,
-              allowOperators: [...allowedOperators] as typeof current.allowOperators,
-              value: normalizeValueForOperator({
-                field,
-                operator: nextOperator as OperatorKindFor<typeof field.kind>,
-                previousValue: current.value as never,
-              }) as typeof current.value,
-            }))
-          }
-        >
-          <SelectTrigger
-            data-theme-slot={filterBarThemeSlot("selectTrigger", "rowOperatorTrigger")}
-            unstyled={theme.unstyledPrimitives}
-            className={cn(
-              theme.classNames.selectTrigger,
-              theme.classNames.rowOperatorTrigger,
-            )}
-            render={<Button unstyled={theme.unstyledPrimitives} variant="outline" />}
-          >
-            <SelectValue>
-              {(value) => OPERATOR_LABELS[String(value)] ?? String(value ?? "")}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent
-            data-theme-slot={filterBarThemeSlot("selectContent")}
-            unstyled={theme.unstyledPrimitives}
-            className={theme.classNames.selectContent}
-          >
-            {allowedOperators.map((operator) => (
-              <SelectItem
-                key={operator}
-                value={operator}
-                data-theme-slot={filterBarThemeSlot("selectItem")}
-                unstyled={theme.unstyledPrimitives}
-                className={theme.classNames.selectItem}
-              >
-                {OPERATOR_LABELS[operator] ?? operator}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ) : hasLockedOperator ? null : (
         <ButtonGroupText
-          data-theme-slot={filterBarThemeSlot("rowOperatorText")}
+          data-theme-slot={filterBarThemeSlot("rowField")}
           unstyled={theme.unstyledPrimitives}
-          className={theme.classNames.rowOperatorText}
+          className={cn(
+            theme.classNames.rowField,
+            hasLockedOperator ? "border-r" : null,
+          )}
         >
-          <span>{OPERATOR_LABELS[item.operator] ?? item.operator}</span>
+          <span
+            data-theme-slot={filterBarThemeSlot("rowFieldText")}
+            className={theme.classNames.rowFieldText}
+          >
+            {field.label ?? field.id}
+          </span>
         </ButtonGroupText>
-      )}
 
-      {isEmptyOperator(item.operator) ? null : (
-        <>
+        {hasMultipleOperators ? (
+          <Select<string>
+            value={item.operator}
+            onValueChange={(nextOperator) =>
+              onUpdate((current) => ({
+                ...current,
+                operator: nextOperator as typeof current.operator,
+                allowOperators: [...allowedOperators] as typeof current.allowOperators,
+                value: normalizeValueForOperator({
+                  field,
+                  operator: nextOperator as OperatorKindFor<typeof field.kind>,
+                  previousValue: current.value as never,
+                }) as typeof current.value,
+              }))
+            }
+          >
+            <SelectTrigger
+              data-theme-slot={filterBarThemeSlot("selectTrigger", "rowOperatorTrigger")}
+              unstyled={theme.unstyledPrimitives}
+              className={cn(
+                theme.classNames.selectTrigger,
+                theme.classNames.rowOperatorTrigger,
+              )}
+              render={<Button unstyled={theme.unstyledPrimitives} variant="outline" />}
+            >
+              <SelectValue>
+                {(value) => OPERATOR_LABELS[String(value)] ?? String(value ?? "")}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent
+              data-theme-slot={filterBarThemeSlot("selectContent")}
+              unstyled={theme.unstyledPrimitives}
+              className={theme.classNames.selectContent}
+            >
+              {allowedOperators.map((operator) => (
+                <SelectItem
+                  key={operator}
+                  value={operator}
+                  data-theme-slot={filterBarThemeSlot("selectItem")}
+                  unstyled={theme.unstyledPrimitives}
+                  className={theme.classNames.selectItem}
+                >
+                  {OPERATOR_LABELS[operator] ?? operator}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : hasLockedOperator ? null : (
+          <ButtonGroupText
+            data-theme-slot={filterBarThemeSlot("rowOperatorText")}
+            unstyled={theme.unstyledPrimitives}
+            className={theme.classNames.rowOperatorText}
+          >
+            <span>{OPERATOR_LABELS[item.operator] ?? item.operator}</span>
+          </ButtonGroupText>
+        )}
+
+        {isEmptyOperator(item.operator) ? null : (
           <div
             data-slot="button-group-text"
             data-theme-slot={filterBarThemeSlot("rowValue")}
@@ -133,22 +140,34 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
                   value,
                 }))
               }
+              onValidationChange={setValidationMessage}
+              errorDescriptionId={errorId}
             />
           </div>
-        </>
-      )}
+        )}
 
-      <Button
-        data-theme-slot={filterBarThemeSlot("rowRemoveButton")}
-        unstyled={theme.unstyledPrimitives}
-        variant="outline"
-        size="lg"
-        aria-label={`Remove ${field.label ?? field.id} filter`}
-        onClick={onRemove}
-        className={theme.classNames.rowRemoveButton}
-      >
-        {theme.icons.remove ?? theme.texts.removeLabelFallback}
-      </Button>
-    </ButtonGroup>
+        <Button
+          data-theme-slot={filterBarThemeSlot("rowRemoveButton")}
+          unstyled={theme.unstyledPrimitives}
+          variant="outline"
+          size="lg"
+          aria-label={`Remove ${field.label ?? field.id} filter`}
+          onClick={onRemove}
+          className={theme.classNames.rowRemoveButton}
+        >
+          {theme.icons.remove ?? theme.texts.removeLabelFallback}
+        </Button>
+      </ButtonGroup>
+
+      {validationMessage ? (
+        <div
+          id={errorId}
+          data-theme-slot={filterBarThemeSlot("rowError")}
+          className={theme.classNames.rowError}
+        >
+          {validationMessage}
+        </div>
+      ) : null}
+    </div>
   );
 }

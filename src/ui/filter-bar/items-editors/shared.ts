@@ -10,6 +10,8 @@ export interface FilterValueEditorProps<
   field: UIFieldForKind<FieldId, Kind>;
   item: FilterBarValue<FieldId, Kind>;
   onChange: (value: FilterBarValue<FieldId, Kind>["value"]) => void;
+  onValidationChange: ((message: string | null) => void) | undefined;
+  errorDescriptionId: string | undefined;
 }
 
 export function stringifyArrayValue(value: string[]) {

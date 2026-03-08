@@ -17,7 +17,48 @@ export type UIFieldRender = <
   op: Op;
   value: OperatorValueFor<Kind, Op> | null;
   onChange: (value: OperatorValueFor<Kind, Op> | null) => void;
+  validate: (value: OperatorValueFor<Kind, Op> | null) => string | null;
 }) => ReactNode;
+
+export type UIFieldValidationResult = string | null | undefined;
+
+export type UIFieldValidator = <
+  Kind extends EnumFieldKind,
+  Op extends OperatorKindFor<Kind>,
+>({
+  op,
+  value,
+}: {
+  op: Op;
+  value: OperatorValueFor<Kind, Op> | null;
+}) => UIFieldValidationResult;
+
+export interface SafeParseIssue {
+  message?: string;
+}
+
+export interface SafeParseSuccess<T = unknown> {
+  success: true;
+  data: T;
+}
+
+export interface SafeParseFailure {
+  success: false;
+  error: {
+    issues?: SafeParseIssue[];
+    message?: string;
+  };
+}
+
+export interface SafeParseSchema<T = unknown> {
+  safeParse(input: unknown): SafeParseSuccess<T> | SafeParseFailure;
+}
+
+export type SafeParseSchemaResolver<
+  Kind extends EnumFieldKind = EnumFieldKind,
+> =
+  | SafeParseSchema
+  | ((context: { op: OperatorKindFor<Kind> }) => SafeParseSchema);
 
 export interface UIFieldBase<
   FieldId extends string = string,
@@ -28,6 +69,7 @@ export interface UIFieldBase<
   description?: string;
   placeholder?: string;
   render?: UIFieldRender;
+  validators?: UIFieldValidator[];
 }
 
 export interface SelectOption {

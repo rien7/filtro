@@ -160,12 +160,14 @@ export function CompactExample() {
 
 - `itemsRoot`
 - `emptyState`
+- `rowRoot`
 - `row`
 - `rowField`
 - `rowFieldText`
 - `rowOperatorTrigger`
 - `rowOperatorText`
 - `rowValue`
+- `rowError`
 - `rowRemoveButton`
 - `triggerMenuContent`
 - `triggerMenuSeparator`
@@ -192,6 +194,7 @@ export function CompactExample() {
 - `selectSearchInput`
 - `selectSeparator`
 - `editorRoot`
+- `editorFieldset`
 - `editorControl`
 - `editorSplit`
 - `booleanTrueButton`

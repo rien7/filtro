@@ -263,8 +263,67 @@ function useFiltroFields() {
   );
 }
 
+function useValidationFields() {
+  return useMemo(
+    () => [
+      filtro.group("Validation", [
+        filtro.string("validatedKeyword")
+          .label("Keyword")
+          .placeholder("At least 3 characters")
+          .operator((ops) => ops)
+          .validate(({ value }) => {
+            if (value == null) {
+              return null;
+            }
+
+            return value.trim().length >= 3 ? null : "Use at least 3 characters";
+          }),
+        filtro.number("validatedAmount")
+          .label("Amount")
+          .placeholder("Zero or greater")
+          .operator((ops) => ops)
+          .validate(({ op, value }) => {
+            if (value == null) {
+              return null;
+            }
+
+            if (op === "between" || op === "notBetween") {
+              return value[0] <= value[1] ? null : "Min must be less than or equal to max";
+            }
+
+            return value >= 0 ? null : "Amount must be zero or greater";
+          }),
+        filtro.date("validatedCreatedAt")
+          .label("Created At")
+          .operator((ops) => ops)
+          .validate(({ op, value }) => {
+            if (value == null) {
+              return null;
+            }
+
+            if (op === "between" || op === "notBetween") {
+              return value[0] <= value[1]
+                ? null
+                : "Start date must be before or equal to end date";
+            }
+
+            if (op === "lastNDays" || op === "nextNDays") {
+              return value > 0 ? null : "Days must be greater than 0";
+            }
+
+            return value >= "2024-01-01"
+              ? null
+              : "Date must be on or after 2024-01-01";
+          }),
+      ]),
+    ],
+    [],
+  );
+}
+
 export function PlaygroundApp() {
   const fields = useFiltroFields();
+  const validationFields = useValidationFields();
   const [view, setView] = useState<DemoView>("both");
   const showHeadless = view === "headless" || view === "both";
   const showDefault = view === "default" || view === "both";
@@ -318,6 +377,38 @@ export function PlaygroundApp() {
               description="Uses defaultFilterBarTheme and the exported styled Button primitive."
               fields={fields}
               storageKey="playground:default-theme"
+              theme={defaultFilterBarTheme}
+              styled
+            />
+          ) : null}
+        </div>
+      </section>
+
+      <section className="card">
+        <div className="demo-card-header">
+          <h2>Validation Examples</h2>
+          <p>
+            Try short text, negative numbers, reversed ranges, or <code>last N
+            days</code> set to <code>0</code>. Invalid raw input stays in the editor
+            while only valid values are committed.
+          </p>
+        </div>
+        <div className={view === "both" ? "demo-grid" : "demo-stack"}>
+          {showHeadless ? (
+            <DemoCard
+              title="Headless Validation"
+              description="Uses builder-level validate() rules without the default theme."
+              fields={validationFields}
+              storageKey="playground:validation-headless"
+              styled={false}
+            />
+          ) : null}
+          {showDefault ? (
+            <DemoCard
+              title="Default Theme Validation"
+              description="Same rules with the default themed preset and inline error UI."
+              fields={validationFields}
+              storageKey="playground:validation-default-theme"
               theme={defaultFilterBarTheme}
               styled
             />
