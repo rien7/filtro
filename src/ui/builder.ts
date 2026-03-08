@@ -11,6 +11,8 @@ import type {
   SelectKind,
   SelectOptionsLoadMode,
   SelectOptions,
+  SelectUIField,
+  UseSelectOptions,
   UIFieldBase,
   UIFieldForKind,
   UIFieldRender,
@@ -26,6 +28,7 @@ type BaseFieldBuilderMethod =
 type SelectFieldBuilderMethod =
   | BaseFieldBuilderMethod
   | "options"
+  | "useOptions"
   | "loadOptions"
   | "searchable";
 type MultiSelectFieldBuilderMethod =
@@ -113,6 +116,9 @@ export type SelectFieldBuilder<
       ): SelectFieldBuilder<FieldId, Kind, Used | "operator">;
       render(fn: UIFieldRender): SelectFieldBuilder<FieldId, Kind, Used | "render">;
       options(options: SelectOptions): SelectFieldBuilder<FieldId, Kind, Used | "options">;
+      useOptions(
+        useOptions: UseSelectOptions<FieldId, Kind>,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "useOptions">;
       loadOptions(
         mode: SelectOptionsLoadMode,
       ): SelectFieldBuilder<FieldId, Kind, Used | "loadOptions">;
@@ -284,7 +290,16 @@ class SelectBuilderBase<
   }
 
   options(options: SelectOptions) {
-    this.field.options = options;
+    const field = this.field as SelectUIField<FieldId, Kind>;
+    delete field.useOptions;
+    field.options = options;
+    return this;
+  }
+
+  useOptions(useOptions: UseSelectOptions<FieldId, Kind>) {
+    const field = this.field as SelectUIField<FieldId, Kind>;
+    delete field.options;
+    field.useOptions = useOptions;
     return this;
   }
 

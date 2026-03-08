@@ -40,6 +40,15 @@ export interface SelectOption {
 
 export type FlattenedSelectOption = Omit<SelectOption, "children">;
 
+export const SelectOptionsStatus = {
+  idle: "idle",
+  loading: "loading",
+  success: "success",
+  error: "error",
+} as const;
+
+export type SelectOptionsStatus = (typeof SelectOptionsStatus)[keyof typeof SelectOptionsStatus];
+
 export type SelectOptionsLoadMode = "render" | "open";
 
 export type SelectOptionLoader = ({
@@ -49,6 +58,32 @@ export type SelectOptionLoader = ({
   query: string;
   signal?: AbortSignal;
 }) => Promise<SelectOption[]>;
+
+export interface SelectOptionsSourceContext<
+  FieldId extends string = string,
+  Kind extends SelectKind = SelectKind,
+> {
+  field: SelectUIField<FieldId, Kind>;
+  open: boolean;
+  query: string;
+  normalizedQuery: string;
+  selectedValues: string[];
+  shouldLoad: boolean;
+}
+
+export interface SelectOptionsSourceResult {
+  options: SelectOption[];
+  status: SelectOptionsStatus;
+  error?: Error | null;
+  selectedOptions?: FlattenedSelectOption[];
+}
+
+export type UseSelectOptions<
+  FieldId extends string = string,
+  Kind extends SelectKind = SelectKind,
+> = (
+  context: SelectOptionsSourceContext<FieldId, Kind>,
+) => SelectOptionsSourceResult;
 
 export type SelectOptions = SelectOption[] | SelectOptionLoader;
 export type BooleanOptions = [{ label: string, value: true }, { label: string, value: false }]
@@ -64,6 +99,7 @@ export interface SelectUIField<
   Kind extends SelectKind = SelectKind,
 > extends UIFieldBase<FieldId, Kind> {
   options?: SelectOptions;
+  useOptions?: UseSelectOptions<FieldId, Kind>;
   optionsLoadMode?: SelectOptionsLoadMode;
   optionsSearchable?: boolean;
   renderValueLabel?: MultiSelectValueLabelRenderer;

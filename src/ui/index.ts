@@ -17,19 +17,4 @@ export * from "./baseui/input";
 export * from "./baseui/select";
 export * from "./baseui/switch";
 export * from "./filter-bar";
-export type {
-  BooleanOptions,
-  BooleanUIField,
-  MultiSelectValueLabelRenderer,
-  SelectKind,
-  SelectOptionLoader,
-  SelectOption,
-  SelectOptionsLoadMode,
-  SelectOptions,
-  UIFieldEntry,
-  SelectUIField,
-  UIFieldBase,
-  UIFieldForKind,
-  UIFieldGroup,
-  UIFieldRender,
-} from "./types";
+export * from "./types";

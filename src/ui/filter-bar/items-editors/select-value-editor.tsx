@@ -12,6 +12,7 @@ import { useSelectableFieldOptions } from "@/ui/filter-bar/select-options";
 import { SelectOptionLabel } from "@/ui/filter-bar/select-option-content";
 import { filterBarThemeSlot, useFilterBarTheme } from "@/ui/filter-bar/theme";
 import { cn } from "@/ui/lib/utils";
+import { SelectOptionsStatus } from "@/ui/types";
 
 import type { FilterValueEditorProps } from "./shared";
 import { getOptionLabel } from "./shared";
@@ -92,7 +93,7 @@ export function SelectValueEditor<FieldId extends string>({
               />
             </>
           ) : null}
-          {status === "loading" ? (
+          {status === SelectOptionsStatus.loading ? (
             <SelectItem
               disabled
               value="__loading__"
@@ -102,7 +103,7 @@ export function SelectValueEditor<FieldId extends string>({
             >
               {theme.texts.loadingOptions}
             </SelectItem>
-          ) : status === "error" ? (
+          ) : status === SelectOptionsStatus.error ? (
             <SelectItem
               disabled
               value="__error__"

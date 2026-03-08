@@ -33,6 +33,7 @@ import type {
   UIFieldEntry,
   UIFieldForKind,
 } from "@/ui/types";
+import { SelectOptionsStatus } from "@/ui/types";
 
 function isSelectionKind<FieldId extends string, Kind extends EnumFieldKind>(
   field: UIFieldForKind<FieldId, Kind>,
@@ -199,7 +200,7 @@ function TriggerSelectionField<FieldId extends string, Kind extends SelectKind>(
               />
             </>
           ) : null}
-          {status === "loading" ? (
+          {status === SelectOptionsStatus.loading ? (
             <DropdownMenuItem
               disabled
               data-theme-slot={filterBarThemeSlot("triggerEmptyItem")}
@@ -208,7 +209,7 @@ function TriggerSelectionField<FieldId extends string, Kind extends SelectKind>(
             >
               {theme.texts.loadingOptions}
             </DropdownMenuItem>
-          ) : status === "error" ? (
+          ) : status === SelectOptionsStatus.error ? (
             <DropdownMenuItem
               disabled
               data-theme-slot={filterBarThemeSlot("triggerEmptyItem")}

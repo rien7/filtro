@@ -1,17 +1,18 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
-import type {
-  FlattenedSelectOption,
-  SelectKind,
-  SelectOption,
-  SelectOptionLoader,
-  SelectUIField,
-} from "@/ui/types";
 import { flattenSelectOptions } from "@/ui/filter-bar/state";
-
-type SelectOptionsStatus = "idle" | "loading" | "success" | "error";
+import {
+  SelectOptionsStatus,
+  type FlattenedSelectOption,
+  type SelectKind,
+  type SelectOption,
+  type SelectOptionLoader,
+  type SelectOptionsSourceContext,
+  type SelectOptionsSourceResult,
+  type SelectUIField,
+  type UseSelectOptions,
+} from "@/ui/types";
 
 const resolvedOptionsCache = new Map<string, SelectOption[]>();
-const pendingOptionsCache = new Map<string, Promise<SelectOption[]>>();
 const knownOptionsCache = new Map<string, Map<string, FlattenedSelectOption>>();
 
 function getOptionsCacheKey(fieldId: string, query: string) {
@@ -19,10 +20,16 @@ function getOptionsCacheKey(fieldId: string, query: string) {
 }
 
 function rememberKnownOptions(fieldId: string, options: SelectOption[]) {
-  const nextOptions = flattenSelectOptions(options);
+  rememberFlattenedKnownOptions(fieldId, flattenSelectOptions(options));
+}
+
+function rememberFlattenedKnownOptions(
+  fieldId: string,
+  options: FlattenedSelectOption[],
+) {
   const cachedOptions = knownOptionsCache.get(fieldId) ?? new Map<string, FlattenedSelectOption>();
 
-  for (const option of nextOptions) {
+  for (const option of options) {
     cachedOptions.set(option.value, option);
   }
 
@@ -44,6 +51,7 @@ function getStaticOptions<FieldId extends string, Kind extends SelectKind>(
 async function resolveOptionsLoader<FieldId extends string, Kind extends SelectKind>(
   field: SelectUIField<FieldId, Kind> & { options: SelectOptionLoader },
   query: string,
+  signal?: AbortSignal,
 ) {
   const cacheKey = getOptionsCacheKey(field.id, query);
   const cachedOptions = resolvedOptionsCache.get(cacheKey);
@@ -51,53 +59,40 @@ async function resolveOptionsLoader<FieldId extends string, Kind extends SelectK
     return cachedOptions;
   }
 
-  const pendingOptions = pendingOptionsCache.get(cacheKey);
-  if (pendingOptions) {
-    return pendingOptions;
-  }
-
-  const nextRequest = field.options({ query })
-    .then((options) => {
-      resolvedOptionsCache.set(cacheKey, options);
-      rememberKnownOptions(field.id, options);
-      pendingOptionsCache.delete(cacheKey);
-      return options;
-    })
-    .catch((error) => {
-      pendingOptionsCache.delete(cacheKey);
-      throw error;
-    });
-
-  pendingOptionsCache.set(cacheKey, nextRequest);
-  return nextRequest;
+  const nextOptions = await field.options(signal ? { query, signal } : { query });
+  resolvedOptionsCache.set(cacheKey, nextOptions);
+  rememberKnownOptions(field.id, nextOptions);
+  return nextOptions;
 }
 
-export function useSelectOptions<FieldId extends string, Kind extends SelectKind>(
-  field: SelectUIField<FieldId, Kind>,
-  {
-    query = "",
-    shouldLoadOnRender = false,
-  }: {
-    query?: string;
-    shouldLoadOnRender?: boolean;
-  } = {},
-) {
-  const normalizedQuery = query.trim().toLowerCase();
+function useBuiltInSelectOptions<
+  FieldId extends string,
+  Kind extends SelectKind,
+>(
+  context: SelectOptionsSourceContext<FieldId, Kind>,
+): SelectOptionsSourceResult {
+  const {
+    field,
+    normalizedQuery,
+    shouldLoad,
+  } = context;
   const cacheKey = getOptionsCacheKey(field.id, normalizedQuery);
   const isAsync = isAsyncOptionsLoader(field);
-  const [status, setStatus] = useState<SelectOptionsStatus>(() => {
-    if (!isAsync) {
-      return "success";
-    }
-
-    return resolvedOptionsCache.has(cacheKey) ? "success" : "idle";
-  });
   const [options, setOptions] = useState<SelectOption[]>(() => {
     if (!isAsync) {
-      return getStaticOptions(field);
+      return filterSelectOptions(getStaticOptions(field), normalizedQuery);
     }
 
     return resolvedOptionsCache.get(cacheKey) ?? [];
+  });
+  const [status, setStatus] = useState<SelectOptionsStatus>(() => {
+    if (!isAsync) {
+      return SelectOptionsStatus.success;
+    }
+
+    return resolvedOptionsCache.has(cacheKey)
+      ? SelectOptionsStatus.success
+      : SelectOptionsStatus.idle;
   });
   const [error, setError] = useState<Error | null>(null);
 
@@ -105,71 +100,80 @@ export function useSelectOptions<FieldId extends string, Kind extends SelectKind
     if (!isAsync) {
       const staticOptions = getStaticOptions(field);
       rememberKnownOptions(field.id, staticOptions);
-      setOptions(staticOptions);
-      setStatus("success");
+      setOptions(filterSelectOptions(staticOptions, normalizedQuery));
+      setStatus(SelectOptionsStatus.success);
       setError(null);
       return;
     }
 
     const cachedOptions = resolvedOptionsCache.get(cacheKey);
     if (cachedOptions) {
+      rememberKnownOptions(field.id, cachedOptions);
       setOptions(cachedOptions);
-      setStatus("success");
+      setStatus(SelectOptionsStatus.success);
       setError(null);
       return;
     }
+
+    if (!shouldLoad) {
+      setOptions([]);
+      setStatus(SelectOptionsStatus.idle);
+      setError(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    let active = true;
 
     setOptions([]);
-    setStatus("idle");
-    setError(null);
-  }, [cacheKey, field, isAsync]);
-
-  const load = useCallback(async () => {
-    if (!isAsync) {
-      const staticOptions = getStaticOptions(field);
-      rememberKnownOptions(field.id, staticOptions);
-      return staticOptions;
-    }
-
-    const cachedOptions = resolvedOptionsCache.get(cacheKey);
-    if (cachedOptions) {
-      setOptions(cachedOptions);
-      setStatus("success");
-      setError(null);
-      return cachedOptions;
-    }
-
-    setStatus("loading");
+    setStatus(SelectOptionsStatus.loading);
     setError(null);
 
-    try {
-      const nextOptions = await resolveOptionsLoader(field, normalizedQuery);
-      setOptions(nextOptions);
-      setStatus("success");
-      return nextOptions;
-    } catch (caughtError) {
-      const nextError = caughtError instanceof Error ? caughtError : new Error("Failed to load options");
-      setError(nextError);
-      setStatus("error");
-      throw nextError;
-    }
-  }, [cacheKey, field, isAsync, normalizedQuery]);
+    void resolveOptionsLoader(field, normalizedQuery, controller.signal)
+      .then((nextOptions) => {
+        if (!active) {
+          return;
+        }
 
-  useEffect(() => {
-    if (!shouldLoadOnRender || !isAsync) {
-      return;
-    }
+        setOptions(nextOptions);
+        setStatus(SelectOptionsStatus.success);
+        setError(null);
+      })
+      .catch((caughtError) => {
+        if (!active || controller.signal.aborted) {
+          return;
+        }
 
-    void load();
-  }, [isAsync, load, shouldLoadOnRender]);
+        const nextError = caughtError instanceof Error
+          ? caughtError
+          : new Error("Failed to load options");
+        setOptions([]);
+        setStatus(SelectOptionsStatus.error);
+        setError(nextError);
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [cacheKey, field, isAsync, normalizedQuery, shouldLoad]);
 
   return useMemo(() => ({
     error,
-    isAsync,
-    load,
     options,
     status,
-  }), [error, isAsync, load, options, status]);
+  }), [error, options, status]);
+}
+
+function useResolvedSelectOptionsSource<
+  FieldId extends string,
+  Kind extends SelectKind,
+>(
+  field: SelectUIField<FieldId, Kind>,
+  context: SelectOptionsSourceContext<FieldId, Kind>,
+) {
+  const source = field.useOptions ?? useBuiltInSelectOptions;
+  return source(context);
 }
 
 export function useSelectableFieldOptions<
@@ -187,25 +191,41 @@ export function useSelectableFieldOptions<
   const [query, setQuery] = useState("");
   const isSearchEnabled = field.optionsSearchable ?? true;
   const deferredQuery = useDeferredValue(isSearchEnabled ? query : "");
-  const shouldLoadOnRender = field.optionsLoadMode === "render";
-  const { error, isAsync, load, options, status } = useSelectOptions(field, {
+  const normalizedQuery = deferredQuery.trim().toLowerCase();
+  const shouldLoad = field.optionsLoadMode === "render" || open;
+  const {
+    error,
+    options: visibleTreeOptions,
+    selectedOptions: controlledSelectedOptions,
+    status,
+  } = useResolvedSelectOptionsSource(field, {
+    field,
+    normalizedQuery,
+    open,
     query: deferredQuery,
-    shouldLoadOnRender,
+    selectedValues,
+    shouldLoad,
   });
-  const visibleTreeOptions = useMemo(
-    () =>
-      isAsync
-        ? options
-        : filterSelectOptions(Array.isArray(field.options) ? field.options : [], deferredQuery),
-    [deferredQuery, field.options, isAsync, options],
-  );
   const visibleOptions = useMemo(
     () => flattenSelectOptions(visibleTreeOptions),
     [visibleTreeOptions],
   );
+
+  useEffect(() => {
+    rememberKnownOptions(field.id, visibleTreeOptions);
+  }, [field.id, visibleTreeOptions]);
+
+  useEffect(() => {
+    if (!controlledSelectedOptions?.length) {
+      return;
+    }
+
+    rememberFlattenedKnownOptions(field.id, controlledSelectedOptions);
+  }, [controlledSelectedOptions, field.id]);
+
   const selectedOptions = useMemo(
-    () => getKnownSelectedOptions(field.id, selectedValues),
-    [field.id, selectedValues],
+    () => controlledSelectedOptions ?? getKnownSelectedOptions(field.id, selectedValues),
+    [controlledSelectedOptions, field.id, selectedValues],
   );
   const displayOptions = useMemo(() => {
     const nextOptions = [...visibleOptions];
@@ -219,14 +239,6 @@ export function useSelectableFieldOptions<
     return nextOptions;
   }, [selectedOptions, visibleOptions]);
 
-  useEffect(() => {
-    if (!open || !isAsync || shouldLoadOnRender) {
-      return;
-    }
-
-    void load();
-  }, [deferredQuery, isAsync, load, open, shouldLoadOnRender]);
-
   const handleOpenChange = useCallback((nextOpen: boolean) => {
     setOpen(nextOpen);
     if (!nextOpen) {
@@ -239,7 +251,6 @@ export function useSelectableFieldOptions<
       displayOptions,
       error,
       handleOpenChange,
-      isAsync,
       isSearchEnabled,
       open,
       query,
@@ -253,7 +264,6 @@ export function useSelectableFieldOptions<
       displayOptions,
       error,
       handleOpenChange,
-      isAsync,
       isSearchEnabled,
       open,
       query,
