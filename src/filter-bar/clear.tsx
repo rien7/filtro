@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-import { Button } from "@/presets/default-theme/internal/baseui/button";
+import { Button } from "@/filter-bar/internal/primitives/baseui/button";
 import { useFilterBar } from "@/filter-bar/context";
 
 export function FilterBarClear({ children, ...props }: ComponentProps<typeof Button>) {

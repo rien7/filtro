@@ -15,8 +15,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/presets/default-theme/internal/baseui/dropdown-menu";
-import { SelectSearchInput, SelectSeparator } from "@/presets/default-theme/internal/baseui/select";
+} from "@/filter-bar/internal/primitives/baseui/dropdown-menu";
+import { SelectSearchInput, SelectSeparator } from "@/filter-bar/internal/primitives/baseui/select";
 import { type FilterBarValueType, useFilterBar } from "@/filter-bar/context";
 import { SelectOptionLabel } from "@/filter-bar/select-option-content";
 import { useSelectableFieldOptions } from "@/filter-bar/select-options";

@@ -9,7 +9,7 @@ import {
 
 import type { MenuTrigger } from "@base-ui/react";
 
-import { Button } from "@/presets/default-theme/internal/baseui/button";
+import { Button } from "@/filter-bar/internal/primitives/baseui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/presets/default-theme/internal/baseui/dropdown-menu";
+} from "@/filter-bar/internal/primitives/baseui/dropdown-menu";
 import { useFilterBar } from "@/filter-bar/context";
 import { filterBarThemeSlot, useFilterBarTheme } from "@/filter-bar/theme";
 import { cn } from "@/lib/utils";
