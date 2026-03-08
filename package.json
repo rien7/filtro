@@ -18,7 +18,7 @@
       "types": "./dist/nuqs/index.d.mts",
       "import": "./dist/nuqs/index.mjs"
     },
-    "./default-theme.css": "./src/presets/default-theme/styles.css"
+    "./default-theme.css": "./dist/default-theme.css"
   },
   "files": [
     "dist",
@@ -28,7 +28,8 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "tsdown src/index.ts src/presets/default-theme/index.tsx src/nuqs/index.ts --format esm --dts",
+    "build": "tsdown src/index.ts src/presets/default-theme/index.tsx src/nuqs/index.ts --format esm --dts && pnpm run build:css",
+    "build:css": "node ./scripts/build-default-theme-css.mjs",
     "build:ui": "vite build --config vite.config.ts",
     "dev:ui": "vite --config vite.config.ts",
     "preview:ui": "vite preview --config vite.config.ts",

@@ -134,7 +134,7 @@ filtro.group("Basic", [/* fields */])
 - [`src/filter-bar/theme.tsx`](https://github.com/rien7/filtro/blob/main/src/filter-bar/theme.tsx) 只负责 theme slot contract、merge 和 provider
 - [`src/presets/default-theme/styles.css`](https://github.com/rien7/filtro/blob/main/src/presets/default-theme/styles.css) 是默认主题样式源文件
 
-当前默认样式仍然依赖 Tailwind CSS v4 编译链路。
+仓库内默认样式源文件依赖 Tailwind CSS v4，但包构建会产出预编译的 `default-theme.css`。
 
 ## 修改建议
 

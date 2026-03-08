@@ -8,7 +8,7 @@
 - 想使用官方默认样式，需要从 `filtro/default-theme` 引入 `defaultFilterBarTheme`。
 - 想继续用默认配色 token，需要同时引入 `filtro/default-theme.css`。
 
-当前这份 `default-theme.css` 仍然是 Tailwind CSS v4 source file，不是预编译后的静态 CSS。
+当前这份 `default-theme.css` 是预编译后的静态 CSS，可以直接在消费端引入。
 
 ## 1. Headless 用法
 
@@ -197,11 +197,7 @@ export function CompactExample() {
 
 只有在你使用默认主题 preset，或者想复用库里现在这套 `background / border / accent / destructive` token 时，才需要引入 `filtro/default-theme.css`。
 
-为了让第三方项目能扫描到默认主题 preset 里用到的 Tailwind class，包发布时会保留 `src` 目录。这样 `default-theme.css` 中的 `@source "./**/*.{ts,tsx}"` 能在消费端继续找到这些 class 定义。
-
 如果你完全按 headless 模式使用，并且自己提供所有样式，可以不引入这个 CSS 文件。
-
-如果消费端没有 Tailwind v4 编译链路，这份默认主题 CSS 目前不会自动工作；这种情况下需要你自己提供样式，或者后续把默认主题改成预编译 CSS 产物。
 
 ## 6. 设计建议
 

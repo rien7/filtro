@@ -37,7 +37,6 @@ pnpm add filtro react react-dom
 Optional:
 
 - `pnpm add nuqs` if you want URL synchronization
-- Tailwind CSS v4 tooling if you want to compile the shipped default-theme stylesheet source
 
 ## Quick Start
 
@@ -184,7 +183,7 @@ This layer contains:
 
 - `defaultFilterBarTheme`
 - styled wrappers around `@base-ui/react`
-- the default stylesheet source
+- the source stylesheet that is precompiled to `filtro/default-theme.css` during build
 
 It is optional. If you only want the headless behavior, you do not need this preset.
 
@@ -266,11 +265,11 @@ import { FilterBar } from "filtro";
 import { defaultFilterBarTheme } from "filtro/default-theme";
 ```
 
-`filtro/default-theme.css` is a Tailwind CSS v4 source stylesheet. That means:
+`filtro/default-theme.css` is a precompiled stylesheet. That means:
 
 - It is optional
 - It is only needed for the default visual preset
-- It expects a compatible Tailwind v4 compilation setup in the consuming app
+- It can be imported directly by the consuming app without a Tailwind build step
 
 If you do not want that dependency, use the headless API and provide your own styles.
 
