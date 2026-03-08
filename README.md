@@ -2,13 +2,15 @@
 
 `filtro` is a React filter bar library for building flat, reusable filtering UIs.
 
-It is organized around three layers:
-
-- `logical`: typed field kinds, operators, and AST types
-- `filter-bar`: the current flat `FilterBar` component system
-- `default-theme`: an optional visual preset and styled primitives
-
 This repository is a component library, not a full application.
+
+Today it is organized around five runtime layers:
+
+- `logical`: pure typed field kinds, operators, and AST types
+- `filter-bar`: the current flat `FilterBar` component system
+- `filter-bar/internal/primitives/baseui`: internal Base UI wrappers used by the current `FilterBar` implementation
+- `default-theme`: the optional default visual preset and precompiled stylesheet
+- `nuqs`: optional URL synchronization helpers
 
 ## Status
 
@@ -23,10 +25,10 @@ The logical layer exports AST types such as `FilterCondition`, `FilterGroup`, an
 
 ## Package Entrypoints
 
-- `filtro`: logical types, builder API, `FilterBar`, headless theme contract
+- `filtro`: logical types, builder API, `FilterBar`, and the unstyled theme contract
 - `filtro/default-theme`: `defaultFilterBarTheme` and styled Base UI wrappers such as `Button`
 - `filtro/nuqs`: optional URL query synchronization helpers
-- `filtro/default-theme.css`: explicit default theme stylesheet entry
+- `filtro/default-theme.css`: precompiled default theme stylesheet
 
 ## Installation
 
@@ -40,7 +42,7 @@ Optional:
 
 ## Quick Start
 
-### Headless
+### Unstyled
 
 ```tsx
 import { FilterBar, filtro } from "filtro";
@@ -58,7 +60,7 @@ const fields = [
   ]),
 ];
 
-export function HeadlessExample() {
+export function UnstyledExample() {
   return (
     <FilterBar.Root fields={fields}>
       <div className="toolbar">
@@ -172,8 +174,23 @@ This layer contains:
 - `FilterBar.Root / Trigger / Items / Clear / SaveView / Views`
 - current flat condition state model
 - theme slot contract and helpers
+- internal Base UI-backed primitives used by the implementation
 
-This is the current product shape. It is not the future nested builder described in planning docs.
+`FilterBar` is unstyled by default, but it is still a concrete React UI implementation. It is not a pure primitive-agnostic core, and it is not the future nested builder described in planning docs.
+
+### `filter-bar/internal/primitives/baseui`
+
+Located in [`src/filter-bar/internal/primitives/baseui`](/Users/rien7/Developer/filtro/src/filter-bar/internal/primitives/baseui).
+
+This layer contains the internal wrappers that the current `FilterBar` implementation needs:
+
+- `Button`
+- `Input`
+- `Select`
+- `DropdownMenu`
+- `ButtonGroup`
+
+These are implementation details of the current `FilterBar`. They are not the same thing as the default theme preset.
 
 ### `default-theme`
 
@@ -182,10 +199,16 @@ Located in [`src/presets/default-theme`](/Users/rien7/Developer/filtro/src/prese
 This layer contains:
 
 - `defaultFilterBarTheme`
-- styled wrappers around `@base-ui/react`
-- the source stylesheet that is precompiled to `filtro/default-theme.css` during build
+- the precompiled `filtro/default-theme.css` stylesheet
+- convenience re-exports of the styled wrappers used by the default preset
 
-It is optional. If you only want the headless behavior, you do not need this preset.
+It is optional. If you only want the unstyled behavior, you do not need this preset.
+
+### `nuqs`
+
+Located in [`src/nuqs`](/Users/rien7/Developer/filtro/src/nuqs).
+
+This layer contains optional helpers for syncing `FilterBarValue[]` with the URL query string.
 
 ## Builder API
 
@@ -271,13 +294,22 @@ import { defaultFilterBarTheme } from "filtro/default-theme";
 - It is only needed for the default visual preset
 - It can be imported directly by the consuming app without a Tailwind build step
 
-If you do not want that dependency, use the headless API and provide your own styles.
+If you do not want that dependency, use the unstyled API and provide your own styles.
+
+## Boundary Rules
+
+- `src/logical` stays pure domain and type logic. Do not put React there.
+- `src/filter-bar` is the current product implementation for a flat filter bar.
+- `src/filter-bar/internal/primitives/baseui` belongs to the implementation layer, not the preset layer.
+- `src/presets/default-theme` is optional visual infrastructure, not the owner of `FilterBar` runtime behavior.
+- If the requirement becomes nested groups, repeated conditions, AST editing, or a more generic filter builder, treat that as a new phase instead of stretching the current `FilterBarValue[]` model.
 
 ## Repository Layout
 
 - [`src/index.ts`](/Users/rien7/Developer/filtro/src/index.ts): root package entry
 - [`src/logical`](/Users/rien7/Developer/filtro/src/logical): typed logical layer
 - [`src/filter-bar`](/Users/rien7/Developer/filtro/src/filter-bar): current flat FilterBar implementation
+- [`src/filter-bar/internal/primitives/baseui`](/Users/rien7/Developer/filtro/src/filter-bar/internal/primitives/baseui): internal Base UI wrappers used by FilterBar
 - [`src/presets/default-theme`](/Users/rien7/Developer/filtro/src/presets/default-theme): optional default preset
 - [`src/nuqs/index.ts`](/Users/rien7/Developer/filtro/src/nuqs/index.ts): URL sync helpers
 - [`playground`](/Users/rien7/Developer/filtro/playground): local demo app
@@ -295,6 +327,7 @@ Useful commands:
 - `pnpm run typecheck`
 - `pnpm test`
 - `pnpm run build`
+- `pnpm run build:css`
 - `pnpm run dev:ui`
 - `pnpm run build:ui`
 

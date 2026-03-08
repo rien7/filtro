@@ -38,6 +38,7 @@
 - 类型检查：`pnpm run typecheck`
 - 测试：`pnpm test`
 - 构建库产物：`pnpm run build`
+- 仅构建默认主题 CSS：`pnpm run build:css`
 - 启动 playground：`pnpm run dev:ui`
 - 构建 playground：`pnpm run build:ui`
 - 预览 playground：`pnpm run preview:ui`
@@ -51,7 +52,9 @@
 - [`src/filter-bar`](/Users/rien7/Developer/filtro/src/filter-bar): `FilterBar.Root/Trigger/Items/Clear/SaveView/Views` 及其状态逻辑
 - [`src/filter-bar/internal/primitives/baseui`](/Users/rien7/Developer/filtro/src/filter-bar/internal/primitives/baseui): 当前 `FilterBar` 实现依赖的内部 Base UI 包装件
 - [`src/presets/default-theme/index.tsx`](/Users/rien7/Developer/filtro/src/presets/default-theme/index.tsx): `defaultFilterBarTheme` 和默认 preset 导出
+- [`src/presets/default-theme/style-entry.ts`](/Users/rien7/Developer/filtro/src/presets/default-theme/style-entry.ts): 默认主题 CSS 预编译入口
 - [`src/presets/default-theme/styles.css`](/Users/rien7/Developer/filtro/src/presets/default-theme/styles.css): 默认主题样式源文件
+- [`scripts/build-default-theme-css.mjs`](/Users/rien7/Developer/filtro/scripts/build-default-theme-css.mjs): 产出 `dist/default-theme.css` 的构建脚本
 - [`src/nuqs/index.ts`](/Users/rien7/Developer/filtro/src/nuqs/index.ts): URL 同步
 - [`playground`](/Users/rien7/Developer/filtro/playground): 本地调试页面
 - [`playground/internal/calendar.tsx`](/Users/rien7/Developer/filtro/playground/internal/calendar.tsx): playground 专用日历包装件

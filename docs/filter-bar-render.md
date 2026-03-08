@@ -117,7 +117,7 @@ playground 的实现文件在：
 
 - 自定义 trigger
 - 自定义 `Popover`
-- popup 内部放一个 Base UI `Calendar`
+- popup 内部放一个 playground 专用日历包装件
 
 但它没有重写整条 row。
 
@@ -185,6 +185,7 @@ const isRelative =
 
 这里要注意两点：
 
+- playground 里的 `Calendar` 不是 `filtro` 导出的正式组件，而是 demo 自己的 `react-day-picker` 包装件
 - `Calendar` 的 range 选择值不是 `[string, string]`，而是 `{ from?: Date; to?: Date }`
 - 所以写回 `FilterBar` 前，需要再转换回 date operator 需要的字符串元组
 

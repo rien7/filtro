@@ -1,6 +1,6 @@
 # FilterBar Styling And Themes
 
-`FilterBar` 现在默认以 headless 模式运行，默认视觉 preset 通过 `filtro/default-theme` 单独提供。
+`FilterBar` 现在默认以 unstyled 模式运行，默认视觉 preset 通过 `filtro/default-theme` 单独提供。
 
 这意味着：
 
@@ -10,7 +10,7 @@
 
 当前这份 `default-theme.css` 是预编译后的静态 CSS，可以直接在消费端引入。
 
-## 1. Headless 用法
+## 1. Unstyled 用法
 
 ```tsx
 import { FilterBar, filtro } from "filtro";
@@ -23,7 +23,7 @@ const fields = [
   ]),
 ];
 
-export function HeadlessExample() {
+export function UnstyledExample() {
   return (
     <FilterBar.Root fields={fields}>
       <FilterBar.Trigger render={<button type="button" />}>
@@ -197,7 +197,7 @@ export function CompactExample() {
 
 只有在你使用默认主题 preset，或者想复用库里现在这套 `background / border / accent / destructive` token 时，才需要引入 `filtro/default-theme.css`。
 
-如果你完全按 headless 模式使用，并且自己提供所有样式，可以不引入这个 CSS 文件。
+如果你完全按 unstyled 模式使用，并且自己提供所有样式，可以不引入这个 CSS 文件。
 
 ## 6. 设计建议
 
