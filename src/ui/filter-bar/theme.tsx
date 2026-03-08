@@ -20,12 +20,14 @@ import { FieldKind, type EnumFieldKind } from "@/logical/field";
 export type FilterBarThemeClassNameSlot =
   | "itemsRoot"
   | "emptyState"
+  | "rowRoot"
   | "row"
   | "rowField"
   | "rowFieldText"
   | "rowOperatorTrigger"
   | "rowOperatorText"
   | "rowValue"
+  | "rowError"
   | "rowRemoveButton"
   | "triggerMenuContent"
   | "triggerMenuSeparator"
@@ -52,6 +54,7 @@ export type FilterBarThemeClassNameSlot =
   | "selectSearchInput"
   | "selectSeparator"
   | "editorRoot"
+  | "editorFieldset"
   | "editorControl"
   | "editorSplit"
   | "booleanTrueButton"
@@ -135,7 +138,8 @@ export const defaultFilterBarTheme: FilterBarTheme = {
     itemsRoot: "flex flex-row flex-wrap gap-3",
     emptyState:
       "text-muted-foreground flex min-h-24 items-center justify-center rounded-2xl border border-dashed px-4 text-sm",
-    row: "h-9 md:flex-nowrap",
+    rowRoot: "flex min-w-0 flex-col gap-1",
+    row: "min-h-9 md:flex-nowrap",
     rowField: "h-full bg-background border-r-0 select-none border-border",
     rowFieldText: "block truncate text-sm font-medium",
     rowOperatorTrigger:
@@ -143,7 +147,7 @@ export const defaultFilterBarTheme: FilterBarTheme = {
     rowOperatorText:
       "h-full w-fit select-none bg-background px-3 py-2 font-normal !border-l text-muted-foreground",
     rowValue:
-      "flex h-full min-w-0 grow overflow-hidden border border-border bg-background border-r-0",
+      "flex min-w-0 grow overflow-visible border border-border bg-background border-r-0",
     rowRemoveButton:
       "h-full min-h-0 px-2.5 !border-l hover:bg-destructive/20 hover:text-destructive focus-visible:border-destructive/40 hover:border-destructive/30",
     triggerMenuContent: "min-w-48",
@@ -160,11 +164,13 @@ export const defaultFilterBarTheme: FilterBarTheme = {
     saveViewForm: "flex flex-col gap-2",
     saveViewInput: "w-full",
     saveViewSubmit: "w-full",
-    editorRoot: "flex h-full w-full min-w-0 items-stretch",
+    editorRoot: "flex w-full min-w-0 flex-col justify-center",
+    editorFieldset: "flex min-h-9 w-full min-w-0 items-stretch",
     editorControl:
       "h-full min-h-0 w-full rounded-none border-0 px-3 py-0 shadow-none hover:bg-muted focus-visible:ring-0",
     editorSplit:
-      "grid h-full min-w-0 w-full grid-cols-2 items-stretch [&>*]:h-full [&>*+*]:border-l",
+      "grid min-h-9 min-w-0 w-full grid-cols-2 items-stretch [&>*]:h-full [&>*+*]:border-l",
+    rowError: "px-3 py-1 text-[11px] leading-4 text-destructive",
     booleanTrueButton: "h-full min-h-0 rounded-none border-0 shadow-none",
     booleanFalseButton: "h-full min-h-0 rounded-none border-0 border-l shadow-none",
   },

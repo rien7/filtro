@@ -25,12 +25,18 @@ import { FilterBar, filtro } from "filtro";
 const fields = [
   filtro.string("keyword")
     .label("Keyword")
-    .render(({ op, value, onChange }) => {
+    .render(({ op, value, onChange, validate }) => {
+      const currentValue = typeof value === "string" ? value : "";
+      const error = validate(currentValue);
+
       return (
-        <input
-          value={typeof value === "string" ? value : ""}
-          onChange={(event) => onChange(event.currentTarget.value)}
-        />
+        <>
+          <input
+            value={currentValue}
+            onChange={(event) => onChange(event.currentTarget.value)}
+          />
+          {error ? <div>{error}</div> : null}
+        </>
       );
     }),
 ];
@@ -39,10 +45,19 @@ const fields = [
 `render` 收到的参数是：
 
 - `op`: 当前 operator
-- `value`: 当前 operator 对应的值
+- `value`: 当前 operator 对应的值，可能是 `null`
 - `onChange`: 写回新值
+- `validate`: 复用当前字段的 `.validate()` / `.zod()` 规则
 
 这几个值都来自当前 row 的内部状态。
+
+要注意：
+
+- `validate` 只负责跑字段规则
+- 如果你的自定义控件需要保留非法 raw input，中间态仍然需要组件自己维护
+- 内置 editor 的错误会显示在整条 item 底部；自定义 `render` 是否复用这套展示位置，仍由你的组件自己决定
+
+默认 editor 内部已经做了这层处理；自定义 `render` 不会自动接管 raw input 状态。
 
 ## 2. `render` 接管的范围
 

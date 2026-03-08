@@ -8,10 +8,12 @@ import type {
   BooleanKind,
   BooleanOptions,
   MultiSelectValueLabelRenderer,
+  SafeParseSchemaResolver,
   SelectKind,
   SelectOptionsLoadMode,
   SelectOptions,
   SelectUIField,
+  UIFieldValidator,
   UseSelectOptions,
   UIFieldBase,
   UIFieldForKind,
@@ -24,7 +26,9 @@ type BaseFieldBuilderMethod =
   | "description"
   | "placeholder"
   | "operator"
-  | "render";
+  | "render"
+  | "validate"
+  | "zod";
 type SelectFieldBuilderMethod =
   | BaseFieldBuilderMethod
   | "options"
@@ -85,6 +89,12 @@ export type BaseFieldBuilder<
           | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
       ): BaseFieldBuilder<FieldId, Kind, Used | "operator">;
       render(fn: UIFieldRender): BaseFieldBuilder<FieldId, Kind, Used | "render">;
+      validate(
+        fn: UIFieldValidator,
+      ): BaseFieldBuilder<FieldId, Kind, Used | "validate">;
+      zod(
+        schema: SafeParseSchemaResolver<Kind>,
+      ): BaseFieldBuilder<FieldId, Kind, Used | "zod">;
     },
     Used
   >;
@@ -125,6 +135,12 @@ export type SelectFieldBuilder<
       searchable(
         searchable?: boolean,
       ): SelectFieldBuilder<FieldId, Kind, Used | "searchable">;
+      validate(
+        fn: UIFieldValidator,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "validate">;
+      zod(
+        schema: SafeParseSchemaResolver<Kind>,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "zod">;
     } & (Kind extends typeof FieldKind.multiSelect
       ? {
           renderValueLabel(fn: MultiSelectValueLabelRenderer): SelectFieldBuilder<FieldId, Kind, Used | "renderValueLabel">;
@@ -159,6 +175,12 @@ export type BooleanFieldBuilder<
       ): BooleanFieldBuilder<FieldId, Kind, Used | "operator">;
       render(fn: UIFieldRender): BooleanFieldBuilder<FieldId, Kind, Used | "render">;
       options(options: BooleanOptions): BooleanFieldBuilder<FieldId, Kind, Used | "options">;
+      validate(
+        fn: UIFieldValidator,
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "validate">;
+      zod(
+        schema: SafeParseSchemaResolver<Kind>,
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "zod">;
     },
     Used
   >;
@@ -277,6 +299,44 @@ class BuilderBase<
   render(fn: UIFieldRender) {
     this.#field.render = fn;
     return this;
+  }
+
+  validate(fn: UIFieldValidator) {
+    const field = this.#field as UIFieldBase<FieldId, Kind>;
+    field.validators = [...(field.validators ?? []), fn];
+    return this;
+  }
+
+  zod(schema: SafeParseSchemaResolver<Kind>) {
+    return this.validate(({ op, value }) => {
+      if (value === null) {
+        return null;
+      }
+
+      const resolvedSchema =
+        typeof schema === "function"
+          ? schema({ op: op as unknown as OperatorKindFor<Kind> })
+          : schema;
+      const result = resolvedSchema.safeParse(value);
+
+      if (result.success) {
+        return null;
+      }
+
+      const firstIssue = result.error.issues?.find((issue) =>
+        typeof issue.message === "string" && issue.message.trim().length > 0
+      );
+
+      if (firstIssue?.message) {
+        return firstIssue.message.trim();
+      }
+
+      if (typeof result.error.message === "string" && result.error.message.trim().length > 0) {
+        return result.error.message.trim();
+      }
+
+      return "Invalid value";
+    });
   }
 }
 
