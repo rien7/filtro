@@ -158,7 +158,7 @@ const fields = [
 
 ```tsx
 filtro.number("amount")
-  .operator("eq")
+  .fixedOperator("eq")
   .zod(z.number().min(0));
 ```
 

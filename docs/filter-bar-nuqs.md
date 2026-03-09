@@ -244,6 +244,9 @@ export function UrlBackedFilters() {
 - 固定 operator 字段
   - 不写 `${fieldId}Op`
   - 直接使用字段定义上的固定 operator 解析 value
+- 非固定但只保留一个 allowed operator 的字段
+  - 仍然会写 `${fieldId}Op`
+  - URL 语义上仍然是可显式指定 operator，只是当前配置里只有一个可选项
 - `string`
   - 值写到 `${fieldId}`
   - operator 写到 `${fieldId}Op`

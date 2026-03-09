@@ -189,6 +189,7 @@ Located in [`src/filter-bar/internal/primitives/baseui`](https://github.com/rien
 This layer contains the internal wrappers that the current `FilterBar` implementation needs:
 
 - `Button`
+- `SegmentedControl`
 - `Input`
 - `Select`
 - `DropdownMenu`
@@ -248,6 +249,7 @@ Common builder methods:
 - `.pin()`
 - `.suggest()`
 - `.operator()`
+- `.fixedOperator()`
 - `.render()`
 - `.validate()`
 - `.zod()`
@@ -267,6 +269,14 @@ Multi-select extras:
 Boolean extras:
 
 - `.options()`
+
+Operator behavior:
+
+- no `.operator(...)`: keep all operators for that field kind
+- `.operator("eq")`: restrict to one allowed operator but still render operator text
+- `.operator(["eq", "contains"] as const, { default: "contains" })`: keep a subset and pick the initial operator
+- `.operator({ default: "contains" })`: keep all operators and pick the initial operator
+- `.fixedOperator("eq")`: lock the operator and hide the operator segment
 
 ## Field Display
 

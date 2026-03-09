@@ -94,7 +94,6 @@ playground 里有一个 `Release Window` 示例字段：
 ```tsx
 filtro.date("releaseWindow")
   .label("Release Window")
-  .operator((ops) => ops)
   .render(({ op, value, onChange }) => (
     <PlaygroundCalendarDateEditor
       op={op}

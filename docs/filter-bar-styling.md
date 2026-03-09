@@ -178,6 +178,7 @@ export function CompactExample() {
 - `row`
 - `rowField`
 - `rowFieldText`
+- `rowOperator`
 - `rowOperatorTrigger`
 - `rowOperatorText`
 - `rowValue`
@@ -231,6 +232,10 @@ export function CompactExample() {
 
 - `button`
 - `input`
+- `segmentedControl`
+- `segmentedControlIndicator`
+- `segmentedControlItem`
+- `segmentedControlItemText`
 - `selectPositioner`
 - `selectTrigger`
 - `selectTriggerText`
