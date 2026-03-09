@@ -139,6 +139,26 @@ export function getFieldAllowedOperators<
   return [...field.allowedOperators] as OperatorKindFor<Kind>[];
 }
 
+export function getFieldDefaultOperator<
+  FieldId extends string,
+  Kind extends EnumFieldKind,
+>(field: UIFieldForKind<FieldId, Kind>) {
+  const allowedOperators = getFieldAllowedOperators(field);
+  const defaultSelectedOperator = field.defaultSelectedOperator;
+
+  if (defaultSelectedOperator !== undefined) {
+    const resolvedDefaultOperator = allowedOperators.find((operator) =>
+      operator === defaultSelectedOperator
+    );
+
+    if (resolvedDefaultOperator !== undefined) {
+      return resolvedDefaultOperator;
+    }
+  }
+
+  return allowedOperators[0];
+}
+
 export function hasFieldFixedOperator<
   FieldId extends string,
   Kind extends EnumFieldKind,
@@ -572,7 +592,11 @@ export function deserializeFilterBarValue<
   { prefix = "" }: { prefix?: string } = {},
 ): FilterBarValue<FieldId, Kind> | null {
   const keys = getFilterBarQueryKeys(field.id, prefix);
-  const operator = field.fixedOperator ?? queryState[keys.operator];
+  const queryOperator = queryState[keys.operator];
+  const operator = field.fixedOperator ??
+    (typeof queryOperator === "string"
+      ? queryOperator
+      : getFieldDefaultOperator(field));
 
   if (typeof operator !== "string") {
     return null;

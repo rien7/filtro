@@ -16,6 +16,7 @@ export * from "./button";
 export * from "./button-group";
 export * from "./dropdown-menu";
 export * from "./input";
+export * from "./segmented-control";
 export * from "./select";
 export * from "./separator";
 export * from "./switch";
@@ -96,18 +97,17 @@ export const defaultFilterBarTheme: FilterBarTheme = {
       suggestionDashedBorderClass,
     ),
     rowFieldText: "block truncate text-sm font-medium",
-    rowOperatorTrigger: cn(
-      "h-full w-fit !border-l shadow-none",
-      "font-normal text-muted-foreground",
+    rowOperator: cn(
+      "w-fit !border-l font-normal text-muted-foreground border-border",
       suggestionHoverSurfaceClass,
       "data-[round-right=true]:rounded-r-md data-[round-right=true]:border-r",
       suggestionDashedBorderClass,
     ),
+    rowOperatorTrigger: cn(
+      "h-full shadow-none",
+    ),
     rowOperatorText: cn(
-      "h-full w-fit select-none whitespace-nowrap bg-background px-3 py-2",
-      "font-normal !border-l text-muted-foreground",
-      "data-[round-right=true]:rounded-r-md data-[round-right=true]:border-r",
-      suggestionDashedBorderClass,
+      "h-full select-none whitespace-nowrap bg-background px-3 py-2",
     ),
     rowValue: cn(
       "flex min-w-0 grow overflow-visible border border-border bg-background border-r-0",
@@ -155,21 +155,16 @@ export const defaultFilterBarTheme: FilterBarTheme = {
       "hover:bg-muted focus-visible:ring-0",
       suggestionHoverSurfaceClass,
     ),
-    editorSplit:
+    editorSplit: cn(
       "grid min-h-9 min-w-0 w-full grid-cols-2 items-stretch [&>*]:h-full [&>*+*]:border-l",
+      "[&>[data-slot=segmented-control]]:border-none [&>[data-slot=segmented-control]]:rounded-none [&>[data-slot=segmented-control]]:w-fit has-[[data-slot=segmented-control]]:grid-cols-none [&_[data-slot=segmented-control-indicator]]:rounded-none"
+    ),
     rowError: "px-3 py-1 text-[11px] leading-4 text-destructive",
-    booleanTrueButton: cn(
-      "h-full min-h-0 w-full justify-center rounded-none border-0 bg-transparent shadow-none",
-      "hover:bg-muted dark:hover:bg-muted/50",
-      "aria-pressed:bg-secondary aria-pressed:text-secondary-foreground",
-      "aria-pressed:hover:bg-secondary/80",
-    ),
-    booleanFalseButton: cn(
-      "h-full min-h-0 w-full justify-center rounded-none border-0 border-l bg-transparent shadow-none",
-      "hover:bg-muted dark:hover:bg-muted/50",
-      "aria-pressed:bg-secondary aria-pressed:text-secondary-foreground",
-      "aria-pressed:hover:bg-secondary/80",
-    ),
+    booleanTrueButton: cn(),
+    booleanFalseButton: cn(),
+    selectTrigger: cn(
+      "[&_[data-placeholder]]:text-muted-foreground"
+    )
   },
   primitiveClassNames: {
     button: cn(
@@ -190,6 +185,29 @@ export const defaultFilterBarTheme: FilterBarTheme = {
       "shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-3",
       "disabled:cursor-not-allowed disabled:opacity-50",
     ),
+    segmentedControl: cn(
+      "relative isolate inline-grid min-h-9 w-full min-w-0 grid-flow-col items-stretch",
+      "rounded-lg border border-border bg-muted/60 p-0.5 shadow-xs",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "dark:border-input dark:bg-input/40",
+    ),
+    segmentedControlIndicator: cn(
+      "pointer-events-none absolute left-0 top-0 z-0 rounded-[calc(var(--radius-lg)-2px)]",
+      "border border-border/70 bg-background shadow-xs",
+      "transition-[transform,width,height,opacity] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+      "motion-reduce:transition-none",
+      "dark:border-input dark:bg-background",
+    ),
+    segmentedControlItem: cn(
+      "text-muted-foreground relative z-10 inline-flex min-h-8 min-w-0 w-fit items-center justify-center",
+      "cursor-pointer rounded-[calc(var(--radius-lg)-2px)] px-3 py-1.5 text-sm font-medium",
+      "whitespace-nowrap outline-none select-none transition-[color]",
+      "hover:text-foreground",
+      "focus-visible:ring-ring/50 focus-visible:ring-3",
+      "data-[checked]:text-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+    ),
+    segmentedControlItemText: "truncate",
     selectPositioner: "isolate z-50 outline-none",
     selectTrigger: cn(
       primitiveControlFocusClass,

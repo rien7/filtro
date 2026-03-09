@@ -118,9 +118,10 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
             <SelectTrigger
               data-area={area}
               data-round-right={shouldRoundOperatorRight}
-              data-theme-slot={filterBarThemeSlot("selectTrigger", "rowOperatorTrigger")}
+              data-theme-slot={filterBarThemeSlot("selectTrigger", "rowOperator", "rowOperatorTrigger")}
               className={cn(
                 theme.classNames.selectTrigger,
+                theme.classNames.rowOperator,
                 theme.classNames.rowOperatorTrigger,
               )}
             >

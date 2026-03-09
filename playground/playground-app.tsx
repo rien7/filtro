@@ -199,18 +199,14 @@ function useFiltroFields() {
               operator: "contains",
               value: "",
             },
-          })
-          .operator((ops) => ops),
+          }),
         filtro.number("amount")
           .label("Amount")
-          .placeholder("Enter amount")
-          .operator((ops) => ops),
+          .placeholder("Enter amount"),
         filtro.date("createdAt")
-          .label("Created At")
-          .operator((ops) => ops),
+          .label("Created At"),
         filtro.date("releaseWindow")
           .label("Release Window")
-          .operator((ops) => ops)
           .render(({ op, value, onChange }) => (
             <PlaygroundCalendarDateEditor
               op={op}
@@ -291,7 +287,6 @@ function useValidationFields() {
         filtro.string("validatedKeyword")
           .label("Keyword")
           .placeholder("At least 3 characters")
-          .operator((ops) => ops)
           .validate(({ value }) => {
             if (value == null) {
               return null;
@@ -302,7 +297,6 @@ function useValidationFields() {
         filtro.number("validatedAmount")
           .label("Amount")
           .placeholder("Zero or greater")
-          .operator((ops) => ops)
           .validate(({ op, value }) => {
             if (value == null) {
               return null;
@@ -316,7 +310,6 @@ function useValidationFields() {
           }),
         filtro.date("validatedCreatedAt")
           .label("Created At")
-          .operator((ops) => ops)
           .validate(({ op, value }) => {
             if (value == null) {
               return null;

@@ -21,4 +21,5 @@ export interface LogicalFieldBase<
   kind: Kind
   allowedOperators: OperatorKindFor<Kind>[]
   fixedOperator?: OperatorKindFor<Kind>
+  defaultSelectedOperator?: OperatorKindFor<Kind>
 }

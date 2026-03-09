@@ -151,9 +151,10 @@ export function FilterBarSuggestedItems({
                   <Select<string> value={nextValue.operator} onValueChange={() => undefined}>
                     <SelectTrigger
                       data-area="suggestion"
-                      data-theme-slot={filterBarThemeSlot("selectTrigger", "rowOperatorTrigger")}
+                      data-theme-slot={filterBarThemeSlot("selectTrigger", "rowOperator", "rowOperatorTrigger")}
                       className={cn(
                         theme.classNames.selectTrigger,
+                        theme.classNames.rowOperator,
                         theme.classNames.rowOperatorTrigger,
                       )}
                     >

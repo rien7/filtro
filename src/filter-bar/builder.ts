@@ -1,6 +1,5 @@
 import { FieldKind, type EnumFieldKind } from "../logical/field";
 import {
-  defaultOperatorForKind,
   operatorsForKind,
   type OperatorKindFor,
 } from "../logical/operator";
@@ -29,6 +28,7 @@ type BaseFieldBuilderMethod =
   | "pin"
   | "suggest"
   | "operator"
+  | "fixedOperator"
   | "render"
   | "validate"
   | "zod";
@@ -56,6 +56,16 @@ type OmitUsedMethods<Builder, Used extends PropertyKey> = Omit<
   Builder,
   Extract<keyof Builder, Used>
 >;
+type FieldOperatorConfig<Op extends string> = {
+  default?: Op;
+};
+type FieldOperatorResolver<Kind extends EnumFieldKind> = (
+  ops: OperatorKindFor<Kind>[],
+) => OperatorKindFor<Kind>[];
+type FieldOperatorInput<Kind extends EnumFieldKind> =
+  | OperatorKindFor<Kind>
+  | readonly OperatorKindFor<Kind>[]
+  | FieldOperatorResolver<Kind>;
 declare const fieldBuilderBrand: unique symbol;
 
 export interface AnyFieldBuilder<
@@ -87,14 +97,24 @@ export type BaseFieldBuilder<
       suggest(
         config?: Omit<FilterBarSuggestedDisplay<Kind>, "kind">,
       ): BaseFieldBuilder<FieldId, Kind, Used | "pin" | "suggest">;
-      operator(
-        op: OperatorKindFor<Kind>,
+      operator<Op extends OperatorKindFor<Kind>>(
+        op: Op,
+        config?: FieldOperatorConfig<Op>,
+      ): BaseFieldBuilder<FieldId, Kind, Used | "operator">;
+      operator<const Ops extends readonly OperatorKindFor<Kind>[]>(
+        ops: Ops,
+        config?: FieldOperatorConfig<Ops[number]>,
       ): BaseFieldBuilder<FieldId, Kind, Used | "operator">;
       operator(
-        ops:
-          | readonly OperatorKindFor<Kind>[]
-          | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
+        resolve: FieldOperatorResolver<Kind>,
+        config?: FieldOperatorConfig<OperatorKindFor<Kind>>,
       ): BaseFieldBuilder<FieldId, Kind, Used | "operator">;
+      operator(
+        config: FieldOperatorConfig<OperatorKindFor<Kind>>,
+      ): BaseFieldBuilder<FieldId, Kind, Used | "operator">;
+      fixedOperator<Op extends OperatorKindFor<Kind>>(
+        op: Op,
+      ): BaseFieldBuilder<FieldId, Kind, Used | "fixedOperator">;
       render(fn: UIFieldRender): BaseFieldBuilder<FieldId, Kind, Used | "render">;
       validate(
         fn: UIFieldValidator,
@@ -127,14 +147,24 @@ export type SelectFieldBuilder<
       suggest(
         config?: Omit<FilterBarSuggestedDisplay<Kind>, "kind">,
       ): SelectFieldBuilder<FieldId, Kind, Used | "pin" | "suggest">;
-      operator(
-        op: OperatorKindFor<Kind>,
+      operator<Op extends OperatorKindFor<Kind>>(
+        op: Op,
+        config?: FieldOperatorConfig<Op>,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "operator">;
+      operator<const Ops extends readonly OperatorKindFor<Kind>[]>(
+        ops: Ops,
+        config?: FieldOperatorConfig<Ops[number]>,
       ): SelectFieldBuilder<FieldId, Kind, Used | "operator">;
       operator(
-        ops:
-          | readonly OperatorKindFor<Kind>[]
-          | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
+        resolve: FieldOperatorResolver<Kind>,
+        config?: FieldOperatorConfig<OperatorKindFor<Kind>>,
       ): SelectFieldBuilder<FieldId, Kind, Used | "operator">;
+      operator(
+        config: FieldOperatorConfig<OperatorKindFor<Kind>>,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "operator">;
+      fixedOperator<Op extends OperatorKindFor<Kind>>(
+        op: Op,
+      ): SelectFieldBuilder<FieldId, Kind, Used | "fixedOperator">;
       render(fn: UIFieldRender): SelectFieldBuilder<FieldId, Kind, Used | "render">;
       options(options: SelectOptions): SelectFieldBuilder<FieldId, Kind, Used | "options">;
       useOptions(
@@ -180,14 +210,24 @@ export type BooleanFieldBuilder<
       suggest(
         config?: Omit<FilterBarSuggestedDisplay<Kind>, "kind">,
       ): BooleanFieldBuilder<FieldId, Kind, Used | "pin" | "suggest">;
-      operator(
-        op: OperatorKindFor<Kind>,
+      operator<Op extends OperatorKindFor<Kind>>(
+        op: Op,
+        config?: FieldOperatorConfig<Op>,
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "operator">;
+      operator<const Ops extends readonly OperatorKindFor<Kind>[]>(
+        ops: Ops,
+        config?: FieldOperatorConfig<Ops[number]>,
       ): BooleanFieldBuilder<FieldId, Kind, Used | "operator">;
       operator(
-        ops:
-          | readonly OperatorKindFor<Kind>[]
-          | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
+        resolve: FieldOperatorResolver<Kind>,
+        config?: FieldOperatorConfig<OperatorKindFor<Kind>>,
       ): BooleanFieldBuilder<FieldId, Kind, Used | "operator">;
+      operator(
+        config: FieldOperatorConfig<OperatorKindFor<Kind>>,
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "operator">;
+      fixedOperator<Op extends OperatorKindFor<Kind>>(
+        op: Op,
+      ): BooleanFieldBuilder<FieldId, Kind, Used | "fixedOperator">;
       render(fn: UIFieldRender): BooleanFieldBuilder<FieldId, Kind, Used | "render">;
       options(options: BooleanOptions): BooleanFieldBuilder<FieldId, Kind, Used | "options">;
       validate(
@@ -266,7 +306,6 @@ class BuilderBase<
       id,
       kind,
       allowedOperators: operatorsForKind(kind),
-      fixedOperator: defaultOperatorForKind(kind),
     } as UIFieldForKind<FieldId, Kind>;
     this.#field = field;
     builderFieldStore.set(this, field as AnyUIField);
@@ -330,22 +369,54 @@ class BuilderBase<
     return this.#setDisplay(display);
   }
 
+  operator<Op extends OperatorKindFor<Kind>>(
+    op: Op,
+    config?: FieldOperatorConfig<Op>,
+  ): this;
+  operator<const Ops extends readonly OperatorKindFor<Kind>[]>(
+    ops: Ops,
+    config?: FieldOperatorConfig<Ops[number]>,
+  ): this;
   operator(
-    ops:
-      | OperatorKindFor<Kind>
-      | readonly OperatorKindFor<Kind>[]
-      | ((ops: OperatorKindFor<Kind>[]) => OperatorKindFor<Kind>[]),
+    resolve: FieldOperatorResolver<Kind>,
+    config?: FieldOperatorConfig<OperatorKindFor<Kind>>,
+  ): this;
+  operator(
+    config: FieldOperatorConfig<OperatorKindFor<Kind>>,
+  ): this;
+  operator(
+    input: FieldOperatorInput<Kind> | FieldOperatorConfig<OperatorKindFor<Kind>>,
+    config?: FieldOperatorConfig<OperatorKindFor<Kind>>,
   ) {
     const field = this.#field as UIFieldBase<FieldId, Kind>;
     const currentOps = [...field.allowedOperators];
-    const resolvedOps = typeof ops === "function"
-      ? ops(currentOps)
-      : Array.isArray(ops)
-        ? ops
-        : [ops];
+    const usingConfigOnly =
+      typeof input === "object" &&
+      input !== null &&
+      !Array.isArray(input);
+    const resolvedOps = usingConfigOnly
+      ? operatorsForKind(field.kind)
+      : typeof input === "function"
+        ? input(currentOps)
+        : Array.isArray(input)
+          ? [...input]
+          : [input];
+    const resolvedConfig = usingConfigOnly
+      ? input as FieldOperatorConfig<OperatorKindFor<Kind>>
+      : config;
+    const defaultSelectedOperator = resolvedConfig?.default;
 
     field.allowedOperators = [...resolvedOps];
-    field.fixedOperator = resolvedOps.length === 1 ? resolvedOps[0] : undefined;
+    delete field.fixedOperator;
+    field.defaultSelectedOperator = resolvedOps.find((op) => op === defaultSelectedOperator);
+    return this;
+  }
+
+  fixedOperator<Op extends OperatorKindFor<Kind>>(op: Op) {
+    const field = this.#field as UIFieldBase<FieldId, Kind>;
+    field.allowedOperators = [op];
+    field.fixedOperator = op;
+    field.defaultSelectedOperator = op;
     return this;
   }
 

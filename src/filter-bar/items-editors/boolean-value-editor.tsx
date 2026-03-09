@@ -1,5 +1,10 @@
 import { FieldKind } from "@/logical/field";
-import { Button } from "@/filter-bar/internal/primitives/baseui/button";
+import {
+  SegmentedControl,
+  SegmentedControlIndicator,
+  SegmentedControlItem,
+  SegmentedControlItemText,
+} from "@/filter-bar/internal/primitives/baseui/segmented-control";
 import { filterBarThemeSlot, useFilterBarTheme } from "@/filter-bar/theme";
 
 import type { FilterValueEditorProps } from "./shared";
@@ -10,6 +15,9 @@ export function BooleanValueEditor<FieldId extends string>({
   onChange,
 }: FilterValueEditorProps<FieldId, typeof FieldKind.boolean>) {
   const theme = useFilterBarTheme();
+  const trueLabel = field.options?.[0].label ?? theme.texts.booleanTrueFallback;
+  const falseLabel = field.options?.[1].label ?? theme.texts.booleanFalseFallback;
+  const value = typeof item.value === "boolean" ? item.value : undefined;
 
   return (
     <div
@@ -20,24 +28,29 @@ export function BooleanValueEditor<FieldId extends string>({
         data-theme-slot={filterBarThemeSlot("editorSplit")}
         className={theme.classNames.editorSplit}
       >
-        <Button
-          data-theme-slot={filterBarThemeSlot("booleanTrueButton")}
-          type="button"
-          className={theme.classNames.booleanTrueButton}
-          aria-pressed={item.value === true}
-          onClick={() => onChange(true, { valueChangeKind: "selected" })}
+        <SegmentedControl<boolean>
+          value={value}
+          aria-label={field.label ?? field.id}
+          onValueChange={(nextValue) =>
+            onChange(nextValue, { valueChangeKind: "selected" })
+          }
         >
-          {field.options?.[0].label ?? theme.texts.booleanTrueFallback}
-        </Button>
-        <Button
-          data-theme-slot={filterBarThemeSlot("booleanFalseButton")}
-          type="button"
-          className={theme.classNames.booleanFalseButton}
-          aria-pressed={item.value === false}
-          onClick={() => onChange(false, { valueChangeKind: "selected" })}
-        >
-          {field.options?.[1].label ?? theme.texts.booleanFalseFallback}
-        </Button>
+          <SegmentedControlIndicator />
+          <SegmentedControlItem
+            data-theme-slot={filterBarThemeSlot("booleanTrueButton")}
+            className={theme.classNames.booleanTrueButton}
+            value={true}
+          >
+            <SegmentedControlItemText>{trueLabel}</SegmentedControlItemText>
+          </SegmentedControlItem>
+          <SegmentedControlItem
+            data-theme-slot={filterBarThemeSlot("booleanFalseButton")}
+            className={theme.classNames.booleanFalseButton}
+            value={false}
+          >
+            <SegmentedControlItemText>{falseLabel}</SegmentedControlItemText>
+          </SegmentedControlItem>
+        </SegmentedControl>
       </div>
     </div>
   );

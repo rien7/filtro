@@ -21,6 +21,7 @@ export type FilterBarThemeClassNameSlot =
   | "row"
   | "rowField"
   | "rowFieldText"
+  | "rowOperator"
   | "rowOperatorTrigger"
   | "rowOperatorText"
   | "rowValue"
@@ -60,6 +61,10 @@ export type FilterBarThemeClassNameSlot =
 export type FilterBarPrimitiveClassNameSlot =
   | "button"
   | "input"
+  | "segmentedControl"
+  | "segmentedControlIndicator"
+  | "segmentedControlItem"
+  | "segmentedControlItemText"
   | "selectPositioner"
   | "selectTrigger"
   | "selectTriggerText"
@@ -91,6 +96,10 @@ export type FilterBarPrimitiveClassNameSlot =
 const primitiveDataSlots = {
   button: "button",
   input: "input",
+  segmentedControl: "segmented-control",
+  segmentedControlIndicator: "segmented-control-indicator",
+  segmentedControlItem: "segmented-control-item",
+  segmentedControlItemText: "segmented-control-item-text",
   selectPositioner: "select-positioner",
   selectTrigger: "select-trigger",
   selectTriggerText: "select-trigger-text",

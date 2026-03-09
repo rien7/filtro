@@ -6,7 +6,11 @@ import {
 } from "@/logical/operator";
 import type { FilterBarCompleteness } from "@/filter-bar/change";
 import type { FilterBarValue, FilterBarValueType } from "@/filter-bar/context";
-import { getFieldAllowedOperators, isEmptyOperator } from "@/filter-bar/value";
+import {
+  getFieldAllowedOperators,
+  getFieldDefaultOperator,
+  isEmptyOperator,
+} from "@/filter-bar/value";
 import type {
   FlattenedSelectOption,
   SelectKind,
@@ -98,7 +102,7 @@ export function createFilterBarValue<
   const allowedOperators = getFieldAllowedOperators(field);
   const operator = seed?.operator && allowedOperators.includes(seed.operator)
     ? seed.operator
-    : allowedOperators[0];
+    : getFieldDefaultOperator(field);
 
   if (operator === undefined) {
     return null;

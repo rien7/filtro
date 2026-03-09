@@ -72,8 +72,9 @@ export function FilterItemOperatorTextSegment({
     <ButtonGroupText
       data-area={area}
       data-round-right={roundRight}
-      data-theme-slot={filterBarThemeSlot("rowOperatorText")}
+      data-theme-slot={filterBarThemeSlot("rowOperator", "rowOperatorText")}
       className={cn(
+        theme.classNames.rowOperator,
         theme.classNames.rowOperatorText,
         className,
       )}
