@@ -3,6 +3,8 @@ import {
   CheckSquareIcon,
   HashIcon,
   ListChecksIcon,
+  Plus,
+  Trash2,
   ToggleLeftIcon,
   TypeIcon,
   X,
@@ -80,7 +82,7 @@ export const defaultFilterBarTheme: FilterBarTheme = {
     ),
     suggestionAdd: cn(
       "border-border bg-background !border-l border-dashed px-3",
-      "font-normal text-muted-foreground [&_svg]:rotate-45",
+      "font-normal text-muted-foreground",
       suggestionHoverSurfaceClass,
       "group-hover/suggestion:border-solid",
     ),
@@ -113,8 +115,15 @@ export const defaultFilterBarTheme: FilterBarTheme = {
       "flex min-w-0 grow overflow-visible border border-border bg-background border-r-0",
       suggestionHoverSurfaceClass,
       "data-[round-right=true]:border-r data-[round-right=true]:rounded-r-md",
-      "data-[area=pinned]:overflow-hidden data-[area=pinned]:border-r data-[area=pinned]:rounded-r-md",
+      "data-[area=pinned]:overflow-hidden",
       suggestionDashedBorderClass,
+    ),
+    rowClearButton: cn(
+      "h-full min-h-0 !border-l px-2.5 text-muted-foreground",
+      outlinedSurfaceClass,
+      "hover:bg-muted hover:text-foreground",
+      "focus-visible:border-ring/40",
+      "disabled:border-border disabled:bg-background disabled:text-muted-foreground/50",
     ),
     rowRemoveButton: cn(
       "h-full min-h-0 !border-l px-2.5 text-foreground",
@@ -311,7 +320,9 @@ export const defaultFilterBarTheme: FilterBarTheme = {
       "bg-input relative self-stretch data-horizontal:mx-px data-horizontal:w-auto data-vertical:my-px data-vertical:h-auto",
   },
   icons: {
-    remove: <X className="size-4" />,
+    add: <Plus className="size-4" />,
+    clear: <X className="size-4" />,
+    remove: <Trash2 className="size-4" />,
     fieldKinds: {
       [FieldKind.string]: <TypeIcon />,
       [FieldKind.number]: <HashIcon />,

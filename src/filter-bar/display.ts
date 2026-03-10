@@ -7,6 +7,7 @@ import {
 } from "@/filter-bar/placement";
 import {
   createFilterBarValue,
+  normalizeValueForOperator,
   removeFilterBarValue,
   upsertFilterBarValue,
 } from "@/filter-bar/state";
@@ -16,6 +17,7 @@ import {
   sanitizeFilterBarValue,
 } from "@/filter-bar/value";
 import type { EnumFieldKind } from "@/logical/field";
+import type { OperatorKindFor } from "@/logical/operator";
 
 export type DisplayFilterBarRowSource = "active" | "draft";
 
@@ -235,6 +237,42 @@ export function applyDisplayRowUpdate<
     ) as FilterBarValueType<FieldId, Kind>,
     dismissedSuggestion: false,
   };
+}
+
+export function clearDisplayRowValue<
+  FieldId extends string,
+  Kind extends EnumFieldKind,
+>({
+  field,
+  item,
+  source,
+  draftValues,
+  values,
+}: {
+  field: UIFieldForKind<FieldId, Kind>;
+  item: FilterBarValueType<FieldId, Kind>[number];
+  source: DisplayFilterBarRowSource;
+  draftValues: FilterBarValueType<FieldId, Kind>;
+  values: FilterBarValueType<FieldId, Kind>;
+}) {
+  const nextItem = {
+    ...item,
+    value: normalizeValueForOperator({
+      field,
+      operator: item.operator as OperatorKindFor<Kind>,
+      previousValue: null,
+    }) as typeof item.value,
+  };
+
+  return applyDisplayRowUpdate({
+    action: "value",
+    currentItem: item,
+    field,
+    nextItem,
+    source,
+    draftValues,
+    values,
+  });
 }
 
 export function removeDisplayRow<

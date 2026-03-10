@@ -37,7 +37,10 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
   item,
   onUpdate,
   onRemove,
+  onClear,
   removable = true,
+  clearable = false,
+  clearDisabled = false,
   area = "active",
 }: {
   field: UIFieldForKind<FieldId, Kind>;
@@ -51,7 +54,10 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
     },
   ) => void;
   onRemove: () => void;
+  onClear?: () => void;
   removable?: boolean;
+  clearable?: boolean;
+  clearDisabled?: boolean;
   area?: "active" | "pinned";
 }) {
   const theme = useFilterBarTheme();
@@ -61,9 +67,10 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
   const hasLockedOperator = hasFieldFixedOperator(field);
   const hasMultipleOperators = allowedOperators.length > 1;
   const hidesValueEditor = isEmptyOperator(item.operator);
-  const shouldRoundFieldRight = !removable && hidesValueEditor && hasLockedOperator;
-  const shouldRoundOperatorRight = !removable && hidesValueEditor && !hasLockedOperator;
-  const shouldRoundValueRight = !removable && !hidesValueEditor;
+  const hasTrailingAction = removable || clearable;
+  const shouldRoundFieldRight = !hasTrailingAction && hidesValueEditor && hasLockedOperator;
+  const shouldRoundOperatorRight = !hasTrailingAction && hidesValueEditor && !hasLockedOperator;
+  const shouldRoundValueRight = !hasTrailingAction && !hidesValueEditor;
 
   return (
     <div
@@ -190,6 +197,19 @@ export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind
             className={theme.classNames.rowRemoveButton}
           >
             {theme.icons.remove ?? theme.texts.removeLabelFallback}
+          </Button>
+        ) : null}
+
+        {clearable ? (
+          <Button
+            data-theme-slot={filterBarThemeSlot("rowClearButton")}
+            data-area={area}
+            aria-label={`Clear ${field.label ?? field.id} filter value`}
+            disabled={clearDisabled}
+            onClick={onClear}
+            className={theme.classNames.rowClearButton}
+          >
+            {theme.icons.clear ?? theme.icons.remove ?? theme.texts.clearLabelFallback}
           </Button>
         ) : null}
       </ButtonGroup>

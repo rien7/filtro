@@ -26,6 +26,7 @@ export type FilterBarThemeClassNameSlot =
   | "rowOperatorText"
   | "rowValue"
   | "rowError"
+  | "rowClearButton"
   | "rowRemoveButton"
   | "triggerMenuContent"
   | "triggerMenuSeparator"
@@ -146,10 +147,14 @@ export interface FilterBarThemeTexts {
   saveViewSubmit: string;
   booleanTrueFallback: string;
   booleanFalseFallback: string;
+  addLabelFallback: string;
+  clearLabelFallback: string;
   removeLabelFallback: string;
 }
 
 export interface FilterBarThemeIcons {
+  add?: ReactNode;
+  clear?: ReactNode;
   remove?: ReactNode;
   fieldKinds?: Partial<Record<EnumFieldKind, ReactNode>>;
 }
@@ -189,6 +194,8 @@ const defaultTexts: FilterBarThemeTexts = {
   saveViewSubmit: "Save",
   booleanTrueFallback: "True",
   booleanFalseFallback: "False",
+  addLabelFallback: "Add",
+  clearLabelFallback: "Clear",
   removeLabelFallback: "Remove",
 };
 

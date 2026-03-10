@@ -269,9 +269,6 @@ function useFiltroFields() {
           { label: "Not Archived", value: false },
         ])
           .suggest({
-            seed: {
-              value: true,
-            },
             showInMenu: false,
           }),
       ]),

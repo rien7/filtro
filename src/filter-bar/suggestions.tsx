@@ -188,7 +188,7 @@ export function FilterBarSuggestedItems({
                 aria-hidden="true"
                 className={theme.classNames.suggestionAdd}
               >
-                {theme.icons.remove ?? theme.texts.removeLabelFallback}
+                {theme.icons.add ?? theme.texts.addLabelFallback}
               </ButtonGroupText>
             </ButtonGroup>
           </div>
