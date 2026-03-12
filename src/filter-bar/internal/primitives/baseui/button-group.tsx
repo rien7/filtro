@@ -1,21 +1,22 @@
-import { mergeProps } from "@base-ui/react/merge-props"
-import { useRender } from "@base-ui/react/use-render"
+import { mergeProps } from '@base-ui/react/merge-props'
+import { useRender } from '@base-ui/react/use-render'
 
 import {
   getFilterBarPrimitiveDataSlot,
   useFilterBarPrimitiveClassName,
-} from "@/filter-bar/theme"
-import { Separator } from "./separator"
+} from '@/filter-bar/theme'
+
+import { Separator } from './separator'
 
 function ButtonGroup({
   className,
-  orientation = "horizontal",
+  orientation = 'horizontal',
   ...props
-}: React.ComponentProps<"div"> & {
-  orientation?: "horizontal" | "vertical";
+}: React.ComponentProps<'div'> & {
+  orientation?: 'horizontal' | 'vertical'
 }) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("buttonGroup", className) as string
-  const slot = getFilterBarPrimitiveDataSlot("buttonGroup")
+  const resolvedClassName = useFilterBarPrimitiveClassName('buttonGroup', className) as string
+  const slot = getFilterBarPrimitiveDataSlot('buttonGroup')
 
   return (
     <div
@@ -32,17 +33,17 @@ function ButtonGroupText({
   className,
   render,
   ...props
-}: useRender.ComponentProps<"div">) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("buttonGroupText", className) as string
-  const slot = getFilterBarPrimitiveDataSlot("buttonGroupText")
+}: useRender.ComponentProps<'div'>) {
+  const resolvedClassName = useFilterBarPrimitiveClassName('buttonGroupText', className) as string
+  const slot = getFilterBarPrimitiveDataSlot('buttonGroupText')
 
   return useRender({
-    defaultTagName: "div",
-    props: mergeProps<"div">(
+    defaultTagName: 'div',
+    props: mergeProps<'div'>(
       {
         className: resolvedClassName,
       },
-      props
+      props,
     ),
     render,
     state: {
@@ -53,11 +54,11 @@ function ButtonGroupText({
 
 function ButtonGroupSeparator({
   className,
-  orientation = "vertical",
+  orientation = 'vertical',
   ...props
 }: React.ComponentProps<typeof Separator>) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("buttonGroupSeparator", className)
-  const slot = getFilterBarPrimitiveDataSlot("buttonGroupSeparator")
+  const resolvedClassName = useFilterBarPrimitiveClassName('buttonGroupSeparator', className)
+  const slot = getFilterBarPrimitiveDataSlot('buttonGroupSeparator')
 
   return (
     <Separator

@@ -1,1 +1,1 @@
-export * from "@/filter-bar/internal/primitives/baseui/select"
+export * from '@/filter-bar/internal/primitives/baseui/select'

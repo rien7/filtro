@@ -1,0 +1,247 @@
+import { useId, useState } from 'react'
+
+import { getFilterRowAriaLabel } from '@/filter-bar/accessibility'
+import { getOperatorLabel } from '@/filter-bar/components/items/constants'
+import {
+  FilterItemFieldSegment,
+  FilterItemOperatorTextSegment,
+  FilterItemValueSegment,
+} from '@/filter-bar/components/items/parts'
+import { FilterValueEditor } from '@/filter-bar/components/items/value-editor'
+import type { FilterBarValue } from '@/filter-bar/context'
+import {
+  getFieldAllowedOperators,
+  hasFieldFixedOperator,
+} from '@/filter-bar/core/operator'
+import { Button } from '@/filter-bar/internal/primitives/baseui/button'
+import {
+  ButtonGroup,
+} from '@/filter-bar/internal/primitives/baseui/button-group'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/filter-bar/internal/primitives/baseui/select'
+import {
+  getFilterBarValueCompleteness,
+  isEmptyOperator,
+  normalizeValueForOperator,
+} from '@/filter-bar/state'
+import { filterBarThemeSlot, useFilterBarTheme } from '@/filter-bar/theme'
+import type { UIFieldForKind } from '@/filter-bar/types'
+import { cn } from '@/lib/utils'
+import type { EnumFieldKind } from '@/logical/field'
+import type { OperatorKindFor } from '@/logical/operator'
+
+export function FilterItemRow<FieldId extends string, Kind extends EnumFieldKind>({
+  field,
+  item,
+  onUpdate,
+  onRemove,
+  onClear,
+  removable = true,
+  clearable = false,
+  clearDisabled = false,
+  area = 'active',
+}: {
+  field: UIFieldForKind<FieldId, Kind>
+  item: FilterBarValue<FieldId, Kind>
+  onUpdate: (
+    updater: (current: FilterBarValue<FieldId, Kind>) => FilterBarValue<FieldId, Kind>,
+    meta: {
+      action: 'operator' | 'value'
+      completeness: 'complete' | 'incomplete'
+      valueChangeKind?: 'typing' | 'selected'
+    },
+  ) => void
+  onRemove: () => void
+  onClear?: () => void
+  removable?: boolean
+  clearable?: boolean
+  clearDisabled?: boolean
+  area?: 'active' | 'pinned'
+}) {
+  const theme = useFilterBarTheme()
+  const errorId = useId()
+  const [validationMessage, setValidationMessage] = useState<string | null>(null)
+  const allowedOperators = getFieldAllowedOperators(field)
+  const hasLockedOperator = hasFieldFixedOperator(field)
+  const hasMultipleOperators = allowedOperators.length > 1
+  const hidesValueEditor = isEmptyOperator(item.operator)
+  const hasTrailingAction = removable || clearable
+  const shouldRoundFieldRight = !hasTrailingAction && hidesValueEditor && hasLockedOperator
+  const shouldRoundOperatorRight = !hasTrailingAction && hidesValueEditor && !hasLockedOperator
+  const shouldRoundValueRight = !hasTrailingAction && !hidesValueEditor
+
+  return (
+    <div
+      role="listitem"
+      data-removable={removable}
+      data-has-locked-operator={hasLockedOperator}
+      data-hides-value-editor={hidesValueEditor}
+      data-theme-slot={filterBarThemeSlot('rowRoot')}
+      data-area={area}
+      className={theme.classNames.rowRoot}
+    >
+      <ButtonGroup
+        data-removable={removable}
+        data-has-locked-operator={hasLockedOperator}
+        data-hides-value-editor={hidesValueEditor}
+        data-theme-slot={filterBarThemeSlot('row')}
+        data-area={area}
+        aria-label={getFilterRowAriaLabel(field)}
+        aria-describedby={validationMessage ? errorId : undefined}
+        className={theme.classNames.row}
+      >
+        <FilterItemFieldSegment
+          area={area}
+          field={field}
+          showTrailingBorder={hasLockedOperator}
+          roundRight={shouldRoundFieldRight}
+        />
+
+        {hasMultipleOperators
+          ? (
+              <Select<string>
+                value={item.operator}
+                onValueChange={(nextOperator) => {
+                  const nextItem = {
+                    ...item,
+                    operator: nextOperator as typeof item.operator,
+                    allowOperators: [...allowedOperators] as typeof item.allowOperators,
+                    value: normalizeValueForOperator({
+                      field,
+                      operator: nextOperator as OperatorKindFor<typeof field.kind>,
+                      previousValue: item.value as never,
+                    }) as typeof item.value,
+                  }
+
+                  onUpdate(
+                    () => nextItem,
+                    {
+                      action: 'operator',
+                      completeness: getFilterBarValueCompleteness(
+                        nextItem as FilterBarValue<string, EnumFieldKind>,
+                      ),
+                    },
+                  )
+                }}
+              >
+                <SelectTrigger
+                  data-area={area}
+                  data-round-right={shouldRoundOperatorRight}
+                  data-theme-slot={filterBarThemeSlot('selectTrigger', 'rowOperator', 'rowOperatorTrigger')}
+                  className={cn(
+                    theme.classNames.selectTrigger,
+                    theme.classNames.rowOperator,
+                    theme.classNames.rowOperatorTrigger,
+                  )}
+                >
+                  <SelectValue>
+                    {value => getOperatorLabel(String(value ?? ''))}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent
+                  data-theme-slot={filterBarThemeSlot('selectContent')}
+                  className={theme.classNames.selectContent}
+                >
+                  {allowedOperators.map(operator => (
+                    <SelectItem
+                      key={operator}
+                      value={operator}
+                      data-theme-slot={filterBarThemeSlot('selectItem')}
+                      className={theme.classNames.selectItem}
+                    >
+                      {getOperatorLabel(operator)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )
+          : hasLockedOperator
+            ? null
+            : (
+                <FilterItemOperatorTextSegment
+                  area={area}
+                  operator={item.operator}
+                  roundRight={shouldRoundOperatorRight}
+                />
+              )}
+
+        {isEmptyOperator(item.operator)
+          ? null
+          : (
+              <FilterItemValueSegment area={area} roundRight={shouldRoundValueRight}>
+                <FilterValueEditor
+                  field={field}
+                  item={item}
+                  onChange={(value, options) => {
+                    const nextItem = {
+                      ...item,
+                      value,
+                    }
+
+                    onUpdate(
+                      () => nextItem,
+                      {
+                        action: 'value',
+                        valueChangeKind: options?.valueChangeKind ?? 'selected',
+                        completeness: getFilterBarValueCompleteness(
+                          nextItem as FilterBarValue<string, EnumFieldKind>,
+                        ),
+                      },
+                    )
+                  }}
+                  onValidationChange={setValidationMessage}
+                  errorDescriptionId={errorId}
+                />
+              </FilterItemValueSegment>
+            )}
+
+        {removable
+          ? (
+              <Button
+                data-theme-slot={filterBarThemeSlot('rowRemoveButton')}
+                data-area={area}
+                aria-label={`Remove ${field.label ?? field.id} filter`}
+                onClick={onRemove}
+                className={theme.classNames.rowRemoveButton}
+              >
+                {theme.icons.remove ?? theme.texts.removeLabelFallback}
+              </Button>
+            )
+          : null}
+
+        {clearable
+          ? (
+              <Button
+                data-theme-slot={filterBarThemeSlot('rowClearButton')}
+                data-area={area}
+                aria-label={`Clear ${field.label ?? field.id} filter value`}
+                disabled={clearDisabled}
+                onClick={onClear}
+                className={theme.classNames.rowClearButton}
+              >
+                {theme.icons.clear ?? theme.icons.remove ?? theme.texts.clearLabelFallback}
+              </Button>
+            )
+          : null}
+      </ButtonGroup>
+
+      {validationMessage
+        ? (
+            <div
+              id={errorId}
+              role="alert"
+              data-theme-slot={filterBarThemeSlot('rowError')}
+              className={theme.classNames.rowError}
+            >
+              {validationMessage}
+            </div>
+          )
+        : null}
+    </div>
+  )
+}

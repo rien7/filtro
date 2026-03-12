@@ -1,14 +1,15 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Select as SelectPrimitive } from "@base-ui/react/select"
-import { CheckIcon, ChevronDownIcon } from "lucide-react"
+import { Select as SelectPrimitive } from '@base-ui/react/select'
+import { CheckIcon, ChevronDownIcon } from 'lucide-react'
+import * as React from 'react'
 
 import {
   getFilterBarPrimitiveDataSlot,
   useFilterBarPrimitiveClassName,
-} from "@/filter-bar/theme"
-import { Input } from "./input"
+} from '@/filter-bar/theme'
+
+import { Input } from './input'
 
 function Select<Value, Multiple extends boolean | undefined = false>(
   props: SelectPrimitive.Root.Props<Value, Multiple>,
@@ -23,15 +24,15 @@ function SelectTrigger({
   icon,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
-  showIcon?: boolean;
-  icon?: React.ReactNode;
+  showIcon?: boolean
+  icon?: React.ReactNode
 }) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("selectTrigger", className)
-  const textClassName = useFilterBarPrimitiveClassName("selectTriggerText")
-  const iconClassName = useFilterBarPrimitiveClassName("selectIcon")
-  const triggerSlot = getFilterBarPrimitiveDataSlot("selectTrigger")
-  const triggerTextSlot = getFilterBarPrimitiveDataSlot("selectTriggerText")
-  const iconSlot = getFilterBarPrimitiveDataSlot("selectIcon")
+  const resolvedClassName = useFilterBarPrimitiveClassName('selectTrigger', className)
+  const textClassName = useFilterBarPrimitiveClassName('selectTriggerText')
+  const iconClassName = useFilterBarPrimitiveClassName('selectIcon')
+  const triggerSlot = getFilterBarPrimitiveDataSlot('selectTrigger')
+  const triggerTextSlot = getFilterBarPrimitiveDataSlot('selectTriggerText')
+  const iconSlot = getFilterBarPrimitiveDataSlot('selectIcon')
 
   return (
     <SelectPrimitive.Trigger
@@ -57,17 +58,17 @@ function SelectValue(props: React.ComponentProps<typeof SelectPrimitive.Value>) 
 }
 
 function SelectContent({
-  align = "start",
+  align = 'start',
   className,
   children,
   sideOffset = 6,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Popup> &
-  Pick<React.ComponentProps<typeof SelectPrimitive.Positioner>, "align" | "sideOffset">) {
-  const positionerClassName = useFilterBarPrimitiveClassName("selectPositioner")
-  const popupClassName = useFilterBarPrimitiveClassName("selectContent", className)
-  const positionerSlot = getFilterBarPrimitiveDataSlot("selectPositioner")
-  const contentSlot = getFilterBarPrimitiveDataSlot("selectContent")
+}: React.ComponentProps<typeof SelectPrimitive.Popup>
+  & Pick<React.ComponentProps<typeof SelectPrimitive.Positioner>, 'align' | 'sideOffset'>) {
+  const positionerClassName = useFilterBarPrimitiveClassName('selectPositioner')
+  const popupClassName = useFilterBarPrimitiveClassName('selectContent', className)
+  const positionerSlot = getFilterBarPrimitiveDataSlot('selectPositioner')
+  const contentSlot = getFilterBarPrimitiveDataSlot('selectContent')
 
   return (
     <SelectPrimitive.Portal>
@@ -98,12 +99,12 @@ function SelectItem({
   indicator,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Item> & {
-  indicator?: React.ReactNode;
+  indicator?: React.ReactNode
 }) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("selectItem", className)
-  const indicatorClassName = useFilterBarPrimitiveClassName("selectItemIndicator")
-  const itemSlot = getFilterBarPrimitiveDataSlot("selectItem")
-  const itemIndicatorSlot = getFilterBarPrimitiveDataSlot("selectItemIndicator")
+  const resolvedClassName = useFilterBarPrimitiveClassName('selectItem', className)
+  const indicatorClassName = useFilterBarPrimitiveClassName('selectItemIndicator')
+  const itemSlot = getFilterBarPrimitiveDataSlot('selectItem')
+  const itemIndicatorSlot = getFilterBarPrimitiveDataSlot('selectItemIndicator')
 
   return (
     <SelectPrimitive.Item
@@ -130,8 +131,8 @@ function SelectSearchInput({
   className,
   ...props
 }: React.ComponentProps<typeof Input>) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("selectSearchInput", className)
-  const slot = getFilterBarPrimitiveDataSlot("selectSearchInput")
+  const resolvedClassName = useFilterBarPrimitiveClassName('selectSearchInput', className)
+  const slot = getFilterBarPrimitiveDataSlot('selectSearchInput')
 
   return (
     <Input
@@ -145,9 +146,9 @@ function SelectSearchInput({
 function SelectSeparator({
   className,
   ...props
-}: React.ComponentProps<"div">) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("selectSeparator", className) as string
-  const slot = getFilterBarPrimitiveDataSlot("selectSeparator")
+}: React.ComponentProps<'div'>) {
+  const resolvedClassName = useFilterBarPrimitiveClassName('selectSeparator', className) as string
+  const slot = getFilterBarPrimitiveDataSlot('selectSeparator')
 
   return (
     <div

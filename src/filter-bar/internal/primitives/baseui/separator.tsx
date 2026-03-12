@@ -1,19 +1,19 @@
-"use client"
+'use client'
 
-import { Separator as SeparatorPrimitive } from "@base-ui/react/separator"
+import { Separator as SeparatorPrimitive } from '@base-ui/react/separator'
 
 import {
   getFilterBarPrimitiveDataSlot,
   useFilterBarPrimitiveClassName,
-} from "@/filter-bar/theme"
+} from '@/filter-bar/theme'
 
 function Separator({
   className,
-  orientation = "horizontal",
+  orientation = 'horizontal',
   ...props
 }: SeparatorPrimitive.Props) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("separator", className)
-  const slot = getFilterBarPrimitiveDataSlot("separator")
+  const resolvedClassName = useFilterBarPrimitiveClassName('separator', className)
+  const slot = getFilterBarPrimitiveDataSlot('separator')
 
   return (
     <SeparatorPrimitive

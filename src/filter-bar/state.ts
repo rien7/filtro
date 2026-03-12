@@ -1,27 +1,28 @@
-import { FieldKind, type EnumFieldKind } from "@/logical/field";
-import {
-  DateOperatorKind,
-  NumberOperatorKind,
-  type OperatorKindFor,
-} from "@/logical/operator";
-import type { FilterBarCompleteness } from "@/filter-bar/change";
-import type { FilterBarValue, FilterBarValueType } from "@/filter-bar/context";
+import type { FilterBarCompleteness } from '@/filter-bar/change'
+import type { FilterBarValue, FilterBarValueType } from '@/filter-bar/context'
 import {
   getFieldAllowedOperators,
   getFieldDefaultOperator,
   isEmptyOperator,
-} from "@/filter-bar/value";
+} from '@/filter-bar/core/operator'
 import type {
   FlattenedSelectOption,
   SelectKind,
   SelectOption,
   SelectUIField,
   UIFieldForKind,
-} from "@/filter-bar/types";
+} from '@/filter-bar/types'
+import type { EnumFieldKind } from '@/logical/field'
+import { FieldKind } from '@/logical/field'
+import type { OperatorKindFor } from '@/logical/operator'
+import {
+  DateOperatorKind,
+  NumberOperatorKind,
+} from '@/logical/operator'
 
 export interface FilterBarValueSeed<Kind extends EnumFieldKind = EnumFieldKind> {
-  operator?: OperatorKindFor<Kind>;
-  value?: FilterBarValue<string, Kind>["value"];
+  operator?: OperatorKindFor<Kind>
+  value?: FilterBarValue<string, Kind>['value']
 }
 
 export function flattenSelectOptions(
@@ -29,20 +30,20 @@ export function flattenSelectOptions(
   path: string[] = [],
 ): FlattenedSelectOption[] {
   return options.flatMap((option) => {
-    const nextPath = [...path, option.label];
+    const nextPath = [...path, option.label]
     if (!option.children?.length) {
-      const { children: _children, ...resolvedOption } = option;
-      return [{ ...resolvedOption, label: nextPath.join(" / ") }];
+      const { children: _children, ...resolvedOption } = option
+      return [{ ...resolvedOption, label: nextPath.join(' / ') }]
     }
 
-    return flattenSelectOptions(option.children, nextPath);
-  });
+    return flattenSelectOptions(option.children, nextPath)
+  })
 }
 
 export function isStaticSelectField<FieldId extends string, Kind extends SelectKind>(
   field: SelectUIField<FieldId, Kind>,
 ): field is SelectUIField<FieldId, Kind> & { options: SelectOption[] } {
-  return Array.isArray(field.options);
+  return Array.isArray(field.options)
 }
 
 export function normalizeValueForOperator<FieldId extends string, Kind extends EnumFieldKind>({
@@ -50,45 +51,48 @@ export function normalizeValueForOperator<FieldId extends string, Kind extends E
   operator,
   previousValue,
 }: {
-  field: UIFieldForKind<FieldId, Kind>;
-  operator: OperatorKindFor<Kind>;
-  previousValue: FilterBarValue<FieldId, Kind>["value"];
+  field: UIFieldForKind<FieldId, Kind>
+  operator: OperatorKindFor<Kind>
+  previousValue: FilterBarValue<FieldId, Kind>['value']
 }) {
   if (isEmptyOperator(operator)) {
-    return null;
+    return null
   }
 
   switch (field.kind) {
     case FieldKind.string:
-      return typeof previousValue === "string" ? previousValue : "";
+      return typeof previousValue === 'string' ? previousValue : ''
     case FieldKind.number:
       if (operator === NumberOperatorKind.between || operator === NumberOperatorKind.notBetween) {
-        return Array.isArray(previousValue) ? previousValue : null;
+        return Array.isArray(previousValue) ? previousValue : null
       }
-      return typeof previousValue === "number" ? previousValue : null;
+      return typeof previousValue === 'number' ? previousValue : null
     case FieldKind.date:
       if (operator === DateOperatorKind.lastNDays || operator === DateOperatorKind.nextNDays) {
-        return typeof previousValue === "number" ? previousValue : null;
+        return typeof previousValue === 'number' ? previousValue : null
       }
       if (operator === DateOperatorKind.between || operator === DateOperatorKind.notBetween) {
         return Array.isArray(previousValue)
           ? previousValue
-          : null;
+          : null
       }
-      return typeof previousValue === "string" ? previousValue : null;
+      return typeof previousValue === 'string' ? previousValue : null
     case FieldKind.select: {
-      if (Array.isArray(previousValue)) return previousValue[0] ?? null;
-      return typeof previousValue === "string" ? previousValue : null;
+      if (Array.isArray(previousValue))
+        return previousValue[0] ?? null
+      return typeof previousValue === 'string' ? previousValue : null
     }
     case FieldKind.multiSelect: {
-      if (Array.isArray(previousValue)) return previousValue;
-      if (typeof previousValue === "string") return [previousValue];
-      return [];
+      if (Array.isArray(previousValue))
+        return previousValue
+      if (typeof previousValue === 'string')
+        return [previousValue]
+      return []
     }
     case FieldKind.boolean:
-      return typeof previousValue === "boolean" ? previousValue : null;
+      return typeof previousValue === 'boolean' ? previousValue : null
     default:
-      return previousValue;
+      return previousValue
   }
 }
 
@@ -99,13 +103,13 @@ export function createFilterBarValue<
   field: UIFieldForKind<FieldId, Kind>,
   seed?: FilterBarValueSeed<Kind>,
 ) {
-  const allowedOperators = getFieldAllowedOperators(field);
+  const allowedOperators = getFieldAllowedOperators(field)
   const operator = seed?.operator && allowedOperators.includes(seed.operator)
     ? seed.operator
-    : getFieldDefaultOperator(field);
+    : getFieldDefaultOperator(field)
 
   if (operator === undefined) {
-    return null;
+    return null
   }
 
   return {
@@ -116,71 +120,71 @@ export function createFilterBarValue<
     value: normalizeValueForOperator({
       field: field as UIFieldForKind<FieldId, typeof field.kind>,
       operator: operator as OperatorKindFor<typeof field.kind>,
-      previousValue: (seed?.value ?? null) as FilterBarValue<FieldId, typeof field.kind>["value"],
+      previousValue: (seed?.value ?? null) as FilterBarValue<FieldId, typeof field.kind>['value'],
     }),
-  } as FilterBarValue<FieldId, typeof field.kind>;
+  } as FilterBarValue<FieldId, typeof field.kind>
 }
 
 export function getFilterBarValueCompleteness(
   value: FilterBarValue<string, EnumFieldKind>,
 ): FilterBarCompleteness {
   if (isEmptyOperator(value.operator)) {
-    return "complete";
+    return 'complete'
   }
 
   switch (value.kind) {
     case FieldKind.string:
     case FieldKind.select:
-      return typeof value.value === "string" && value.value.length > 0
-        ? "complete"
-        : "incomplete";
+      return typeof value.value === 'string' && value.value.length > 0
+        ? 'complete'
+        : 'incomplete'
     case FieldKind.number:
       if (
-        value.operator === NumberOperatorKind.between ||
-        value.operator === NumberOperatorKind.notBetween
+        value.operator === NumberOperatorKind.between
+        || value.operator === NumberOperatorKind.notBetween
       ) {
-        return Array.isArray(value.value) &&
-          value.value.length === 2 &&
-          typeof value.value[0] === "number" &&
-          typeof value.value[1] === "number"
-          ? "complete"
-          : "incomplete";
+        return Array.isArray(value.value)
+          && value.value.length === 2
+          && typeof value.value[0] === 'number'
+          && typeof value.value[1] === 'number'
+          ? 'complete'
+          : 'incomplete'
       }
 
-      return typeof value.value === "number" ? "complete" : "incomplete";
+      return typeof value.value === 'number' ? 'complete' : 'incomplete'
     case FieldKind.date:
       if (
-        value.operator === DateOperatorKind.lastNDays ||
-        value.operator === DateOperatorKind.nextNDays
+        value.operator === DateOperatorKind.lastNDays
+        || value.operator === DateOperatorKind.nextNDays
       ) {
-        return typeof value.value === "number" ? "complete" : "incomplete";
+        return typeof value.value === 'number' ? 'complete' : 'incomplete'
       }
 
       if (
-        value.operator === DateOperatorKind.between ||
-        value.operator === DateOperatorKind.notBetween
+        value.operator === DateOperatorKind.between
+        || value.operator === DateOperatorKind.notBetween
       ) {
-        return Array.isArray(value.value) &&
-          value.value.length === 2 &&
-          typeof value.value[0] === "string" &&
-          value.value[0].length > 0 &&
-          typeof value.value[1] === "string" &&
-          value.value[1].length > 0
-          ? "complete"
-          : "incomplete";
+        return Array.isArray(value.value)
+          && value.value.length === 2
+          && typeof value.value[0] === 'string'
+          && value.value[0].length > 0
+          && typeof value.value[1] === 'string'
+          && value.value[1].length > 0
+          ? 'complete'
+          : 'incomplete'
       }
 
-      return typeof value.value === "string" && value.value.length > 0
-        ? "complete"
-        : "incomplete";
+      return typeof value.value === 'string' && value.value.length > 0
+        ? 'complete'
+        : 'incomplete'
     case FieldKind.multiSelect:
       return Array.isArray(value.value) && value.value.length > 0
-        ? "complete"
-        : "incomplete";
+        ? 'complete'
+        : 'incomplete'
     case FieldKind.boolean:
-      return typeof value.value === "boolean" ? "complete" : "incomplete";
+      return typeof value.value === 'boolean' ? 'complete' : 'incomplete'
     default:
-      return "incomplete";
+      return 'incomplete'
   }
 }
 
@@ -191,15 +195,15 @@ export function upsertFilterBarValue<
   values: FilterBarValueType<FieldId, Kind>,
   nextValue: FilterBarValueType<FieldId, Kind>[number],
 ) {
-  const currentIndex = values.findIndex((value) => value.fieldId === nextValue.fieldId);
+  const currentIndex = values.findIndex(value => value.fieldId === nextValue.fieldId)
 
   if (currentIndex === -1) {
-    return [...values, nextValue];
+    return [...values, nextValue]
   }
 
-  const nextValues = [...values];
-  nextValues[currentIndex] = nextValue;
-  return nextValues;
+  const nextValues = [...values]
+  nextValues[currentIndex] = nextValue
+  return nextValues
 }
 
 export function removeFilterBarValue<
@@ -209,8 +213,8 @@ export function removeFilterBarValue<
   values: FilterBarValueType<FieldId, Kind>,
   fieldId: string,
 ) {
-  const nextValues = values.filter((value) => value.fieldId !== fieldId);
-  return nextValues.length === values.length ? values : nextValues;
+  const nextValues = values.filter(value => value.fieldId !== fieldId)
+  return nextValues.length === values.length ? values : nextValues
 }
 
-export { isEmptyOperator };
+export { isEmptyOperator }

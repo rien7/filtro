@@ -1,5 +1,5 @@
-import type { EnumFieldKind } from "./field"
-import type { OperatorKindFor, OperatorValueFor } from "./operator"
+import type { EnumFieldKind } from './field'
+import type { OperatorKindFor, OperatorValueFor } from './operator'
 
 export const FilterAstNode = {
   Condition: 'condition',
@@ -33,9 +33,9 @@ export type FilterGroup<FieldId extends string = string> = {
   children: FilterNode<FieldId>[]
 }
 
-export type FilterNode<FieldId extends string = string> =
-  | FilterGroup<FieldId>
-  | FilterCondition<FieldId, EnumFieldKind>
+export type FilterNode<FieldId extends string = string>
+  = | FilterGroup<FieldId>
+    | FilterCondition<FieldId, EnumFieldKind>
 
 export type FilterRoot<FieldId extends string = string> = FilterGroup<FieldId> & {
   relation: typeof FilterRelation.AND

@@ -1,69 +1,69 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type {
   FilterBarApplyMeta,
   FilterBarApplyMode,
   FilterBarChangeMeta,
-} from "@/filter-bar/change";
-import type { EnumFieldKind } from "@/logical/field";
-import type { FilterBarValueType } from "@/filter-bar/context";
-import { areFilterBarValuesEqual } from "@/filter-bar/value";
+} from '@/filter-bar/change'
+import type { FilterBarValueType } from '@/filter-bar/context'
+import { areFilterBarValuesEqual } from '@/filter-bar/core/equality'
+import type { EnumFieldKind } from '@/logical/field'
 
-type ApplyDecision = "apply" | "skip" | "debounce";
+type ApplyDecision = 'apply' | 'skip' | 'debounce'
 
 export interface UseFilterBarControllerOptions<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind,
 > {
-  defaultValue?: FilterBarValueType<FieldId, Kind>;
-  appliedValue?: FilterBarValueType<FieldId, Kind>;
+  defaultValue?: FilterBarValueType<FieldId, Kind>
+  appliedValue?: FilterBarValueType<FieldId, Kind>
   onAppliedChange?: (
     nextValue: FilterBarValueType<FieldId, Kind>,
     meta: FilterBarApplyMeta<FieldId>,
-  ) => void;
-  applyMode?: FilterBarApplyMode;
-  debounceMs?: number;
+  ) => void
+  applyMode?: FilterBarApplyMode
+  debounceMs?: number
 }
 
 export interface FilterBarController<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind,
 > {
-  draftValue: FilterBarValueType<FieldId, Kind>;
+  draftValue: FilterBarValueType<FieldId, Kind>
   onDraftChange: (
     nextValue: FilterBarValueType<FieldId, Kind>,
     meta?: FilterBarChangeMeta<FieldId>,
-  ) => void;
-  appliedValue: FilterBarValueType<FieldId, Kind>;
-  apply: () => void;
-  clear: () => void;
-  discardChanges: () => void;
-  isDirty: boolean;
+  ) => void
+  appliedValue: FilterBarValueType<FieldId, Kind>
+  apply: () => void
+  clear: () => void
+  discardChanges: () => void
+  isDirty: boolean
 }
 
 function resolveApplyDecision<FieldId extends string>(
   meta: FilterBarChangeMeta<FieldId> | undefined,
 ): ApplyDecision {
   if (!meta) {
-    return "skip";
+    return 'skip'
   }
 
   switch (meta.action) {
-    case "clear":
-      return "skip";
-    case "remove":
-      return "apply";
-    case "add":
-    case "operator":
-      return meta.completeness === "complete" ? "apply" : "skip";
-    case "value":
-      if (meta.completeness === "incomplete") {
-        return "skip";
+    case 'clear':
+      return 'skip'
+    case 'remove':
+      return 'apply'
+    case 'add':
+    case 'operator':
+      return meta.completeness === 'complete' ? 'apply' : 'skip'
+    case 'value':
+      if (meta.completeness === 'incomplete') {
+        return 'skip'
       }
 
-      return meta.valueChangeKind === "typing" ? "debounce" : "apply";
+      return meta.valueChangeKind === 'typing' ? 'debounce' : 'apply'
     default:
-      return "skip";
+      return 'skip'
   }
 }
 
@@ -74,119 +74,119 @@ export function useFilterBarController<
   defaultValue = [] as FilterBarValueType<FieldId, Kind>,
   appliedValue: controlledAppliedValue,
   onAppliedChange,
-  applyMode = "manual",
+  applyMode = 'manual',
   debounceMs = 300,
 }: UseFilterBarControllerOptions<FieldId, Kind> = {}): FilterBarController<FieldId, Kind> {
-  const isAppliedControlled = controlledAppliedValue !== undefined;
+  const isAppliedControlled = controlledAppliedValue !== undefined
   const [uncontrolledAppliedValue, setUncontrolledAppliedValue] = useState<
     FilterBarValueType<FieldId, Kind>
-  >(() => controlledAppliedValue ?? defaultValue);
+  >(() => controlledAppliedValue ?? defaultValue)
   const [draftValue, setDraftValue] = useState<FilterBarValueType<FieldId, Kind>>(
     () => controlledAppliedValue ?? defaultValue,
-  );
+  )
   const appliedValue = isAppliedControlled
     ? (controlledAppliedValue ?? defaultValue)
-    : uncontrolledAppliedValue;
-  const appliedValueRef = useRef(appliedValue);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    : uncontrolledAppliedValue
+  const appliedValueRef = useRef(appliedValue)
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearPendingApply = useCallback(() => {
     if (debounceTimerRef.current !== null) {
-      clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = null;
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
     }
-  }, []);
+  }, [])
 
   const commitAppliedValue = useCallback(
     (
       nextValue: FilterBarValueType<FieldId, Kind>,
       meta: FilterBarApplyMeta<FieldId>,
     ) => {
-      const currentAppliedValue = appliedValueRef.current;
+      const currentAppliedValue = appliedValueRef.current
 
       if (areFilterBarValuesEqual(currentAppliedValue, nextValue)) {
-        return;
+        return
       }
 
       if (!isAppliedControlled) {
-        setUncontrolledAppliedValue(nextValue);
+        setUncontrolledAppliedValue(nextValue)
       }
 
-      onAppliedChange?.(nextValue, meta);
+      onAppliedChange?.(nextValue, meta)
     },
     [isAppliedControlled, onAppliedChange],
-  );
+  )
 
   useEffect(() => {
     if (areFilterBarValuesEqual(appliedValueRef.current, appliedValue)) {
-      return;
+      return
     }
 
-    appliedValueRef.current = appliedValue;
-    clearPendingApply();
-    setDraftValue(appliedValue);
-  }, [appliedValue, clearPendingApply]);
+    appliedValueRef.current = appliedValue
+    clearPendingApply()
+    setDraftValue(appliedValue)
+  }, [appliedValue, clearPendingApply])
 
   useEffect(() => {
     return () => {
-      clearPendingApply();
-    };
-  }, [clearPendingApply]);
+      clearPendingApply()
+    }
+  }, [clearPendingApply])
 
   const apply = useCallback(() => {
-    clearPendingApply();
+    clearPendingApply()
     commitAppliedValue(draftValue, {
-      source: "apply",
+      source: 'apply',
       change: null,
-    });
-  }, [clearPendingApply, commitAppliedValue, draftValue]);
+    })
+  }, [clearPendingApply, commitAppliedValue, draftValue])
 
   const clear = useCallback(() => {
-    clearPendingApply();
-    setDraftValue([]);
-  }, [clearPendingApply]);
+    clearPendingApply()
+    setDraftValue([])
+  }, [clearPendingApply])
 
   const discardChanges = useCallback(() => {
-    clearPendingApply();
-    setDraftValue(appliedValueRef.current);
-  }, [clearPendingApply]);
+    clearPendingApply()
+    setDraftValue(appliedValueRef.current)
+  }, [clearPendingApply])
 
   const onDraftChange = useCallback(
     (
       nextValue: FilterBarValueType<FieldId, Kind>,
       meta?: FilterBarChangeMeta<FieldId>,
     ) => {
-      clearPendingApply();
-      setDraftValue(nextValue);
+      clearPendingApply()
+      setDraftValue(nextValue)
 
-      if (applyMode !== "auto") {
-        return;
+      if (applyMode !== 'auto') {
+        return
       }
 
-      const decision = resolveApplyDecision(meta);
+      const decision = resolveApplyDecision(meta)
 
-      if (decision === "skip") {
-        return;
+      if (decision === 'skip') {
+        return
       }
 
-      if (decision === "apply") {
+      if (decision === 'apply') {
         commitAppliedValue(nextValue, {
-          source: "auto",
+          source: 'auto',
           change: meta ?? null,
-        });
-        return;
+        })
+        return
       }
 
       debounceTimerRef.current = setTimeout(() => {
         commitAppliedValue(nextValue, {
-          source: "auto",
+          source: 'auto',
           change: meta ?? null,
-        });
-        debounceTimerRef.current = null;
-      }, debounceMs);
+        })
+        debounceTimerRef.current = null
+      }, debounceMs)
     },
     [applyMode, clearPendingApply, commitAppliedValue, debounceMs],
-  );
+  )
 
   return {
     draftValue,
@@ -196,5 +196,5 @@ export function useFilterBarController<
     clear,
     discardChanges,
     isDirty: !areFilterBarValuesEqual(draftValue, appliedValue),
-  };
+  }
 }

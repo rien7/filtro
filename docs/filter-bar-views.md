@@ -12,17 +12,18 @@ This feature still follows the current flat model:
 ## Basic Usage
 
 ```tsx
-import "filtro/default-theme.css";
-import { FilterBar, filtro } from "filtro";
-import { Button, defaultFilterBarTheme } from "filtro/default-theme";
+import 'filtro/default-theme.css'
+
+import { FilterBar, filtro } from 'filtro'
+import { Button, defaultFilterBarTheme } from 'filtro/default-theme'
 
 const fields = [
-  filtro.string("keyword").label("Keyword"),
-  filtro.select("status").label("Status").options([
-    { label: "Open", value: "open" },
-    { label: "Closed", value: "closed" },
+  filtro.string('keyword').label('Keyword'),
+  filtro.select('status').label('Status').options([
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
   ]),
-];
+]
 
 export function FilterBarWithViews() {
   return (
@@ -50,7 +51,7 @@ export function FilterBarWithViews() {
       </div>
       <FilterBar.ActiveItems />
     </FilterBar.Root>
-  );
+  )
 }
 ```
 
@@ -102,7 +103,8 @@ When there are more than `4` saved views:
 </FilterBar.Views>
 ```
 
-The component measures the wrapped button layout and keeps only the views that fit within the allowed number of rows. The rest move into the overflow menu.
+The component measures the wrapped button layout and keeps only the views that fit within the allowed number of rows.
+The rest move into the overflow menu.
 
 If both are provided:
 
@@ -135,7 +137,8 @@ Recommendations:
 - If a page has multiple filter bars, give them different `viewsStorageKey` values
 - If you do not provide a key, `FilterBar.Root` builds one from the field definitions
 
-Stored values are sanitized before use. Invalid rows are dropped if:
+Stored values are sanitized before use.
+Invalid rows are dropped if:
 
 - The field no longer exists
 - The operator is no longer allowed

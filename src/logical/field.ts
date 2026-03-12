@@ -1,4 +1,4 @@
-import type { OperatorKindFor } from "./operator"
+import type { OperatorKindFor } from './operator'
 
 export const FieldKind = {
   string: 'string',

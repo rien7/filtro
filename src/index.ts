@@ -1,2 +1,2 @@
-export * from "./logical"
-export * from "./filter-bar"
+export * from './filter-bar'
+export * from './logical'

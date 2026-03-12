@@ -1,15 +1,15 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { mergeProps } from "@base-ui/react/merge-props"
-import { Radio as RadioPrimitive } from "@base-ui/react/radio"
-import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group"
-import { useRender } from "@base-ui/react/use-render"
+import { mergeProps } from '@base-ui/react/merge-props'
+import { Radio as RadioPrimitive } from '@base-ui/react/radio'
+import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group'
+import { useRender } from '@base-ui/react/use-render'
+import * as React from 'react'
 
 import {
   getFilterBarPrimitiveDataSlot,
   useFilterBarPrimitiveClassName,
-} from "@/filter-bar/theme"
+} from '@/filter-bar/theme'
 
 type SegmentedControlIndicatorLayout = {
   x: number
@@ -24,11 +24,11 @@ interface SegmentedControlContextValue<Value = unknown> {
   registerItem: (value: Value, node: HTMLElement | null) => void
 }
 
-const SegmentedControlContext =
-  React.createContext<SegmentedControlContextValue<any> | null>(null)
+const SegmentedControlContext
+  = React.createContext<SegmentedControlContextValue<any> | null>(null)
 
-const useIsomorphicLayoutEffect =
-  typeof window === "undefined" ? React.useEffect : React.useLayoutEffect
+const useIsomorphicLayoutEffect
+  = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect
 
 function useSegmentedControlContext<Value>(componentName: string) {
   const context = React.useContext(SegmentedControlContext)
@@ -53,10 +53,10 @@ function areIndicatorLayoutsEqual(
   }
 
   return (
-    first.x === second.x &&
-    first.y === second.y &&
-    first.width === second.width &&
-    first.height === second.height
+    first.x === second.x
+    && first.y === second.y
+    && first.width === second.width
+    && first.height === second.height
   )
 }
 
@@ -67,14 +67,14 @@ function SegmentedControl<Value>({
   value,
   ...props
 }: RadioGroupPrimitive.Props<Value>) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("segmentedControl", className)
-  const slot = getFilterBarPrimitiveDataSlot("segmentedControl")
+  const resolvedClassName = useFilterBarPrimitiveClassName('segmentedControl', className)
+  const slot = getFilterBarPrimitiveDataSlot('segmentedControl')
   const rootRef = React.useRef<HTMLElement | null>(null)
   const itemRefs = React.useRef(new Map<Value, HTMLElement>())
   const animationFrameRef = React.useRef<number | null>(null)
   const [itemRegistryVersion, setItemRegistryVersion] = React.useState(0)
-  const [indicatorLayout, setIndicatorLayout] =
-    React.useState<SegmentedControlIndicatorLayout | null>(null)
+  const [indicatorLayout, setIndicatorLayout]
+    = React.useState<SegmentedControlIndicatorLayout | null>(null)
   const isControlled = value !== undefined
   const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue)
   const currentValue = isControlled ? value : uncontrolledValue
@@ -83,7 +83,7 @@ function SegmentedControl<Value>({
     animationFrameRef.current = null
 
     if (currentValue === undefined) {
-      setIndicatorLayout((previous) => (previous ? null : previous))
+      setIndicatorLayout(previous => (previous ? null : previous))
       return
     }
 
@@ -91,7 +91,7 @@ function SegmentedControl<Value>({
     const activeItem = itemRefs.current.get(currentValue)
 
     if (!rootNode || !activeItem) {
-      setIndicatorLayout((previous) => (previous ? null : previous))
+      setIndicatorLayout(previous => (previous ? null : previous))
       return
     }
 
@@ -104,9 +104,8 @@ function SegmentedControl<Value>({
       height: itemRect.height,
     }
 
-    setIndicatorLayout((previous) =>
-      areIndicatorLayoutsEqual(previous, nextLayout) ? previous : nextLayout
-    )
+    setIndicatorLayout(previous =>
+      areIndicatorLayoutsEqual(previous, nextLayout) ? previous : nextLayout)
   }, [currentValue])
 
   const cancelScheduledMeasurement = React.useCallback(() => {
@@ -119,7 +118,7 @@ function SegmentedControl<Value>({
   const scheduleMeasurement = React.useCallback(() => {
     cancelScheduledMeasurement()
 
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       measureIndicator()
       return
     }
@@ -147,13 +146,15 @@ function SegmentedControl<Value>({
       }
 
       itemRefs.current.set(itemValue, node)
-    } else if (previousNode) {
+    }
+    else if (previousNode) {
       itemRefs.current.delete(itemValue)
-    } else {
+    }
+    else {
       return
     }
 
-    setItemRegistryVersion((previous) => previous + 1)
+    setItemRegistryVersion(previous => previous + 1)
   }, [])
 
   const setRootNode = React.useCallback(
@@ -177,11 +178,11 @@ function SegmentedControl<Value>({
       return undefined
     }
 
-    const activeItem =
-      currentValue === undefined ? null : itemRefs.current.get(currentValue)
+    const activeItem
+      = currentValue === undefined ? null : itemRefs.current.get(currentValue)
 
-    if (typeof ResizeObserver === "undefined") {
-      if (typeof window === "undefined") {
+    if (typeof ResizeObserver === 'undefined') {
+      if (typeof window === 'undefined') {
         return undefined
       }
 
@@ -189,9 +190,9 @@ function SegmentedControl<Value>({
         scheduleMeasurement()
       }
 
-      window.addEventListener("resize", handleResize)
+      window.addEventListener('resize', handleResize)
       return () => {
-        window.removeEventListener("resize", handleResize)
+        window.removeEventListener('resize', handleResize)
       }
     }
 
@@ -237,25 +238,25 @@ function SegmentedControlIndicator({
   className,
   render,
   ...props
-}: useRender.ComponentProps<"div", { active: boolean }>) {
+}: useRender.ComponentProps<'div', { active: boolean }>) {
   const resolvedClassName = useFilterBarPrimitiveClassName(
-    "segmentedControlIndicator",
+    'segmentedControlIndicator',
     className,
   ) as string
-  const slot = getFilterBarPrimitiveDataSlot("segmentedControlIndicator")
-  const { indicatorLayout } = useSegmentedControlContext("SegmentedControlIndicator")
+  const slot = getFilterBarPrimitiveDataSlot('segmentedControlIndicator')
+  const { indicatorLayout } = useSegmentedControlContext('SegmentedControlIndicator')
   const active = indicatorLayout !== null
 
   return useRender({
-    defaultTagName: "div",
-    props: mergeProps<"div">(
+    defaultTagName: 'div',
+    props: mergeProps<'div'>(
       {
-        "aria-hidden": true,
-        className: resolvedClassName,
-        style: {
+        'aria-hidden': true,
+        'className': resolvedClassName,
+        'style': {
           transform: active
             ? `translate3d(${indicatorLayout.x}px, ${indicatorLayout.y}px, 0)`
-            : "translate3d(0, 0, 0)",
+            : 'translate3d(0, 0, 0)',
           width: active ? indicatorLayout.width : 0,
           height: active ? indicatorLayout.height : 0,
           opacity: active ? 1 : 0,
@@ -277,11 +278,11 @@ function SegmentedControlItem<Value>({
   ...props
 }: RadioPrimitive.Root.Props<Value>) {
   const resolvedClassName = useFilterBarPrimitiveClassName(
-    "segmentedControlItem",
+    'segmentedControlItem',
     className,
   )
-  const slot = getFilterBarPrimitiveDataSlot("segmentedControlItem")
-  const { registerItem } = useSegmentedControlContext<Value>("SegmentedControlItem")
+  const slot = getFilterBarPrimitiveDataSlot('segmentedControlItem')
+  const { registerItem } = useSegmentedControlContext<Value>('SegmentedControlItem')
 
   const setItemNode = React.useCallback(
     (node: HTMLElement | null) => {
@@ -305,16 +306,16 @@ function SegmentedControlItemText({
   className,
   render,
   ...props
-}: useRender.ComponentProps<"span">) {
+}: useRender.ComponentProps<'span'>) {
   const resolvedClassName = useFilterBarPrimitiveClassName(
-    "segmentedControlItemText",
+    'segmentedControlItemText',
     className,
   ) as string
-  const slot = getFilterBarPrimitiveDataSlot("segmentedControlItemText")
+  const slot = getFilterBarPrimitiveDataSlot('segmentedControlItemText')
 
   return useRender({
-    defaultTagName: "span",
-    props: mergeProps<"span">(
+    defaultTagName: 'span',
+    props: mergeProps<'span'>(
       {
         className: resolvedClassName,
       },

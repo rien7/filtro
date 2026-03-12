@@ -1,57 +1,60 @@
-import type { ReactNode } from "react";
-import type { FilterBarValueChangeKind } from "./change";
-import {
+import type { ReactNode } from 'react'
+
+import type {
+  EnumFieldKind,
   FieldKind,
-  type EnumFieldKind,
-  type LogicalFieldBase,
-} from "../logical/field";
-import type { OperatorKindFor, OperatorValueFor } from "../logical/operator";
+  LogicalFieldBase,
+} from '../logical/field'
+import type { OperatorKindFor, OperatorValueFor } from '../logical/operator'
+import type { FilterBarValueChangeKind } from './change'
 
 export const FilterBarFieldDisplayKind = {
-  default: "default",
-  pinned: "pinned",
-  suggested: "suggested",
-} as const;
+  default: 'default',
+  pinned: 'pinned',
+  suggested: 'suggested',
+} as const
 
-export type FilterBarFieldDisplayKind =
-  (typeof FilterBarFieldDisplayKind)[keyof typeof FilterBarFieldDisplayKind];
+// eslint-disable-next-line ts/no-redeclare
+export type FilterBarFieldDisplayKind
+  = (typeof FilterBarFieldDisplayKind)[keyof typeof FilterBarFieldDisplayKind]
 
 export const FilterBarSuggestionRemoveBehavior = {
-  backToSuggestion: "back-to-suggestion",
-  backToMenu: "back-to-menu",
-} as const;
+  backToSuggestion: 'back-to-suggestion',
+  backToMenu: 'back-to-menu',
+} as const
 
-export type FilterBarSuggestionRemoveBehavior =
-  (typeof FilterBarSuggestionRemoveBehavior)[keyof typeof FilterBarSuggestionRemoveBehavior];
+// eslint-disable-next-line ts/no-redeclare
+export type FilterBarSuggestionRemoveBehavior
+  = (typeof FilterBarSuggestionRemoveBehavior)[keyof typeof FilterBarSuggestionRemoveBehavior]
 
 export interface FilterBarSuggestionSeed<Kind extends EnumFieldKind = EnumFieldKind> {
-  operator?: OperatorKindFor<Kind>;
-  value?: OperatorValueFor<Kind, OperatorKindFor<Kind>> | null;
+  operator?: OperatorKindFor<Kind>
+  value?: OperatorValueFor<Kind, OperatorKindFor<Kind>> | null
 }
 
 export interface FilterBarSuggestedDisplay<
   Kind extends EnumFieldKind = EnumFieldKind,
 > {
-  kind: "suggested";
-  seed?: FilterBarSuggestionSeed<Kind>;
-  removeBehavior?: FilterBarSuggestionRemoveBehavior;
-  showInMenu?: boolean;
+  kind: 'suggested'
+  seed?: FilterBarSuggestionSeed<Kind>
+  removeBehavior?: FilterBarSuggestionRemoveBehavior
+  showInMenu?: boolean
 }
 
 export interface FilterBarDefaultDisplay {
-  kind: "default";
+  kind: 'default'
 }
 
 export interface FilterBarPinnedDisplay {
-  kind: "pinned";
+  kind: 'pinned'
 }
 
 export type FilterBarFieldDisplay<
   Kind extends EnumFieldKind = EnumFieldKind,
-> =
-  | FilterBarDefaultDisplay
-  | FilterBarPinnedDisplay
-  | FilterBarSuggestedDisplay<Kind>;
+>
+  = | FilterBarDefaultDisplay
+    | FilterBarPinnedDisplay
+    | FilterBarSuggestedDisplay<Kind>
 
 export type UIFieldRender = <
   Kind extends EnumFieldKind,
@@ -61,16 +64,16 @@ export type UIFieldRender = <
   value,
   onChange,
 }: {
-  op: Op;
-  value: OperatorValueFor<Kind, Op> | null;
+  op: Op
+  value: OperatorValueFor<Kind, Op> | null
   onChange: (
     value: OperatorValueFor<Kind, Op> | null,
     options?: { valueChangeKind?: FilterBarValueChangeKind },
-  ) => void;
-  validate: (value: OperatorValueFor<Kind, Op> | null) => string | null;
-}) => ReactNode;
+  ) => void
+  validate: (value: OperatorValueFor<Kind, Op> | null) => string | null
+}) => ReactNode
 
-export type UIFieldValidationResult = string | null | undefined;
+export type UIFieldValidationResult = string | null | undefined
 
 export type UIFieldValidator = <
   Kind extends EnumFieldKind,
@@ -79,96 +82,97 @@ export type UIFieldValidator = <
   op,
   value,
 }: {
-  op: Op;
-  value: OperatorValueFor<Kind, Op> | null;
-}) => UIFieldValidationResult;
+  op: Op
+  value: OperatorValueFor<Kind, Op> | null
+}) => UIFieldValidationResult
 
 export interface SafeParseIssue {
-  message?: string;
+  message?: string
 }
 
 export interface SafeParseSuccess<T = unknown> {
-  success: true;
-  data: T;
+  success: true
+  data: T
 }
 
 export interface SafeParseFailure {
-  success: false;
+  success: false
   error: {
-    issues?: SafeParseIssue[];
-    message?: string;
-  };
+    issues?: SafeParseIssue[]
+    message?: string
+  }
 }
 
 export interface SafeParseSchema<T = unknown> {
-  safeParse(input: unknown): SafeParseSuccess<T> | SafeParseFailure;
+  safeParse: (input: unknown) => SafeParseSuccess<T> | SafeParseFailure
 }
 
 export type SafeParseSchemaResolver<
   Kind extends EnumFieldKind = EnumFieldKind,
-> =
-  | SafeParseSchema
-  | ((context: { op: OperatorKindFor<Kind> }) => SafeParseSchema);
+>
+  = | SafeParseSchema
+    | ((context: { op: OperatorKindFor<Kind> }) => SafeParseSchema)
 
 export interface UIFieldBase<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind,
 > extends LogicalFieldBase<FieldId, Kind> {
-  label?: string;
-  icon?: ReactNode;
-  description?: string;
-  placeholder?: string;
-  render?: UIFieldRender;
-  validators?: UIFieldValidator[];
-  display?: FilterBarFieldDisplay<Kind>;
+  label?: string
+  icon?: ReactNode
+  description?: string
+  placeholder?: string
+  render?: UIFieldRender
+  validators?: UIFieldValidator[]
+  display?: FilterBarFieldDisplay<Kind>
 }
 
 export interface SelectOption {
-  label: string;
-  value: string;
-  icon?: ReactNode;
-  prefix?: ReactNode;
-  children?: SelectOption[];
+  label: string
+  value: string
+  icon?: ReactNode
+  prefix?: ReactNode
+  children?: SelectOption[]
 }
 
-export type FlattenedSelectOption = Omit<SelectOption, "children">;
+export type FlattenedSelectOption = Omit<SelectOption, 'children'>
 
 export const SelectOptionsStatus = {
-  idle: "idle",
-  loading: "loading",
-  success: "success",
-  error: "error",
-} as const;
+  idle: 'idle',
+  loading: 'loading',
+  success: 'success',
+  error: 'error',
+} as const
 
-export type SelectOptionsStatus = (typeof SelectOptionsStatus)[keyof typeof SelectOptionsStatus];
+// eslint-disable-next-line ts/no-redeclare
+export type SelectOptionsStatus = (typeof SelectOptionsStatus)[keyof typeof SelectOptionsStatus]
 
-export type SelectOptionsLoadMode = "render" | "open";
+export type SelectOptionsLoadMode = 'render' | 'open'
 
 export type SelectOptionLoader = ({
   query,
   signal,
 }: {
-  query: string;
-  signal?: AbortSignal;
-}) => Promise<SelectOption[]>;
+  query: string
+  signal?: AbortSignal
+}) => Promise<SelectOption[]>
 
 export interface SelectOptionsSourceContext<
   FieldId extends string = string,
   Kind extends SelectKind = SelectKind,
 > {
-  field: SelectUIField<FieldId, Kind>;
-  open: boolean;
-  query: string;
-  normalizedQuery: string;
-  selectedValues: string[];
-  shouldLoad: boolean;
+  field: SelectUIField<FieldId, Kind>
+  open: boolean
+  query: string
+  normalizedQuery: string
+  selectedValues: string[]
+  shouldLoad: boolean
 }
 
 export interface SelectOptionsSourceResult {
-  options: SelectOption[];
-  status: SelectOptionsStatus;
-  error?: Error | null;
-  selectedOptions?: FlattenedSelectOption[];
+  options: SelectOption[]
+  status: SelectOptionsStatus
+  error?: Error | null
+  selectedOptions?: FlattenedSelectOption[]
 }
 
 export type UseSelectOptions<
@@ -176,32 +180,32 @@ export type UseSelectOptions<
   Kind extends SelectKind = SelectKind,
 > = (
   context: SelectOptionsSourceContext<FieldId, Kind>,
-) => SelectOptionsSourceResult;
+) => SelectOptionsSourceResult
 
-export type SelectOptions = SelectOption[] | SelectOptionLoader;
+export type SelectOptions = SelectOption[] | SelectOptionLoader
 export type BooleanOptions = [{ label: string, value: true }, { label: string, value: false }]
 
-export type SelectKind =
-  | typeof FieldKind.select
-  | typeof FieldKind.multiSelect;
+export type SelectKind
+  = | typeof FieldKind.select
+    | typeof FieldKind.multiSelect
 export type BooleanKind = typeof FieldKind.boolean
-export type MultiSelectValueLabelRenderer = (values: string[]) => ReactNode;
+export type MultiSelectValueLabelRenderer = (values: string[]) => ReactNode
 
 export interface SelectUIField<
   FieldId extends string = string,
   Kind extends SelectKind = SelectKind,
 > extends UIFieldBase<FieldId, Kind> {
-  options?: SelectOptions;
-  useOptions?: UseSelectOptions<FieldId, Kind>;
-  optionsLoadMode?: SelectOptionsLoadMode;
-  optionsSearchable?: boolean;
-  renderValueLabel?: MultiSelectValueLabelRenderer;
-  maxSelections?: number;
+  options?: SelectOptions
+  useOptions?: UseSelectOptions<FieldId, Kind>
+  optionsLoadMode?: SelectOptionsLoadMode
+  optionsSearchable?: boolean
+  renderValueLabel?: MultiSelectValueLabelRenderer
+  maxSelections?: number
 }
 
 export interface BooleanUIField<
   FieldId extends string = string,
-  Kind extends BooleanKind = BooleanKind
+  Kind extends BooleanKind = BooleanKind,
 > extends UIFieldBase<FieldId, Kind> {
   options?: BooleanOptions
 }
@@ -210,8 +214,8 @@ export interface UIFieldGroup<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind,
 > {
-  label: string;
-  fields: UIFieldForKind<FieldId, Kind>[];
+  label: string
+  fields: UIFieldForKind<FieldId, Kind>[]
 }
 
 export type UIFieldForKind<
@@ -220,10 +224,10 @@ export type UIFieldForKind<
 > = Kind extends SelectKind
   ? SelectUIField<FieldId, Kind>
   : Kind extends BooleanKind
-  ? BooleanUIField<FieldId, Kind>
-  : UIFieldBase<FieldId, Kind>;
+    ? BooleanUIField<FieldId, Kind>
+    : UIFieldBase<FieldId, Kind>
 
 export type UIFieldEntry<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind,
-> = UIFieldForKind<FieldId, Kind> | UIFieldGroup<FieldId, Kind>;
+> = UIFieldForKind<FieldId, Kind> | UIFieldGroup<FieldId, Kind>

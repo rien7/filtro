@@ -1,0 +1,93 @@
+import { useEffect, useState } from 'react'
+
+import { getFilterValueAriaLabel } from '@/filter-bar/accessibility'
+import type { FilterValueEditorProps } from '@/filter-bar/components/items/editors/shared'
+import { Input } from '@/filter-bar/internal/primitives/baseui/input'
+import { filterBarThemeSlot, useFilterBarTheme } from '@/filter-bar/theme'
+import { validateFieldValue } from '@/filter-bar/validation'
+import type { FieldKind } from '@/logical/field'
+
+export function StringValueEditor<FieldId extends string>({
+  field,
+  item,
+  onChange,
+  onValidationChange,
+  errorDescriptionId,
+}: FilterValueEditorProps<FieldId, typeof FieldKind.string>) {
+  const theme = useFilterBarTheme()
+  const [draft, setDraft] = useState(() =>
+    typeof item.value === 'string' ? item.value : '')
+  const [error, setError] = useState<string | null>(null)
+  const [hasInteracted, setHasInteracted] = useState(() => item.value !== null)
+
+  useEffect(() => {
+    setDraft(typeof item.value === 'string' ? item.value : '')
+
+    const nextError
+      = hasInteracted || item.value !== null
+        ? validateFieldValue({
+            field,
+            op: item.operator,
+            value: item.value,
+          })
+        : null
+
+    setError(nextError)
+  }, [field, item.operator, item.value])
+
+  useEffect(() => {
+    onValidationChange?.(error)
+  }, [error, onValidationChange])
+
+  function commitDraft(nextDraft: string) {
+    setHasInteracted(true)
+    setDraft(nextDraft)
+
+    if (!nextDraft) {
+      const nextError = validateFieldValue({
+        field,
+        op: item.operator,
+        value: null,
+      })
+
+      setError(nextError)
+      onChange(null, { valueChangeKind: 'typing' })
+      return
+    }
+
+    const nextError = validateFieldValue({
+      field,
+      op: item.operator,
+      value: nextDraft,
+    })
+
+    setError(nextError)
+
+    if (!nextError) {
+      onChange(nextDraft, { valueChangeKind: 'typing' })
+    }
+  }
+
+  return (
+    <div
+      data-theme-slot={filterBarThemeSlot('editorRoot')}
+      className={theme.classNames.editorRoot}
+    >
+      <div
+        data-theme-slot={filterBarThemeSlot('editorFieldset')}
+        className={theme.classNames.editorFieldset}
+      >
+        <Input
+          data-theme-slot={filterBarThemeSlot('editorControl')}
+          className={theme.classNames.editorControl}
+          aria-label={getFilterValueAriaLabel(field)}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorDescriptionId : undefined}
+          value={draft}
+          placeholder={field.placeholder ?? 'Type a value'}
+          onChange={event => commitDraft(event.currentTarget.value)}
+        />
+      </div>
+    </div>
+  )
+}

@@ -1,10 +1,10 @@
-import type { EnumFieldKind } from "../logical/field";
-import type { AnyFieldBuilder, FieldGroupDefinition } from "./builder";
+import type { EnumFieldKind } from '../logical/field'
+import type { AnyFieldBuilder, FieldGroupDefinition } from './builder'
 
 export type FieldGroup<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind,
-> = FieldGroupDefinition<FieldId, Kind>;
+> = FieldGroupDefinition<FieldId, Kind>
 
 export function groupField<
   FieldId extends string = string,
@@ -16,5 +16,5 @@ export function groupField<
   return {
     label,
     fields,
-  };
+  }
 }

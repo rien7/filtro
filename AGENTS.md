@@ -81,12 +81,12 @@ Keep these boundaries clear:
 Fields are declared through the singleton exported from [src/filter-bar/builder.ts](https://github.com/rien7/filtro/blob/main/src/filter-bar/builder.ts):
 
 ```ts
-filtro.string("keyword").label("Keyword");
-filtro.select("status").options([
-  { label: "Open", value: "open" },
-  { label: "Closed", value: "closed" },
-]);
-filtro.group("Basic", [/* fields */]);
+filtro.string('keyword').label('Keyword')
+filtro.select('status').options([
+  { label: 'Open', value: 'open' },
+  { label: 'Closed', value: 'closed' },
+])
+filtro.group('Basic', [/* fields */])
 ```
 
 Important implementation details:
@@ -179,32 +179,55 @@ The preset source styles use Tailwind CSS v4, but package builds emit precompile
 
 ## Skills
 
-A skill is a local instruction set stored in a `SKILL.md` file. The following skills are available in this repository context.
+A skill is a local instruction set stored in a `SKILL.md` file.
+The following skills are available in this repository context.
 
 ### Available skills
 
-- `adapt`: Adapt designs across screen sizes, devices, or contexts. File: `~/.agents/skills/adapt/SKILL.md`
-- `animate`: Add purposeful motion and micro-interactions. File: `~/.agents/skills/animate/SKILL.md`
-- `audit`: Audit interface quality across accessibility, performance, theming, and responsive design. File: `~/.agents/skills/audit/SKILL.md`
-- `bolder`: Make safe designs more visually interesting. File: `~/.agents/skills/bolder/SKILL.md`
-- `clarify`: Improve unclear product copy and labels. File: `~/.agents/skills/clarify/SKILL.md`
-- `colorize`: Add strategic color to bland interfaces. File: `~/.agents/skills/colorize/SKILL.md`
-- `critique`: Evaluate UX and visual design quality. File: `~/.agents/skills/critique/SKILL.md`
-- `delight`: Add personality and delight. File: `~/.agents/skills/delight/SKILL.md`
-- `distill`: Simplify and remove unnecessary complexity. File: `~/.agents/skills/distill/SKILL.md`
-- `extract`: Pull reusable design tokens and patterns into the system. File: `~/.agents/skills/extract/SKILL.md`
-- `find-skills`: Discover or install additional skills. File: `~/.agents/skills/find-skills/SKILL.md`
-- `frontend-design`: Build distinctive production-grade frontend interfaces. File: `~/.agents/skills/frontend-design/SKILL.md`
-- `harden`: Improve resilience, edge cases, and robustness. File: `~/.agents/skills/harden/SKILL.md`
-- `normalize`: Align work with the existing design system. File: `~/.agents/skills/normalize/SKILL.md`
-- `onboard`: Improve onboarding, empty states, and first-run flows. File: `~/.agents/skills/onboard/SKILL.md`
-- `optimize`: Improve UI performance. File: `~/.agents/skills/optimize/SKILL.md`
-- `playwright`: Use a real browser from the terminal for UI tasks. File: `~/.codex/skills/playwright/SKILL.md`
-- `polish`: Final quality pass before shipping. File: `~/.agents/skills/polish/SKILL.md`
-- `quieter`: Tone down overly aggressive designs. File: `~/.agents/skills/quieter/SKILL.md`
-- `teach-impeccable`: One-time project design setup. File: `~/.agents/skills/teach-impeccable/SKILL.md`
-- `skill-creator`: Create or update a Codex skill. File: `~/.codex/skills/.system/skill-creator/SKILL.md`
-- `skill-installer`: Install skills from curated sources or repositories. File: `~/.codex/skills/.system/skill-installer/SKILL.md`
+- `adapt`: Adapt designs across screen sizes, devices, or contexts.
+  File: `~/.agents/skills/adapt/SKILL.md`
+- `animate`: Add purposeful motion and micro-interactions.
+  File: `~/.agents/skills/animate/SKILL.md`
+- `audit`: Audit interface quality across accessibility, performance, theming, and responsive design.
+  File: `~/.agents/skills/audit/SKILL.md`
+- `bolder`: Make safe designs more visually interesting.
+  File: `~/.agents/skills/bolder/SKILL.md`
+- `clarify`: Improve unclear product copy and labels.
+  File: `~/.agents/skills/clarify/SKILL.md`
+- `colorize`: Add strategic color to bland interfaces.
+  File: `~/.agents/skills/colorize/SKILL.md`
+- `critique`: Evaluate UX and visual design quality.
+  File: `~/.agents/skills/critique/SKILL.md`
+- `delight`: Add personality and delight.
+  File: `~/.agents/skills/delight/SKILL.md`
+- `distill`: Simplify and remove unnecessary complexity.
+  File: `~/.agents/skills/distill/SKILL.md`
+- `extract`: Pull reusable design tokens and patterns into the system.
+  File: `~/.agents/skills/extract/SKILL.md`
+- `find-skills`: Discover or install additional skills.
+  File: `~/.agents/skills/find-skills/SKILL.md`
+- `frontend-design`: Build distinctive production-grade frontend interfaces.
+  File: `~/.agents/skills/frontend-design/SKILL.md`
+- `harden`: Improve resilience, edge cases, and robustness.
+  File: `~/.agents/skills/harden/SKILL.md`
+- `normalize`: Align work with the existing design system.
+  File: `~/.agents/skills/normalize/SKILL.md`
+- `onboard`: Improve onboarding, empty states, and first-run flows.
+  File: `~/.agents/skills/onboard/SKILL.md`
+- `optimize`: Improve UI performance.
+  File: `~/.agents/skills/optimize/SKILL.md`
+- `playwright`: Use a real browser from the terminal for UI tasks.
+  File: `~/.codex/skills/playwright/SKILL.md`
+- `polish`: Final quality pass before shipping.
+  File: `~/.agents/skills/polish/SKILL.md`
+- `quieter`: Tone down overly aggressive designs.
+  File: `~/.agents/skills/quieter/SKILL.md`
+- `teach-impeccable`: One-time project design setup.
+  File: `~/.agents/skills/teach-impeccable/SKILL.md`
+- `skill-creator`: Create or update a Codex skill.
+  File: `~/.codex/skills/.system/skill-creator/SKILL.md`
+- `skill-installer`: Install skills from curated sources or repositories.
+  File: `~/.codex/skills/.system/skill-installer/SKILL.md`
 
 ### How to use skills
 

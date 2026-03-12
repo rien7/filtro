@@ -13,17 +13,17 @@ All three serve the current flat `FilterBar` implementation.
 Static options are the simplest path:
 
 ```tsx
-import { filtro } from "filtro";
+import { filtro } from 'filtro'
 
 const fields = [
-  filtro.select("status")
-    .label("Status")
+  filtro.select('status')
+    .label('Status')
     .options([
-      { label: "Open", value: "open" },
-      { label: "Closed", value: "closed" },
-      { label: "Pending", value: "pending" },
+      { label: 'Open', value: 'open' },
+      { label: 'Closed', value: 'closed' },
+      { label: 'Pending', value: 'pending' },
     ]),
-];
+]
 ```
 
 Current behavior:
@@ -38,26 +38,26 @@ Current behavior:
 If you want direct async fetching without another data layer, pass an async loader to `.options(...)`:
 
 ```tsx
-import { filtro } from "filtro";
+import { filtro } from 'filtro'
 
 const fields = [
-  filtro.select("owner")
-    .label("Owner")
-    .placeholder("Search owner")
+  filtro.select('owner')
+    .label('Owner')
+    .placeholder('Search owner')
     .options(async ({ query, signal }) => {
       const response = await fetch(
         `/api/owners?q=${encodeURIComponent(query)}`,
         { signal },
-      );
+      )
 
       if (!response.ok) {
-        throw new Error("Failed to load owners");
+        throw new Error('Failed to load owners')
       }
 
-      return (await response.json()) as Array<{ label: string; value: string }>;
+      return (await response.json()) as Array<{ label: string, value: string }>
     })
-    .loadOptions("open"),
-];
+    .loadOptions('open'),
+]
 ```
 
 Current behavior:
@@ -75,35 +75,36 @@ If you already have your own data layer, prefer `.useOptions(...)`.
 This is a general option-source hook, not a TanStack Query-specific API.
 
 ```tsx
-import { filtro, SelectOptionsStatus, type UseSelectOptions } from "filtro";
-import { useMemo } from "react";
+import type { UseSelectOptions } from 'filtro'
+import { filtro, SelectOptionsStatus } from 'filtro'
+import { useMemo } from 'react'
 
-const useReviewerOptions: UseSelectOptions<"reviewer", "select"> = ({
+const useReviewerOptions: UseSelectOptions<'reviewer', 'select'> = ({
   normalizedQuery,
   selectedValues,
   shouldLoad,
 }) => {
   const allOptions = useMemo(() => [
-    { label: "Alice Johnson", value: "alice" },
-    { label: "Ben Carter", value: "ben" },
-    { label: "Chris Wong", value: "chris" },
-  ], []);
+    { label: 'Alice Johnson', value: 'alice' },
+    { label: 'Ben Carter', value: 'ben' },
+    { label: 'Chris Wong', value: 'chris' },
+  ], [])
 
   const options = useMemo(() => {
     if (!shouldLoad) {
-      return [];
+      return []
     }
 
     return allOptions.filter((option) => {
-      const haystack = `${option.label} ${option.value}`.toLowerCase();
-      return haystack.includes(normalizedQuery);
-    });
-  }, [allOptions, normalizedQuery, shouldLoad]);
+      const haystack = `${option.label} ${option.value}`.toLowerCase()
+      return haystack.includes(normalizedQuery)
+    })
+  }, [allOptions, normalizedQuery, shouldLoad])
 
   const selectedOptions = useMemo(
-    () => allOptions.filter((option) => selectedValues.includes(option.value)),
+    () => allOptions.filter(option => selectedValues.includes(option.value)),
     [allOptions, selectedValues],
-  );
+  )
 
   return {
     options,
@@ -111,15 +112,15 @@ const useReviewerOptions: UseSelectOptions<"reviewer", "select"> = ({
     status: shouldLoad
       ? SelectOptionsStatus.success
       : SelectOptionsStatus.idle,
-  };
-};
+  }
+}
 
 const fields = [
-  filtro.select("reviewer")
-    .label("Reviewer")
+  filtro.select('reviewer')
+    .label('Reviewer')
     .useOptions(useReviewerOptions)
-    .loadOptions("open"),
-];
+    .loadOptions('open'),
+]
 ```
 
 This is the right choice when:
@@ -134,13 +135,13 @@ This is the right choice when:
 
 ```ts
 type SelectOptionsSourceContext = {
-  field: SelectUIField;
-  open: boolean;
-  query: string;
-  normalizedQuery: string;
-  selectedValues: string[];
-  shouldLoad: boolean;
-};
+  field: SelectUIField
+  open: boolean
+  query: string
+  normalizedQuery: string
+  selectedValues: string[]
+  shouldLoad: boolean
+}
 ```
 
 Meaning:
@@ -164,11 +165,11 @@ Meaning:
 
 ```ts
 type SelectOptionsSourceResult = {
-  options: SelectOption[];
-  status: SelectOptionsStatus;
-  error?: Error | null;
-  selectedOptions?: FlattenedSelectOption[];
-};
+  options: SelectOption[]
+  status: SelectOptionsStatus
+  error?: Error | null
+  selectedOptions?: FlattenedSelectOption[]
+}
 ```
 
 Why `selectedOptions` matters:
@@ -184,12 +185,12 @@ If you do not return `selectedOptions`, `filtro` falls back to its internal know
 Use the exported constant instead of hand-written strings:
 
 ```ts
-import { SelectOptionsStatus } from "filtro";
+import { SelectOptionsStatus } from 'filtro'
 
-SelectOptionsStatus.idle;
-SelectOptionsStatus.loading;
-SelectOptionsStatus.success;
-SelectOptionsStatus.error;
+SelectOptionsStatus.idle
+SelectOptionsStatus.loading
+SelectOptionsStatus.success
+SelectOptionsStatus.error
 ```
 
 ## `.options()` vs `.useOptions()`
@@ -208,9 +209,9 @@ The last declaration wins.
 `loadOptions` decides when loading is allowed to start.
 
 ```tsx
-filtro.select("owner")
+filtro.select('owner')
   .options(async ({ query }) => fetchOwners(query))
-  .loadOptions("open");
+  .loadOptions('open')
 ```
 
 Allowed values:
@@ -229,12 +230,12 @@ Guidelines:
 `searchable()` toggles the search box:
 
 ```tsx
-filtro.select("status")
+filtro.select('status')
   .options([
-    { label: "Open", value: "open" },
-    { label: "Closed", value: "closed" },
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
   ])
-  .searchable(false);
+  .searchable(false)
 ```
 
 Default: `true`.
@@ -251,43 +252,43 @@ When `false`:
 TanStack Query belongs in `useOptions`, not inside `.options(async ...)`, because hooks must stay in valid hook boundaries.
 
 ```tsx
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import type { UseSelectOptions } from 'filtro'
 import {
-  SelectOptionsStatus,
   filtro,
-  type UseSelectOptions,
-} from "filtro";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+  SelectOptionsStatus
+} from 'filtro'
+import { useMemo } from 'react'
 
-const useOwnerOptions: UseSelectOptions<"owner", "select"> = ({
+const useOwnerOptions: UseSelectOptions<'owner', 'select'> = ({
   field,
   normalizedQuery,
   selectedValues,
   shouldLoad,
 }) => {
   const ownersQuery = useQuery({
-    queryKey: ["filtro", "options", field.id, normalizedQuery],
+    queryKey: ['filtro', 'options', field.id, normalizedQuery],
     queryFn: async ({ signal }) => {
       const response = await fetch(
         `/api/owners?q=${encodeURIComponent(normalizedQuery)}`,
         { signal },
-      );
+      )
 
       if (!response.ok) {
-        throw new Error("Failed to load owners");
+        throw new Error('Failed to load owners')
       }
 
-      return (await response.json()) as Array<{ label: string; value: string }>;
+      return (await response.json()) as Array<{ label: string, value: string }>
     },
     enabled: shouldLoad,
     staleTime: 5 * 60_000,
     placeholderData: keepPreviousData,
-  });
+  })
 
   const selectedOptions = useMemo(() => {
-    const allOptions = ownersQuery.data ?? [];
-    return allOptions.filter((option) => selectedValues.includes(option.value));
-  }, [ownersQuery.data, selectedValues]);
+    const allOptions = ownersQuery.data ?? []
+    return allOptions.filter(option => selectedValues.includes(option.value))
+  }, [ownersQuery.data, selectedValues])
 
   return {
     options: ownersQuery.data ?? [],
@@ -298,8 +299,8 @@ const useOwnerOptions: UseSelectOptions<"owner", "select"> = ({
         ? SelectOptionsStatus.error
         : SelectOptionsStatus.success,
     error: ownersQuery.error ?? null,
-  };
-};
+  }
+}
 ```
 
 ## Which Source To Pick

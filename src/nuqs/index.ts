@@ -1,40 +1,44 @@
-import { useCallback, useMemo } from "react";
-import { FieldKind, type EnumFieldKind } from "@/logical/field";
-import type { FieldDefinition } from "@/filter-bar/builder";
-import type { FilterBarValueType } from "@/filter-bar/context";
+import type { ParserMap } from 'nuqs'
 import {
-  areFilterBarValuesEqual,
-  deserializeFilterBarValue,
-  getFieldAllowedOperators,
-  getFilterBarQueryKeys,
-  resolveFilterBarFields,
-  sanitizeFilterBarValues,
-  serializeFilterBarValue,
-  type FilterBarQueryState,
-} from "@/filter-bar/value";
-import {
-  type ParserMap,
   parseAsArrayOf,
   parseAsBoolean,
   parseAsFloat,
   parseAsString,
   parseAsStringLiteral,
   useQueryStates,
-} from "nuqs";
+} from 'nuqs'
+import { useCallback, useMemo } from 'react'
 
-export type FilterBarNuqsParsers = ParserMap;
+import type { FieldDefinition } from '@/filter-bar/builder'
+import type { FilterBarValueType } from '@/filter-bar/context'
+import { areFilterBarValuesEqual } from '@/filter-bar/core/equality'
+import {
+  resolveFilterBarFields,
+} from '@/filter-bar/core/field-resolution'
+import { getFieldAllowedOperators } from '@/filter-bar/core/operator'
+import type { FilterBarQueryState } from '@/filter-bar/core/query-state'
+import {
+  deserializeFilterBarValue,
+  getFilterBarQueryKeys,
+  serializeFilterBarValue,
+} from '@/filter-bar/core/query-state'
+import { sanitizeFilterBarValues } from '@/filter-bar/core/value-sanitize'
+import type { EnumFieldKind } from '@/logical/field'
+import { FieldKind } from '@/logical/field'
+
+export type FilterBarNuqsParsers = ParserMap
 
 export interface CreateFilterBarNuqsParsersOptions {
-  prefix?: string;
+  prefix?: string
 }
 
 export interface UseNuqsFilterBarStateOptions<
   FieldId extends string = string,
   Kind extends EnumFieldKind = EnumFieldKind,
 > extends CreateFilterBarNuqsParsersOptions {
-  fields: FieldDefinition<FieldId, Kind>[];
-  history?: "push" | "replace";
-  shallow?: boolean;
+  fields: FieldDefinition<FieldId, Kind>[]
+  history?: 'push' | 'replace'
+  shallow?: boolean
 }
 
 export function createFilterBarNuqsParsers<
@@ -42,41 +46,41 @@ export function createFilterBarNuqsParsers<
   Kind extends EnumFieldKind,
 >(
   fields: FieldDefinition<FieldId, Kind>[],
-  { prefix = "" }: CreateFilterBarNuqsParsersOptions = {},
+  { prefix = '' }: CreateFilterBarNuqsParsersOptions = {},
 ): FilterBarNuqsParsers {
-  const { uiFields } = resolveFilterBarFields(fields);
-  const parsers: FilterBarNuqsParsers = {};
+  const { uiFields } = resolveFilterBarFields(fields)
+  const parsers: FilterBarNuqsParsers = {}
 
   for (const field of uiFields) {
-    const keys = getFilterBarQueryKeys(field.id, prefix);
-    const allowedOperators = getFieldAllowedOperators(field);
+    const keys = getFilterBarQueryKeys(field.id, prefix)
+    const allowedOperators = getFieldAllowedOperators(field)
 
-    parsers[keys.operator] = parseAsStringLiteral(allowedOperators as readonly string[]);
+    parsers[keys.operator] = parseAsStringLiteral(allowedOperators as readonly string[])
 
     switch (field.kind) {
       case FieldKind.boolean:
-        parsers[keys.value] = parseAsBoolean;
-        break;
+        parsers[keys.value] = parseAsBoolean
+        break
       case FieldKind.number:
-        parsers[keys.value] = parseAsFloat;
-        parsers[keys.from] = parseAsFloat;
-        parsers[keys.to] = parseAsFloat;
-        break;
+        parsers[keys.value] = parseAsFloat
+        parsers[keys.from] = parseAsFloat
+        parsers[keys.to] = parseAsFloat
+        break
       case FieldKind.multiSelect:
-        parsers[keys.value] = parseAsArrayOf(parseAsString);
-        break;
+        parsers[keys.value] = parseAsArrayOf(parseAsString)
+        break
       case FieldKind.date:
-        parsers[keys.value] = parseAsString;
-        parsers[keys.from] = parseAsString;
-        parsers[keys.to] = parseAsString;
-        break;
+        parsers[keys.value] = parseAsString
+        parsers[keys.from] = parseAsString
+        parsers[keys.to] = parseAsString
+        break
       default:
-        parsers[keys.value] = parseAsString;
-        break;
+        parsers[keys.value] = parseAsString
+        break
     }
   }
 
-  return parsers;
+  return parsers
 }
 
 export function useNuqsFilterBarState<
@@ -84,19 +88,19 @@ export function useNuqsFilterBarState<
   Kind extends EnumFieldKind,
 >({
   fields,
-  prefix = "",
-  history = "replace",
+  prefix = '',
+  history = 'replace',
   shallow = true,
 }: UseNuqsFilterBarStateOptions<FieldId, Kind>) {
-  const { uiFields } = useMemo(() => resolveFilterBarFields(fields), [fields]);
+  const { uiFields } = useMemo(() => resolveFilterBarFields(fields), [fields])
   const parsers = useMemo(
     () => createFilterBarNuqsParsers(fields, { prefix }),
     [fields, prefix],
-  );
+  )
   const [queryState, setQueryState] = useQueryStates(parsers, {
     history,
     shallow,
-  });
+  })
 
   const value = useMemo(() => {
     const nextValues = uiFields.flatMap((field) => {
@@ -104,48 +108,48 @@ export function useNuqsFilterBarState<
         field,
         queryState as FilterBarQueryState,
         { prefix },
-      );
+      )
 
-      return nextValue ? [nextValue] : [];
-    });
+      return nextValue ? [nextValue] : []
+    })
 
-    return sanitizeFilterBarValues(uiFields, nextValues);
-  }, [prefix, queryState, uiFields]);
+    return sanitizeFilterBarValues(uiFields, nextValues)
+  }, [prefix, queryState, uiFields])
 
   const onChange = useCallback(
     (nextValue: FilterBarValueType<FieldId, Kind>) => {
-      const sanitizedValues = sanitizeFilterBarValues(uiFields, nextValue);
+      const sanitizedValues = sanitizeFilterBarValues(uiFields, nextValue)
 
       if (areFilterBarValuesEqual(value, sanitizedValues)) {
-        return;
+        return
       }
 
-      const queryUpdate: Record<string, string | number | boolean | string[] | null> = {};
+      const queryUpdate: Record<string, string | number | boolean | string[] | null> = {}
 
       for (const field of uiFields) {
-        Object.assign(queryUpdate, serializeFilterBarValue(field, null, { prefix }));
+        Object.assign(queryUpdate, serializeFilterBarValue(field, null, { prefix }))
       }
 
       for (const item of sanitizedValues) {
-        const field = uiFields.find((entry) => entry.id === item.fieldId);
+        const field = uiFields.find(entry => entry.id === item.fieldId)
 
         if (!field) {
-          continue;
+          continue
         }
 
         Object.assign(
           queryUpdate,
           serializeFilterBarValue(field, item as never, { prefix }),
-        );
+        )
       }
 
-      void setQueryState(queryUpdate);
+      void setQueryState(queryUpdate)
     },
     [prefix, setQueryState, uiFields, value],
-  );
+  )
 
   return {
     onChange,
     value,
-  };
+  }
 }

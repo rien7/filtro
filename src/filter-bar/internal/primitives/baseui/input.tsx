@@ -1,20 +1,20 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Input as InputPrimitive } from "@base-ui/react/input"
+import { Input as InputPrimitive } from '@base-ui/react/input'
+import * as React from 'react'
 
 import {
   getFilterBarPrimitiveDataSlot,
   useFilterBarPrimitiveClassName,
-} from "@/filter-bar/theme"
+} from '@/filter-bar/theme'
 
 function Input({
   className,
-  type = "text",
+  type = 'text',
   ...props
 }: React.ComponentProps<typeof InputPrimitive>) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("input", className)
-  const slot = getFilterBarPrimitiveDataSlot("input")
+  const resolvedClassName = useFilterBarPrimitiveClassName('input', className)
+  const slot = getFilterBarPrimitiveDataSlot('input')
 
   return (
     <InputPrimitive

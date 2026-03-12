@@ -24,30 +24,32 @@ This doc focuses on:
 ## Basic Usage
 
 ```tsx
-import { filtro } from "filtro";
+import { filtro } from 'filtro'
 
 const fields = [
-  filtro.string("keyword")
-    .label("Keyword")
+  filtro.string('keyword')
+    .label('Keyword')
     .validate(({ value }) => {
-      if (!value) return null;
-      return value.length >= 3 ? null : "Use at least 3 characters";
+      if (!value)
+        return null
+      return value.length >= 3 ? null : 'Use at least 3 characters'
     }),
 
-  filtro.number("amount")
-    .label("Amount")
+  filtro.number('amount')
+    .label('Amount')
     .validate(({ op, value }) => {
-      if (value == null) return null;
+      if (value == null)
+        return null
 
-      if (op === "between" || op === "notBetween") {
+      if (op === 'between' || op === 'notBetween') {
         return value[0] <= value[1]
           ? null
-          : "Min must be less than or equal to max";
+          : 'Min must be less than or equal to max'
       }
 
-      return value >= 0 ? null : "Amount must be greater than or equal to 0";
+      return value >= 0 ? null : 'Amount must be greater than or equal to 0'
     }),
-];
+]
 ```
 
 Validation contract:
@@ -75,44 +77,47 @@ Parameters:
 Examples:
 
 ```tsx
-filtro.string("title")
-  .label("Title")
+filtro.string('title')
+  .label('Title')
   .validate(({ value }) => {
-    if (!value) return null;
-    return value.trim().length >= 5 ? null : "Use at least 5 characters";
-  });
+    if (!value)
+      return null
+    return value.trim().length >= 5 ? null : 'Use at least 5 characters'
+  })
 ```
 
 ```tsx
-filtro.number("price")
-  .label("Price")
+filtro.number('price')
+  .label('Price')
   .validate(({ op, value }) => {
-    if (value == null) return null;
+    if (value == null)
+      return null
 
-    if (op === "between" || op === "notBetween") {
-      return value[0] <= value[1] ? null : "Min must be less than max";
+    if (op === 'between' || op === 'notBetween') {
+      return value[0] <= value[1] ? null : 'Min must be less than max'
     }
 
-    return value >= 0 ? null : "Price must be non-negative";
-  });
+    return value >= 0 ? null : 'Price must be non-negative'
+  })
 ```
 
 ```tsx
-filtro.date("createdAt")
-  .label("Created At")
+filtro.date('createdAt')
+  .label('Created At')
   .validate(({ op, value }) => {
-    if (value == null) return null;
+    if (value == null)
+      return null
 
-    if (op === "between" || op === "notBetween") {
-      return value[0] <= value[1] ? null : "Start date must be before end date";
+    if (op === 'between' || op === 'notBetween') {
+      return value[0] <= value[1] ? null : 'Start date must be before end date'
     }
 
-    if (op === "lastNDays" || op === "nextNDays") {
-      return value > 0 ? null : "Days must be greater than 0";
+    if (op === 'lastNDays' || op === 'nextNDays') {
+      return value > 0 ? null : 'Days must be greater than 0'
     }
 
-    return value >= "2024-01-01" ? null : "Date must be on or after 2024-01-01";
-  });
+    return value >= '2024-01-01' ? null : 'Date must be on or after 2024-01-01'
+  })
 ```
 
 Current typed API note:
@@ -128,17 +133,18 @@ Validators still run in declaration order, and the first error wins.
 If your app already uses `zod`, `.zod(...)` is often the easiest path.
 
 ```tsx
-import { filtro } from "filtro";
-import { z } from "zod";
+import { filtro } from 'filtro'
+import { z } from 'zod'
 
 const fields = [
-  filtro.string("email")
-    .label("Email")
-    .zod(z.string().email("Please enter a valid email address")),
-];
+  filtro.string('email')
+    .label('Email')
+    .zod(z.string().email('Please enter a valid email address')),
+]
 ```
 
-`filtro` does not depend on `zod` directly. It only expects a `safeParse()`-compatible schema object.
+`filtro` does not depend on `zod` directly.
+It only expects a `safeParse()`-compatible schema object.
 
 Current behavior:
 
@@ -150,41 +156,41 @@ Current behavior:
 For fields with one fixed value shape:
 
 ```tsx
-filtro.number("amount")
-  .fixedOperator("eq")
-  .zod(z.number().min(0));
+filtro.number('amount')
+  .fixedOperator('eq')
+  .zod(z.number().min(0))
 ```
 
 For fields whose value shape changes with the operator:
 
 ```tsx
-filtro.number("amount").zod(({ op }) => {
-  if (op === "between" || op === "notBetween") {
+filtro.number('amount').zod(({ op }) => {
+  if (op === 'between' || op === 'notBetween') {
     return z.tuple([
       z.number().min(0),
       z.number().min(0),
-    ]);
+    ])
   }
 
-  return z.number().min(0);
-});
+  return z.number().min(0)
+})
 ```
 
 ```tsx
-filtro.date("createdAt").zod(({ op }) => {
-  if (op === "between" || op === "notBetween") {
+filtro.date('createdAt').zod(({ op }) => {
+  if (op === 'between' || op === 'notBetween') {
     return z.tuple([
       z.string().min(1),
       z.string().min(1),
-    ]);
+    ])
   }
 
-  if (op === "lastNDays" || op === "nextNDays") {
-    return z.number().int().min(1);
+  if (op === 'lastNDays' || op === 'nextNDays') {
+    return z.number().int().min(1)
   }
 
-  return z.string().min(1);
-});
+  return z.string().min(1)
+})
 ```
 
 ## No Public `.parse(...)`
@@ -242,40 +248,40 @@ If you replace the value editor with `.render(...)`, you are responsible for:
 Example:
 
 ```tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 
-filtro.number("amount").render(({ value, onChange, validate }) => {
+filtro.number('amount').render(({ value, onChange, validate }) => {
   const [draft, setDraft] = useState(
-    typeof value === "number" ? String(value) : "",
-  );
-  const [error, setError] = useState<string | null>(null);
+    typeof value === 'number' ? String(value) : '',
+  )
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setDraft(typeof value === "number" ? String(value) : "");
-  }, [value]);
+    setDraft(typeof value === 'number' ? String(value) : '')
+  }, [value])
 
   function commit(nextDraft: string) {
-    setDraft(nextDraft);
+    setDraft(nextDraft)
 
     if (!nextDraft) {
-      const nextError = validate(null);
-      setError(nextError);
-      onChange(null, { valueChangeKind: "typing" });
-      return;
+      const nextError = validate(null)
+      setError(nextError)
+      onChange(null, { valueChangeKind: 'typing' })
+      return
     }
 
-    const nextValue = Number(nextDraft);
+    const nextValue = Number(nextDraft)
 
     if (!Number.isFinite(nextValue)) {
-      setError("Enter a valid number");
-      return;
+      setError('Enter a valid number')
+      return
     }
 
-    const nextError = validate(nextValue);
-    setError(nextError);
+    const nextError = validate(nextValue)
+    setError(nextError)
 
     if (!nextError) {
-      onChange(nextValue, { valueChangeKind: "typing" });
+      onChange(nextValue, { valueChangeKind: 'typing' })
     }
   }
 
@@ -283,12 +289,12 @@ filtro.number("amount").render(({ value, onChange, validate }) => {
     <>
       <input
         value={draft}
-        onChange={(event) => commit(event.currentTarget.value)}
+        onChange={event => commit(event.currentTarget.value)}
       />
       {error ? <div>{error}</div> : null}
     </>
-  );
-});
+  )
+})
 ```
 
 Rules:

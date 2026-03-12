@@ -1,6 +1,7 @@
 # FilterBar Styling and Themes
 
-`FilterBar` is always the same concrete React UI implementation. Styling only changes whether you add the optional `filtro/default-theme` preset on top.
+`FilterBar` is always the same concrete React UI implementation.
+Styling only changes whether you add the optional `filtro/default-theme` preset on top.
 
 That means:
 
@@ -13,15 +14,15 @@ The default stylesheet is precompiled static CSS.
 ## Base Usage
 
 ```tsx
-import { FilterBar, filtro } from "filtro";
+import { FilterBar, filtro } from 'filtro'
 
 const fields = [
-  filtro.string("keyword").label("Keyword"),
-  filtro.select("status").label("Status").options([
-    { label: "Open", value: "open" },
-    { label: "Closed", value: "closed" },
+  filtro.string('keyword').label('Keyword'),
+  filtro.select('status').label('Status').options([
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
   ]),
-];
+]
 
 export function BaseExample() {
   return (
@@ -34,7 +35,7 @@ export function BaseExample() {
       </FilterBar.Clear>
       <FilterBar.ActiveItems />
     </FilterBar.Root>
-  );
+  )
 }
 ```
 
@@ -48,9 +49,10 @@ In this mode you can style the UI yourself through:
 ## Enable the Default Preset
 
 ```tsx
-import "filtro/default-theme.css";
-import { FilterBar, filtro } from "filtro";
-import { Button, defaultFilterBarTheme } from "filtro/default-theme";
+import 'filtro/default-theme.css'
+
+import { FilterBar, filtro } from 'filtro'
+import { Button, defaultFilterBarTheme } from 'filtro/default-theme'
 
 export function DefaultThemeExample() {
   return (
@@ -63,7 +65,7 @@ export function DefaultThemeExample() {
       </FilterBar.Clear>
       <FilterBar.ActiveItems />
     </FilterBar.Root>
-  );
+  )
 }
 ```
 
@@ -77,22 +79,23 @@ export function DefaultThemeExample() {
 Use `mergeFilterBarTheme()` to extend a base theme incrementally:
 
 ```tsx
-import "filtro/default-theme.css";
-import { FilterBar, mergeFilterBarTheme } from "filtro";
-import { defaultFilterBarTheme } from "filtro/default-theme";
+import 'filtro/default-theme.css'
+
+import { FilterBar, mergeFilterBarTheme } from 'filtro'
+import { defaultFilterBarTheme } from 'filtro/default-theme'
 
 const compactTheme = mergeFilterBarTheme(defaultFilterBarTheme, {
   classNames: {
-    activeItemsRoot: "flex flex-wrap gap-2",
-    row: "h-8",
-    rowRemoveButton: "h-full min-h-0 px-2 !border-l text-red-600",
-    selectContent: "rounded-md border shadow-lg",
+    activeItemsRoot: 'flex flex-wrap gap-2',
+    row: 'h-8',
+    rowRemoveButton: 'h-full min-h-0 px-2 !border-l text-red-600',
+    selectContent: 'rounded-md border shadow-lg',
   },
   primitiveClassNames: {
-    selectTrigger: "h-8 rounded-md",
-    dropdownMenuItem: "text-xs",
+    selectTrigger: 'h-8 rounded-md',
+    dropdownMenuItem: 'text-xs',
   },
-});
+})
 ```
 
 ## Theme Surfaces

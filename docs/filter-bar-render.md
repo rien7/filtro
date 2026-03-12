@@ -2,7 +2,8 @@
 
 `FilterBar` lets a field replace its entire value editor with `.render(...)`.
 
-This is not a small style hook. It fully takes over the value-editor slot for that field while still reusing the surrounding row structure.
+This is not a small style hook.
+It fully takes over the value-editor slot for that field while still reusing the surrounding row structure.
 
 Good fit:
 
@@ -18,30 +19,29 @@ Not a good fit:
 ## Minimal Usage
 
 ```tsx
-import { filtro } from "filtro";
+import { filtro } from 'filtro'
 
 const fields = [
-  filtro.string("keyword")
-    .label("Keyword")
+  filtro.string('keyword')
+    .label('Keyword')
     .render(({ value, onChange, validate }) => {
-      const currentValue = typeof value === "string" ? value : "";
-      const error = validate(currentValue);
+      const currentValue = typeof value === 'string' ? value : ''
+      const error = validate(currentValue)
 
       return (
         <>
           <input
             value={currentValue}
-            onChange={(event) =>
+            onChange={event =>
               onChange(event.currentTarget.value, {
-                valueChangeKind: "typing",
-              })
-            }
+                valueChangeKind: 'typing',
+              })}
           />
           {error ? <div>{error}</div> : null}
         </>
-      );
+      )
     }),
-];
+]
 ```
 
 `render` receives:
@@ -83,15 +83,15 @@ The playground includes a custom date field called `Release Window`:
 - [playground/calendar-date-editor.tsx](https://github.com/rien7/filtro/blob/main/playground/calendar-date-editor.tsx)
 
 ```tsx
-filtro.date("releaseWindow")
-  .label("Release Window")
+filtro.date('releaseWindow')
+  .label('Release Window')
   .render(({ op, value, onChange }) => (
     <PlaygroundCalendarDateEditor
       op={op}
       value={value}
       onChange={onChange}
     />
-  ));
+  ))
 ```
 
 That example keeps the field's operator set, but swaps the built-in date inputs for a custom calendar-based value editor.
@@ -132,45 +132,46 @@ It does not manage:
 - Parsing timing
 - Invalid intermediate input
 
-Built-in editors handle those concerns internally. A custom `render` function must handle them itself if it wants to preserve invalid intermediate input.
+Built-in editors handle those concerns internally.
+A custom `render` function must handle them itself if it wants to preserve invalid intermediate input.
 
 Minimal number example:
 
 ```tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 
-filtro.number("amount").render(({ value, onChange, validate }) => {
+filtro.number('amount').render(({ value, onChange, validate }) => {
   const [draft, setDraft] = useState(
-    typeof value === "number" ? String(value) : "",
-  );
-  const [error, setError] = useState<string | null>(null);
+    typeof value === 'number' ? String(value) : '',
+  )
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setDraft(typeof value === "number" ? String(value) : "");
-  }, [value]);
+    setDraft(typeof value === 'number' ? String(value) : '')
+  }, [value])
 
   function commit(nextDraft: string) {
-    setDraft(nextDraft);
+    setDraft(nextDraft)
 
     if (!nextDraft) {
-      const nextError = validate(null);
-      setError(nextError);
-      onChange(null, { valueChangeKind: "typing" });
-      return;
+      const nextError = validate(null)
+      setError(nextError)
+      onChange(null, { valueChangeKind: 'typing' })
+      return
     }
 
-    const nextValue = Number(nextDraft);
+    const nextValue = Number(nextDraft)
 
     if (!Number.isFinite(nextValue)) {
-      setError("Enter a valid number");
-      return;
+      setError('Enter a valid number')
+      return
     }
 
-    const nextError = validate(nextValue);
-    setError(nextError);
+    const nextError = validate(nextValue)
+    setError(nextError)
 
     if (!nextError) {
-      onChange(nextValue, { valueChangeKind: "typing" });
+      onChange(nextValue, { valueChangeKind: 'typing' })
     }
   }
 
@@ -178,12 +179,12 @@ filtro.number("amount").render(({ value, onChange, validate }) => {
     <>
       <input
         value={draft}
-        onChange={(event) => commit(event.currentTarget.value)}
+        onChange={event => commit(event.currentTarget.value)}
       />
       {error ? <div>{error}</div> : null}
     </>
-  );
-});
+  )
+})
 ```
 
 Key rule: do not call `onChange()` with an illegal value shape.

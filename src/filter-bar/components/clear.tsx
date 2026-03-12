@@ -1,8 +1,8 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps } from 'react'
 
-import { Button } from "@/filter-bar/internal/primitives/baseui/button";
-import { resolveDismissedSuggestionFieldIdsForClear } from "@/filter-bar/display";
-import { useFilterBar } from "@/filter-bar/context";
+import { useFilterBar } from '@/filter-bar/context'
+import { Button } from '@/filter-bar/internal/primitives/baseui/button'
+import { resolveDismissedSuggestionFieldIdsForClear } from '@/filter-bar/state/display-rows'
 
 export function FilterBarClear({ children, ...props }: ComponentProps<typeof Button>) {
   const {
@@ -24,7 +24,7 @@ export function FilterBarClear({ children, ...props }: ComponentProps<typeof But
         dismissedSuggestionFieldIds,
       ),
     )
-    changeValues?.([], { action: "clear" })
+    changeValues?.([], { action: 'clear' })
   }
   return (
     <Button {...props} onClick={handleButtonClick}>

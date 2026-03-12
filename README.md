@@ -6,7 +6,8 @@
 
 This repository is a work in progress.
 
-The current package is usable, but the public surface is still settling and the scope is intentionally narrow. The implemented UI is a flat `FilterBar`, not a nested filter builder.
+The current package is usable, but the public surface is still settling and the scope is intentionally narrow.
+The implemented UI is a flat `FilterBar`, not a nested filter builder.
 
 Current constraints:
 
@@ -40,20 +41,20 @@ Optional:
 ### Base `FilterBar`
 
 ```tsx
-import { FilterBar, filtro } from "filtro";
+import { FilterBar, filtro } from 'filtro'
 
 const fields = [
-  filtro.group("Basic", [
-    filtro.string("keyword").label("Keyword"),
-    filtro.number("amount").label("Amount"),
+  filtro.group('Basic', [
+    filtro.string('keyword').label('Keyword'),
+    filtro.number('amount').label('Amount'),
   ]),
-  filtro.group("Status", [
-    filtro.select("status").label("Status").options([
-      { label: "Open", value: "open" },
-      { label: "Closed", value: "closed" },
+  filtro.group('Status', [
+    filtro.select('status').label('Status').options([
+      { label: 'Open', value: 'open' },
+      { label: 'Closed', value: 'closed' },
     ]),
   ]),
-];
+]
 
 export function Example() {
   return (
@@ -68,34 +69,35 @@ export function Example() {
       </div>
       <FilterBar.ActiveItems />
     </FilterBar.Root>
-  );
+  )
 }
 ```
 
 ### Optional Default Preset
 
 ```tsx
-import "filtro/default-theme.css";
-import { FilterBar, filtro } from "filtro";
-import { Button, defaultFilterBarTheme } from "filtro/default-theme";
+import 'filtro/default-theme.css'
+
+import { FilterBar, filtro } from 'filtro'
+import { Button, defaultFilterBarTheme } from 'filtro/default-theme'
 
 const fields = [
-  filtro.group("Basic", [
-    filtro.string("keyword").label("Keyword"),
-    filtro.date("createdAt").label("Created At"),
+  filtro.group('Basic', [
+    filtro.string('keyword').label('Keyword'),
+    filtro.date('createdAt').label('Created At'),
   ]),
-  filtro.group("Attributes", [
-    filtro.select("status").label("Status").options([
-      { label: "Open", value: "open" },
-      { label: "Closed", value: "closed" },
-      { label: "Pending", value: "pending" },
+  filtro.group('Attributes', [
+    filtro.select('status').label('Status').options([
+      { label: 'Open', value: 'open' },
+      { label: 'Closed', value: 'closed' },
+      { label: 'Pending', value: 'pending' },
     ]),
-    filtro.boolean("archived").label("Archived").options([
-      { label: "Archived", value: true },
-      { label: "Not Archived", value: false },
+    filtro.boolean('archived').label('Archived').options([
+      { label: 'Archived', value: true },
+      { label: 'Not Archived', value: false },
     ]),
   ]),
-];
+]
 
 export function StyledExample() {
   return (
@@ -124,7 +126,7 @@ export function StyledExample() {
         <FilterBar.SuggestedItems />
       </FilterBar.Content>
     </FilterBar.Root>
-  );
+  )
 }
 ```
 
@@ -165,20 +167,20 @@ Use the `filtro` singleton to declare fields:
 
 ```tsx
 const fields = [
-  filtro.string("keyword").label("Keyword"),
-  filtro.number("amount").label("Amount"),
-  filtro.date("createdAt").label("Created At"),
-  filtro.select("status").label("Status").options([
-    { label: "Open", value: "open" },
-    { label: "Closed", value: "closed" },
+  filtro.string('keyword').label('Keyword'),
+  filtro.number('amount').label('Amount'),
+  filtro.date('createdAt').label('Created At'),
+  filtro.select('status').label('Status').options([
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
   ]),
-  filtro.group("Metadata", [
-    filtro.multiSelect("tags").label("Tags").options([
-      { label: "VIP", value: "vip" },
-      { label: "Trial", value: "trial" },
+  filtro.group('Metadata', [
+    filtro.multiSelect('tags').label('Tags').options([
+      { label: 'VIP', value: 'vip' },
+      { label: 'Trial', value: 'trial' },
     ]),
   ]),
-];
+]
 ```
 
 Common builder methods:
@@ -210,10 +212,10 @@ Multi-select extras:
 Boolean fields require explicit options:
 
 ```tsx
-filtro.boolean("archived").options([
-  { label: "Archived", value: true },
-  { label: "Not Archived", value: false },
-]);
+filtro.boolean('archived').options([
+  { label: 'Archived', value: true },
+  { label: 'Not Archived', value: false },
+])
 ```
 
 Operator behavior:
@@ -236,22 +238,22 @@ Example:
 
 ```tsx
 const fields = [
-  filtro.select("status")
-    .label("Status")
+  filtro.select('status')
+    .label('Status')
     .pin()
     .options([
-      { label: "Open", value: "open" },
-      { label: "Closed", value: "closed" },
+      { label: 'Open', value: 'open' },
+      { label: 'Closed', value: 'closed' },
     ]),
-  filtro.string("keyword")
-    .label("Keyword")
+  filtro.string('keyword')
+    .label('Keyword')
     .suggest({
       seed: {
-        operator: "contains",
-        value: "",
+        operator: 'contains',
+        value: '',
       },
     }),
-];
+]
 ```
 
 `FilterBarValue[]` still stores only meaningful active conditions:
@@ -268,7 +270,7 @@ const fields = [
 Controlled usage:
 
 ```tsx
-const [value, setValue] = useState([]);
+const [value, setValue] = useState([])
 
 <FilterBar.Root fields={fields} value={value} onChange={setValue}>
   <FilterBar.Trigger render={<button type="button" />}>
@@ -290,7 +292,8 @@ onChange?: (
 ) => void;
 ```
 
-Important: controlled mode only controls meaningful active values. Incomplete row drafts still live inside `FilterBar` until they become valid active values or are removed.
+Important: controlled mode only controls meaningful active values.
+Incomplete row drafts still live inside `FilterBar` until they become valid active values or are removed.
 
 If you need separate draft and applied filters, use `useFilterBarController()`:
 
@@ -325,38 +328,37 @@ The current `FilterBar` state is still `FilterBarValue[]`, but the package also 
 Use these helpers when you want to compile a flat `FilterBar` value into a `FilterRoot`, or hydrate a flat `FilterBar` from an AST value you already store elsewhere:
 
 ```tsx
+import type { FilterBarValueType, FilterRoot } from 'filtro'
 import {
   FilterBar,
-  filtro,
   filterRootToValues,
-  valuesToFilterRoot,
-  type FilterBarValueType,
-  type FilterRoot,
-} from "filtro";
+  filtro,
+  valuesToFilterRoot
+} from 'filtro'
 
-type FieldId = "keyword" | "status";
+type FieldId = 'keyword' | 'status'
 
 const fields = [
-  filtro.string("keyword").label("Keyword"),
-  filtro.select("status").label("Status").options([
-    { label: "Open", value: "open" },
-    { label: "Closed", value: "closed" },
+  filtro.string('keyword').label('Keyword'),
+  filtro.select('status').label('Status').options([
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
   ]),
-];
+]
 
 export function Example() {
-  const [value, setValue] = useState<FilterBarValueType<FieldId>>([]);
+  const [value, setValue] = useState<FilterBarValueType<FieldId>>([])
 
-  const filter = valuesToFilterRoot(value);
+  const filter = valuesToFilterRoot(value)
 
   function restore(saved: FilterRoot<FieldId>) {
-    const restored = filterRootToValues(fields, saved);
+    const restored = filterRootToValues(fields, saved)
 
     if (!restored) {
-      return;
+      return
     }
 
-    setValue(restored);
+    setValue(restored)
   }
 
   return (
@@ -366,7 +368,7 @@ export function Example() {
       </FilterBar.Trigger>
       <FilterBar.ActiveItems />
     </FilterBar.Root>
-  );
+  )
 }
 ```
 
@@ -389,8 +391,9 @@ The root package does not ship a visual preset by default.
 To use the official preset:
 
 ```tsx
-import "filtro/default-theme.css";
-import { defaultFilterBarTheme } from "filtro/default-theme";
+import 'filtro/default-theme.css'
+
+import { defaultFilterBarTheme } from 'filtro/default-theme'
 ```
 
 The stylesheet is precompiled, so consuming apps do not need a Tailwind build step to use it.
@@ -413,7 +416,8 @@ Theme helpers exported from `filtro`:
 
 Located in [src/logical](https://github.com/rien7/filtro/tree/main/src/logical).
 
-This layer defines field kinds, operator/value typing, and AST types. It is framework-agnostic and does not depend on React.
+This layer defines field kinds, operator/value typing, and AST types.
+It is framework-agnostic and does not depend on React.
 
 ### `filter-bar`
 
@@ -441,7 +445,8 @@ This layer provides optional helpers for syncing `FilterBarValue[]` to the URL q
 
 ## Boundary Rules
 
-- `src/logical` stays pure domain logic. Do not put React there.
+- `src/logical` stays pure domain logic.
+  Do not put React there.
 - `src/filter-bar` is the current flat `FilterBar` product.
 - `src/filter-bar/internal/primitives/baseui` is implementation detail, not the preset layer.
 - `src/presets/default-theme` is optional visual infrastructure, not the owner of runtime behavior.

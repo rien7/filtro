@@ -6,7 +6,8 @@
 - `suggested`
 - `pinned`
 
-These modes only control how fields appear in the UI. They do not introduce new filtering semantics.
+These modes only control how fields appear in the UI.
+They do not introduce new filtering semantics.
 
 The underlying rules stay the same:
 
@@ -19,31 +20,31 @@ The underlying rules stay the same:
 Display mode is declared as field metadata:
 
 ```tsx
-import { filtro } from "filtro";
+import { filtro } from 'filtro'
 
 const fields = [
-  filtro.select("status")
-    .label("Status")
+  filtro.select('status')
+    .label('Status')
     .pin()
     .options([
-      { label: "Open", value: "open" },
-      { label: "Closed", value: "closed" },
+      { label: 'Open', value: 'open' },
+      { label: 'Closed', value: 'closed' },
     ]),
-  filtro.string("keyword")
-    .label("Keyword")
+  filtro.string('keyword')
+    .label('Keyword')
     .suggest({
       seed: {
-        operator: "contains",
-        value: "",
+        operator: 'contains',
+        value: '',
       },
     }),
-  filtro.boolean("archived")
-    .label("Archived")
+  filtro.boolean('archived')
+    .label('Archived')
     .options([
-      { label: "Archived", value: true },
-      { label: "Not Archived", value: false },
+      { label: 'Archived', value: true },
+      { label: 'Not Archived', value: false },
     ]),
-];
+]
 ```
 
 Available methods:
@@ -112,23 +113,24 @@ The current implementation exposes UI placement through `data-area`:
 - Active row: `data-area="active"`
 - Suggestion entry: `data-area="suggestion"`
 
-This describes where an element is rendered right now. It does not expose older placement concepts such as row source or historical status.
+This describes where an element is rendered right now.
+It does not expose older placement concepts such as row source or historical status.
 
 ## Suggestion Configuration
 
 `.suggest()` supports three knobs:
 
 ```tsx
-filtro.string("keyword")
-  .label("Keyword")
+filtro.string('keyword')
+  .label('Keyword')
   .suggest({
     seed: {
-      operator: "contains",
-      value: "",
+      operator: 'contains',
+      value: '',
     },
-    removeBehavior: "back-to-suggestion",
+    removeBehavior: 'back-to-suggestion',
     showInMenu: true,
-  });
+  })
 ```
 
 Meaning:

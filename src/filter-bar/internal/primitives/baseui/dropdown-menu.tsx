@@ -1,13 +1,13 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Menu as MenuPrimitive } from "@base-ui/react/menu"
-import { ChevronRightIcon, CheckIcon } from "lucide-react"
+import { Menu as MenuPrimitive } from '@base-ui/react/menu'
+import { CheckIcon, ChevronRightIcon } from 'lucide-react'
+import * as React from 'react'
 
 import {
   getFilterBarPrimitiveDataSlot,
   useFilterBarPrimitiveClassName,
-} from "@/filter-bar/theme"
+} from '@/filter-bar/theme'
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />
@@ -22,21 +22,21 @@ function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {
 }
 
 function DropdownMenuContent({
-  align = "start",
+  align = 'start',
   alignOffset = 0,
-  side = "bottom",
+  side = 'bottom',
   sideOffset = 4,
   className,
   ...props
-}: MenuPrimitive.Popup.Props &
-  Pick<
+}: MenuPrimitive.Popup.Props
+  & Pick<
     MenuPrimitive.Positioner.Props,
-    "align" | "alignOffset" | "side" | "sideOffset"
+    'align' | 'alignOffset' | 'side' | 'sideOffset'
   >) {
-  const positionerClassName = useFilterBarPrimitiveClassName("dropdownMenuPositioner")
-  const popupClassName = useFilterBarPrimitiveClassName("dropdownMenuContent", className)
-  const positionerSlot = getFilterBarPrimitiveDataSlot("dropdownMenuPositioner")
-  const contentSlot = getFilterBarPrimitiveDataSlot("dropdownMenuContent")
+  const positionerClassName = useFilterBarPrimitiveClassName('dropdownMenuPositioner')
+  const popupClassName = useFilterBarPrimitiveClassName('dropdownMenuContent', className)
+  const positionerSlot = getFilterBarPrimitiveDataSlot('dropdownMenuPositioner')
+  const contentSlot = getFilterBarPrimitiveDataSlot('dropdownMenuContent')
 
   return (
     <MenuPrimitive.Portal>
@@ -66,8 +66,8 @@ function DropdownMenuLabel({
   className,
   ...props
 }: MenuPrimitive.GroupLabel.Props) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("dropdownMenuLabel", className)
-  const slot = getFilterBarPrimitiveDataSlot("dropdownMenuLabel")
+  const resolvedClassName = useFilterBarPrimitiveClassName('dropdownMenuLabel', className)
+  const slot = getFilterBarPrimitiveDataSlot('dropdownMenuLabel')
 
   return (
     <MenuPrimitive.GroupLabel
@@ -82,8 +82,8 @@ function DropdownMenuItem({
   className,
   ...props
 }: MenuPrimitive.Item.Props) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("dropdownMenuItem", className)
-  const slot = getFilterBarPrimitiveDataSlot("dropdownMenuItem")
+  const resolvedClassName = useFilterBarPrimitiveClassName('dropdownMenuItem', className)
+  const slot = getFilterBarPrimitiveDataSlot('dropdownMenuItem')
 
   return (
     <MenuPrimitive.Item
@@ -106,10 +106,10 @@ function DropdownMenuSubTrigger({
 }: MenuPrimitive.SubmenuTrigger.Props & {
   submenuIndicator?: React.ReactNode
 }) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("dropdownMenuSubTrigger", className)
-  const indicatorClassName = useFilterBarPrimitiveClassName("dropdownMenuSubmenuIndicator")
-  const triggerSlot = getFilterBarPrimitiveDataSlot("dropdownMenuSubTrigger")
-  const indicatorSlot = getFilterBarPrimitiveDataSlot("dropdownMenuSubmenuIndicator")
+  const resolvedClassName = useFilterBarPrimitiveClassName('dropdownMenuSubTrigger', className)
+  const indicatorClassName = useFilterBarPrimitiveClassName('dropdownMenuSubmenuIndicator')
+  const triggerSlot = getFilterBarPrimitiveDataSlot('dropdownMenuSubTrigger')
+  const indicatorSlot = getFilterBarPrimitiveDataSlot('dropdownMenuSubmenuIndicator')
 
   return (
     <MenuPrimitive.SubmenuTrigger
@@ -129,15 +129,15 @@ function DropdownMenuSubTrigger({
 }
 
 function DropdownMenuSubContent({
-  align = "start",
+  align = 'start',
   alignOffset = -3,
-  side = "right",
+  side = 'right',
   sideOffset = 0,
   className,
   ...props
 }: React.ComponentProps<typeof DropdownMenuContent>) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("dropdownMenuSubContent", className)
-  const slot = getFilterBarPrimitiveDataSlot("dropdownMenuSubContent")
+  const resolvedClassName = useFilterBarPrimitiveClassName('dropdownMenuSubContent', className)
+  const slot = getFilterBarPrimitiveDataSlot('dropdownMenuSubContent')
 
   return (
     <DropdownMenuContent
@@ -161,10 +161,10 @@ function DropdownMenuCheckboxItem({
 }: MenuPrimitive.CheckboxItem.Props & {
   indicator?: React.ReactNode
 }) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("dropdownMenuCheckboxItem", className)
-  const indicatorClassName = useFilterBarPrimitiveClassName("dropdownMenuCheckboxItemIndicator")
-  const itemSlot = getFilterBarPrimitiveDataSlot("dropdownMenuCheckboxItem")
-  const indicatorSlot = getFilterBarPrimitiveDataSlot("dropdownMenuCheckboxItemIndicator")
+  const resolvedClassName = useFilterBarPrimitiveClassName('dropdownMenuCheckboxItem', className)
+  const indicatorClassName = useFilterBarPrimitiveClassName('dropdownMenuCheckboxItemIndicator')
+  const itemSlot = getFilterBarPrimitiveDataSlot('dropdownMenuCheckboxItem')
+  const indicatorSlot = getFilterBarPrimitiveDataSlot('dropdownMenuCheckboxItemIndicator')
 
   return (
     <MenuPrimitive.CheckboxItem
@@ -205,10 +205,10 @@ function DropdownMenuRadioItem({
 }: MenuPrimitive.RadioItem.Props & {
   indicator?: React.ReactNode
 }) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("dropdownMenuRadioItem", className)
-  const indicatorClassName = useFilterBarPrimitiveClassName("dropdownMenuRadioItemIndicator")
-  const itemSlot = getFilterBarPrimitiveDataSlot("dropdownMenuRadioItem")
-  const indicatorSlot = getFilterBarPrimitiveDataSlot("dropdownMenuRadioItemIndicator")
+  const resolvedClassName = useFilterBarPrimitiveClassName('dropdownMenuRadioItem', className)
+  const indicatorClassName = useFilterBarPrimitiveClassName('dropdownMenuRadioItemIndicator')
+  const itemSlot = getFilterBarPrimitiveDataSlot('dropdownMenuRadioItem')
+  const indicatorSlot = getFilterBarPrimitiveDataSlot('dropdownMenuRadioItemIndicator')
 
   return (
     <MenuPrimitive.RadioItem
@@ -235,8 +235,8 @@ function DropdownMenuSeparator({
   className,
   ...props
 }: MenuPrimitive.Separator.Props) {
-  const resolvedClassName = useFilterBarPrimitiveClassName("dropdownMenuSeparator", className)
-  const slot = getFilterBarPrimitiveDataSlot("dropdownMenuSeparator")
+  const resolvedClassName = useFilterBarPrimitiveClassName('dropdownMenuSeparator', className)
+  const slot = getFilterBarPrimitiveDataSlot('dropdownMenuSeparator')
 
   return (
     <MenuPrimitive.Separator

@@ -1,46 +1,46 @@
-import type { EnumFieldKind } from "@/logical/field";
-import type { OperatorKindFor, OperatorValueFor } from "@/logical/operator";
 import type {
   SafeParseFailure,
   SafeParseSchema,
   SafeParseSchemaResolver,
   UIFieldForKind,
   UIFieldValidationResult,
-} from "@/filter-bar/types";
+} from '@/filter-bar/types'
+import type { EnumFieldKind } from '@/logical/field'
+import type { OperatorKindFor, OperatorValueFor } from '@/logical/operator'
 
 function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
+  return typeof value === 'string' && value.trim().length > 0
 }
 
 export function normalizeValidationResult(
   result: UIFieldValidationResult,
 ): string | null {
   if (!isNonEmptyString(result)) {
-    return null;
+    return null
   }
 
-  return result.trim();
+  return result.trim()
 }
 
 export function resolveSafeParseSchema<Kind extends EnumFieldKind>(
   resolver: SafeParseSchemaResolver<Kind>,
   op: OperatorKindFor<Kind>,
 ): SafeParseSchema {
-  return typeof resolver === "function" ? resolver({ op }) : resolver;
+  return typeof resolver === 'function' ? resolver({ op }) : resolver
 }
 
-export function getSafeParseErrorMessage(error: SafeParseFailure["error"]) {
-  const firstIssue = error.issues?.find((issue) => isNonEmptyString(issue.message));
+export function getSafeParseErrorMessage(error: SafeParseFailure['error']) {
+  const firstIssue = error.issues?.find(issue => isNonEmptyString(issue.message))
 
   if (firstIssue?.message) {
-    return firstIssue.message.trim();
+    return firstIssue.message.trim()
   }
 
   if (isNonEmptyString(error.message)) {
-    return error.message.trim();
+    return error.message.trim()
   }
 
-  return "Invalid value";
+  return 'Invalid value'
 }
 
 export function validateFieldValue<
@@ -52,11 +52,11 @@ export function validateFieldValue<
   op,
   value,
 }: {
-  field: UIFieldForKind<FieldId, Kind>;
-  op: Op;
-  value: OperatorValueFor<Kind, Op> | null;
+  field: UIFieldForKind<FieldId, Kind>
+  op: Op
+  value: OperatorValueFor<Kind, Op> | null
 }) {
-  const validators = field.validators ?? [];
+  const validators = field.validators ?? []
 
   for (const validator of validators) {
     const nextMessage = normalizeValidationResult(
@@ -64,12 +64,12 @@ export function validateFieldValue<
         op,
         value,
       }),
-    );
+    )
 
     if (nextMessage) {
-      return nextMessage;
+      return nextMessage
     }
   }
 
-  return null;
+  return null
 }

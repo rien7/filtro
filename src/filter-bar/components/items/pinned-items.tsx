@@ -1,20 +1,21 @@
-import { useFilterBar } from "@/filter-bar/context";
+import { FilterItemRow } from '@/filter-bar/components/items/row'
+import { useFilterBar } from '@/filter-bar/context'
+import { isFilterBarValueEqual } from '@/filter-bar/core/equality'
+import {
+  resolveDisplayRows,
+} from '@/filter-bar/state/display-rows'
 import {
   applyDisplayRowUpdate,
   clearDisplayRowValue,
   removeDisplayRow,
-  resolveDisplayRows,
-} from "@/filter-bar/display";
-import { isFilterBarValueEqual } from "@/filter-bar/value";
-import { filterBarThemeSlot, useFilterBarTheme } from "@/filter-bar/theme";
-import { cn } from "@/lib/utils";
-
-import { FilterItemRow } from "./items.row";
+} from '@/filter-bar/state/row-actions'
+import { filterBarThemeSlot, useFilterBarTheme } from '@/filter-bar/theme'
+import { cn } from '@/lib/utils'
 
 export function FilterBarPinnedItems({
   className,
 }: {
-  className?: string;
+  className?: string
 }) {
   const {
     changeDismissedSuggestionFieldIds,
@@ -23,19 +24,19 @@ export function FilterBarPinnedItems({
     draftValues,
     uiFields,
     values,
-  } = useFilterBar();
-  const theme = useFilterBarTheme();
-  const rows = resolveDisplayRows(uiFields, values, draftValues, { area: "pinned" });
+  } = useFilterBar()
+  const theme = useFilterBarTheme()
+  const rows = resolveDisplayRows(uiFields, values, draftValues, { area: 'pinned' })
 
   if (!rows.length) {
-    return null;
+    return null
   }
 
   return (
     <div
       role="list"
       aria-label="Pinned filters"
-      data-theme-slot={filterBarThemeSlot("pinnedItemsRoot")}
+      data-theme-slot={filterBarThemeSlot('pinnedItemsRoot')}
       className={cn(theme.classNames.pinnedItemsRoot, className)}
     >
       {rows.map((row) => {
@@ -45,17 +46,17 @@ export function FilterBarPinnedItems({
           source: row.source,
           draftValues,
           values,
-        });
+        })
         const clearedItem = clearedRowResult.nextDraftValues.find(
-          (entry) => entry.fieldId === row.field.id,
-        );
-        const clearDisabled = row.source === "draft" && Boolean(
-          clearedItem &&
-          isFilterBarValueEqual(
+          entry => entry.fieldId === row.field.id,
+        )
+        const clearDisabled = row.source === 'draft' && Boolean(
+          clearedItem
+          && isFilterBarValueEqual(
             row.item as never,
             clearedItem as never,
           ),
-        );
+        )
 
         return (
           <FilterItemRow
@@ -67,87 +68,88 @@ export function FilterBarPinnedItems({
             clearDisabled={clearDisabled}
             area="pinned"
             onUpdate={(updater, meta) => {
-              const nextItem = updater(row.item as never) as typeof row.item;
+              const nextItem = updater(row.item as never) as typeof row.item
               const result = applyDisplayRowUpdate({
                 action: meta.action,
-                currentItem: row.item,
                 field: row.field,
                 nextItem,
                 source: row.source,
                 draftValues,
                 values,
-              });
+              })
 
-              changeDraftValues?.(result.nextDraftValues);
+              changeDraftValues?.(result.nextDraftValues)
 
               if (result.dismissedSuggestion !== undefined) {
                 changeDismissedSuggestionFieldIds?.((previous) => {
-                  const nextFieldIds = new Set(previous);
+                  const nextFieldIds = new Set(previous)
 
                   if (result.dismissedSuggestion) {
-                    nextFieldIds.add(row.field.id);
-                  } else {
-                    nextFieldIds.delete(row.field.id);
+                    nextFieldIds.add(row.field.id)
+                  }
+                  else {
+                    nextFieldIds.delete(row.field.id)
                   }
 
-                  return [...nextFieldIds];
-                });
+                  return [...nextFieldIds]
+                })
               }
 
               if (result.nextValues !== values) {
                 changeValues?.(
                   result.nextValues,
-                  meta.action === "value"
+                  meta.action === 'value'
                     ? {
-                        action: "value",
+                        action: 'value',
                         fieldId: row.field.id,
                         completeness: meta.completeness,
-                        valueChangeKind: meta.valueChangeKind ?? "selected",
+                        valueChangeKind: meta.valueChangeKind ?? 'selected',
                       }
                     : {
-                        action: "operator",
+                        action: 'operator',
                         fieldId: row.field.id,
                         completeness: meta.completeness,
                       },
-                );
+                )
               }
             }}
             onClear={() => {
-              changeDraftValues?.(clearedRowResult.nextDraftValues);
+              changeDraftValues?.(clearedRowResult.nextDraftValues)
 
               if (clearedRowResult.nextValues !== values) {
                 changeValues?.(clearedRowResult.nextValues, {
-                  action: "remove",
+                  action: 'remove',
                   fieldId: row.field.id,
-                });
+                })
               }
             }}
             onRemove={() => {
-              const result = removeDisplayRow(row.field, values, draftValues);
+              const result = removeDisplayRow(row.field, values, draftValues)
 
-              changeDraftValues?.(result.nextDraftValues);
+              changeDraftValues?.(result.nextDraftValues)
               changeDismissedSuggestionFieldIds?.((previous) => {
-                const nextFieldIds = new Set(previous);
+                const nextFieldIds = new Set(previous)
 
                 if (result.dismissedSuggestion) {
-                  nextFieldIds.add(row.field.id);
-                } else {
-                  nextFieldIds.delete(row.field.id);
+                  nextFieldIds.add(row.field.id)
+                }
+                else {
+                  nextFieldIds.delete(row.field.id)
                 }
 
-                return [...nextFieldIds];
-              });
+                return [...nextFieldIds]
+              })
 
               if (result.nextValues !== values) {
                 changeValues?.(result.nextValues, {
-                  action: "remove",
+                  action: 'remove',
                   fieldId: row.field.id,
-                });
+                })
               }
             }}
           />
-        );
+        )
       })}
     </div>
-  );
+  )
 }

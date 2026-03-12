@@ -1,1 +1,1 @@
-export * from "@/filter-bar/internal/primitives/baseui/switch"
+export * from '@/filter-bar/internal/primitives/baseui/switch'

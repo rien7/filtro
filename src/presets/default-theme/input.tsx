@@ -1,1 +1,1 @@
-export * from "@/filter-bar/internal/primitives/baseui/input"
+export * from '@/filter-bar/internal/primitives/baseui/input'

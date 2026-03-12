@@ -30,40 +30,40 @@ onChange?: (
 defaultValue?: FilterBarValueType;
 ```
 
-Important: this controller works with meaningful active values only. Incomplete row drafts inside `FilterBar` remain internal until they become valid active values or are removed.
+Important: this controller works with meaningful active values only.
+Incomplete row drafts inside `FilterBar` remain internal until they become valid active values or are removed.
 
 ## Hook API
 
 ```ts
+import type { FilterBarApplyMeta, FilterBarChangeMeta } from 'filtro'
 import {
-  useFilterBarController,
-  type FilterBarApplyMeta,
-  type FilterBarChangeMeta,
-} from "filtro";
+  useFilterBarController
+} from 'filtro'
 
 type UseFilterBarControllerOptions = {
-  defaultValue?: FilterBarValueType;
-  appliedValue?: FilterBarValueType;
+  defaultValue?: FilterBarValueType
+  appliedValue?: FilterBarValueType
   onAppliedChange?: (
     nextValue: FilterBarValueType,
     meta: FilterBarApplyMeta,
-  ) => void;
-  applyMode?: "auto" | "manual";
-  debounceMs?: number;
-};
+  ) => void
+  applyMode?: 'auto' | 'manual'
+  debounceMs?: number
+}
 
 type FilterBarController = {
-  draftValue: FilterBarValueType;
+  draftValue: FilterBarValueType
   onDraftChange: (
     nextValue: FilterBarValueType,
     meta?: FilterBarChangeMeta,
-  ) => void;
-  appliedValue: FilterBarValueType;
-  apply: () => void;
-  clear: () => void;
-  discardChanges: () => void;
-  isDirty: boolean;
-};
+  ) => void
+  appliedValue: FilterBarValueType
+  apply: () => void
+  clear: () => void
+  discardChanges: () => void
+  isDirty: boolean
+}
 ```
 
 Meaning:
@@ -79,21 +79,21 @@ Meaning:
 ## Common Usage
 
 ```tsx
-import { FilterBar, filtro, useFilterBarController } from "filtro";
+import { FilterBar, filtro, useFilterBarController } from 'filtro'
 
 const fields = [
-  filtro.string("keyword").label("Keyword"),
-  filtro.select("status").label("Status").options([
-    { label: "Open", value: "open" },
-    { label: "Closed", value: "closed" },
+  filtro.string('keyword').label('Keyword'),
+  filtro.select('status').label('Status').options([
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
   ]),
-];
+]
 
 export function Filters() {
   const filters = useFilterBarController({
     defaultValue: [],
-    applyMode: "manual",
-  });
+    applyMode: 'manual',
+  })
 
   return (
     <>
@@ -123,7 +123,7 @@ export function Filters() {
         </button>
       </div>
     </>
-  );
+  )
 }
 ```
 
@@ -149,28 +149,29 @@ Current built-in rules:
 
 ## `FilterBarChangeMeta`
 
-`onChange(nextValue, meta)` reports what changed. It does not encode apply policy.
+`onChange(nextValue, meta)` reports what changed.
+It does not encode apply policy.
 
 ```ts
-type FilterBarChangeMeta<FieldId extends string = string> =
-  | { action: "clear" }
-  | { action: "remove"; fieldId: FieldId }
-  | {
-      action: "add";
-      fieldId: FieldId;
-      completeness: "complete" | "incomplete";
+type FilterBarChangeMeta<FieldId extends string = string>
+  = | { action: 'clear' }
+    | { action: 'remove', fieldId: FieldId }
+    | {
+      action: 'add'
+      fieldId: FieldId
+      completeness: 'complete' | 'incomplete'
     }
-  | {
-      action: "operator";
-      fieldId: FieldId;
-      completeness: "complete" | "incomplete";
+    | {
+      action: 'operator'
+      fieldId: FieldId
+      completeness: 'complete' | 'incomplete'
     }
-  | {
-      action: "value";
-      fieldId: FieldId;
-      valueChangeKind: "typing" | "selected";
-      completeness: "complete" | "incomplete";
-    };
+    | {
+      action: 'value'
+      fieldId: FieldId
+      valueChangeKind: 'typing' | 'selected'
+      completeness: 'complete' | 'incomplete'
+    }
 ```
 
 Examples:
@@ -188,28 +189,28 @@ Use the controller between the filter bar and the URL layer:
 - `filtro/nuqs` owns the applied channel
 
 ```tsx
-import { FilterBar, filtro, useFilterBarController } from "filtro";
-import { useNuqsFilterBarState } from "filtro/nuqs";
+import { FilterBar, filtro, useFilterBarController } from 'filtro'
+import { useNuqsFilterBarState } from 'filtro/nuqs'
 
 const fields = [
-  filtro.string("keyword").label("Keyword"),
-  filtro.select("status").label("Status").options([
-    { label: "Open", value: "open" },
-    { label: "Closed", value: "closed" },
+  filtro.string('keyword').label('Keyword'),
+  filtro.select('status').label('Status').options([
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
   ]),
-];
+]
 
 export function UrlBackedFilters() {
   const urlState = useNuqsFilterBarState({
     fields,
-    history: "replace",
-  });
+    history: 'replace',
+  })
 
   const filters = useFilterBarController({
     appliedValue: urlState.value,
     onAppliedChange: urlState.onChange,
-    applyMode: "manual",
-  });
+    applyMode: 'manual',
+  })
 
   return (
     <FilterBar.Root
@@ -225,7 +226,7 @@ export function UrlBackedFilters() {
       </FilterBar.Clear>
       <FilterBar.ActiveItems />
     </FilterBar.Root>
-  );
+  )
 }
 ```
 

@@ -18,24 +18,25 @@ pnpm add filtro nuqs
 
 ## Add a `NuqsAdapter`
 
-`filtro/nuqs` does not install the adapter for you. The host app must wrap itself with the correct `nuqs` adapter.
+`filtro/nuqs` does not install the adapter for you.
+The host app must wrap itself with the correct `nuqs` adapter.
 
 React SPA / Vite example:
 
 ```tsx
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { NuqsAdapter } from "nuqs/adapters/react";
+import { NuqsAdapter } from 'nuqs/adapters/react'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
 
-import { App } from "./app";
+import { App } from './app'
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <NuqsAdapter>
       <App />
     </NuqsAdapter>
   </StrictMode>,
-);
+)
 ```
 
 For Next.js, Remix, React Router, and other runtimes, use the official `nuqs` adapter for that environment.
@@ -49,29 +50,29 @@ Reference:
 `useNuqsFilterBarState()` maps the URL query string to controlled `value` and `onChange` props for `FilterBar.Root`.
 
 ```tsx
-import { FilterBar, filtro } from "filtro";
-import { useNuqsFilterBarState } from "filtro/nuqs";
+import { FilterBar, filtro } from 'filtro'
+import { useNuqsFilterBarState } from 'filtro/nuqs'
 
 const fields = [
-  filtro.string("keyword").label("Keyword"),
-  filtro.number("amount").label("Amount"),
-  filtro.select("status").label("Status").options([
-    { label: "Open", value: "open" },
-    { label: "Closed", value: "closed" },
+  filtro.string('keyword').label('Keyword'),
+  filtro.number('amount').label('Amount'),
+  filtro.select('status').label('Status').options([
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
   ]),
-  filtro.multiSelect("tags").label("Tags").options([
-    { label: "VIP", value: "vip" },
-    { label: "Trial", value: "trial" },
+  filtro.multiSelect('tags').label('Tags').options([
+    { label: 'VIP', value: 'vip' },
+    { label: 'Trial', value: 'trial' },
   ]),
-];
+]
 
 export function Filters() {
   const filterState = useNuqsFilterBarState({
     fields,
-    prefix: "demo_",
-    history: "replace",
+    prefix: 'demo_',
+    history: 'replace',
     shallow: true,
-  });
+  })
 
   return (
     <FilterBar.Root
@@ -87,7 +88,7 @@ export function Filters() {
       </FilterBar.Clear>
       <FilterBar.ActiveItems />
     </FilterBar.Root>
-  );
+  )
 }
 ```
 
@@ -97,7 +98,8 @@ Result:
 - Filter edits write back to the query string
 - Browser back/forward updates the `FilterBar`
 
-Important: just like any controlled `FilterBar`, this controls active `FilterBarValue[]` only. Incomplete row drafts remain internal to `FilterBar`.
+Important: just like any controlled `FilterBar`, this controls active `FilterBarValue[]` only.
+Incomplete row drafts remain internal to `FilterBar`.
 
 ## `FilterBar.Root` Controlled Mode
 
@@ -155,28 +157,28 @@ Arguments:
 If you want users to edit first and only write to the URL on Apply, let `nuqs` own the applied channel and put the controller in front of it:
 
 ```tsx
-import { FilterBar, filtro, useFilterBarController } from "filtro";
-import { useNuqsFilterBarState } from "filtro/nuqs";
+import { FilterBar, filtro, useFilterBarController } from 'filtro'
+import { useNuqsFilterBarState } from 'filtro/nuqs'
 
 const fields = [
-  filtro.string("keyword").label("Keyword"),
-  filtro.select("status").label("Status").options([
-    { label: "Open", value: "open" },
-    { label: "Closed", value: "closed" },
+  filtro.string('keyword').label('Keyword'),
+  filtro.select('status').label('Status').options([
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
   ]),
-];
+]
 
 export function UrlBackedFilters() {
   const urlState = useNuqsFilterBarState({
     fields,
-    history: "replace",
-  });
+    history: 'replace',
+  })
 
   const filters = useFilterBarController({
     appliedValue: urlState.value,
     onAppliedChange: urlState.onChange,
-    applyMode: "manual",
-  });
+    applyMode: 'manual',
+  })
 
   return (
     <>
@@ -198,7 +200,7 @@ export function UrlBackedFilters() {
         Apply
       </button>
     </>
-  );
+  )
 }
 ```
 
@@ -206,7 +208,8 @@ Recommended default: `history: "replace"`.
 
 ## Default Query Key Rules
 
-The adapter does not store the whole filter bar in one JSON blob. It generates per-field query keys.
+The adapter does not store the whole filter bar in one JSON blob.
+It generates per-field query keys.
 
 If the field id is `status` and the prefix is `demo_`:
 
@@ -252,18 +255,18 @@ That means:
 If you already own your `useQueryStates` setup, use the parser generator directly:
 
 ```tsx
-import { useQueryStates } from "nuqs";
-import { createFilterBarNuqsParsers } from "filtro/nuqs";
+import { createFilterBarNuqsParsers } from 'filtro/nuqs'
+import { useQueryStates } from 'nuqs'
 
-const parsers = createFilterBarNuqsParsers(fields, { prefix: "orders_" });
+const parsers = createFilterBarNuqsParsers(fields, { prefix: 'orders_' })
 
 function Example() {
   const [query, setQuery] = useQueryStates(parsers, {
-    history: "push",
+    history: 'push',
     shallow: false,
-  });
+  })
 
-  return <pre>{JSON.stringify(query, null, 2)}</pre>;
+  return <pre>{JSON.stringify(query, null, 2)}</pre>
 }
 ```
 

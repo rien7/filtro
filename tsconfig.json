@@ -1,28 +1,27 @@
 {
   "compilerOptions": {
-    "module": "esnext",
     "target": "esnext",
-    "types": [],
+    "jsx": "react-jsx",
+    "moduleDetection": "force",
     "baseUrl": ".",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": ["src/*"]
     },
+    "types": [],
 
-    "sourceMap": true,
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
     "declaration": true,
     "declarationMap": true,
 
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-
-    "strict": true,
-    "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
+    "sourceMap": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "moduleResolution": "bundler",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "include": ["src"]
 }

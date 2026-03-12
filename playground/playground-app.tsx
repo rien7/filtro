@@ -1,41 +1,42 @@
-import { useMemo, useState } from "react";
-import { Filter, LayoutGrid, Save } from "lucide-react";
+import { Filter, LayoutGrid, Save } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
-import { FilterBar, filtro, type FilterBarThemeInput } from "../src";
+import type { FilterBarThemeInput } from '../src'
+import { FilterBar, filtro } from '../src'
+import { useNuqsFilterBarState } from '../src/nuqs'
 import {
   Button,
   defaultFilterBarTheme,
-} from "../src/presets/default-theme";
-import { useNuqsFilterBarState } from "../src/nuqs";
-import { PlaygroundCalendarDateEditor } from "./calendar-date-editor";
+} from '../src/presets/default-theme'
+import { PlaygroundCalendarDateEditor } from './calendar-date-editor'
 
 function loadAsyncOwners() {
-  return new Promise<Array<{ label: string; value: string }>>((resolve) => {
+  return new Promise<Array<{ label: string, value: string }>>((resolve) => {
     window.setTimeout(() => {
       resolve([
-        { label: "Alice Johnson", value: "alice" },
-        { label: "Ben Carter", value: "ben" },
-        { label: "Chris Wong", value: "chris" },
-      ]);
-    }, 5000);
-  });
+        { label: 'Alice Johnson', value: 'alice' },
+        { label: 'Ben Carter', value: 'ben' },
+        { label: 'Chris Wong', value: 'chris' },
+      ])
+    }, 5000)
+  })
 }
 
 function DemoAvatar({
   initials,
   tone,
 }: {
-  initials: string;
-  tone: "amber" | "emerald" | "sky" | "rose";
+  initials: string
+  tone: 'amber' | 'emerald' | 'sky' | 'rose'
 }) {
   return (
     <span className={`demo-option-icon demo-option-icon-${tone}`} aria-hidden="true">
       {initials}
     </span>
-  );
+  )
 }
 
-type DemoView = "headless" | "default" | "both";
+type DemoView = 'headless' | 'default' | 'both'
 
 function DemoCard({
   title,
@@ -45,12 +46,12 @@ function DemoCard({
   theme,
   styled,
 }: {
-  title: string;
-  description: string;
-  fields: ReturnType<typeof useFiltroFields>;
-  storageKey: string;
-  theme?: FilterBarThemeInput | null;
-  styled: boolean;
+  title: string
+  description: string
+  fields: ReturnType<typeof useFiltroFields>
+  storageKey: string
+  theme?: FilterBarThemeInput | null
+  styled: boolean
 }) {
   return (
     <section className="demo-card">
@@ -62,11 +63,13 @@ function DemoCard({
         <div className="demo-toolbar">
           <FilterBar.Views
             render={
-              styled ? (
-                <Button variant="outline" />
-              ) : (
-                <button type="button" className="demo-button" />
-              )
+              styled
+                ? (
+                    <Button variant="outline" />
+                  )
+                : (
+                    <button type="button" className="demo-button" />
+                  )
             }
           >
             <span className="demo-trigger-content">
@@ -76,11 +79,13 @@ function DemoCard({
           </FilterBar.Views>
           <FilterBar.SaveView
             render={
-              styled ? (
-                <Button variant="outline" />
-              ) : (
-                <button type="button" className="demo-button" />
-              )
+              styled
+                ? (
+                    <Button variant="outline" />
+                  )
+                : (
+                    <button type="button" className="demo-button" />
+                  )
             }
           >
             <span className="demo-trigger-content">
@@ -91,11 +96,13 @@ function DemoCard({
           <FilterBar.Trigger
             iconMapping={styled}
             render={
-              styled ? (
-                <Button variant="outline" />
-              ) : (
-                <button type="button" className="demo-button" />
-              )
+              styled
+                ? (
+                    <Button variant="outline" />
+                  )
+                : (
+                    <button type="button" className="demo-button" />
+                  )
             }
           >
             <span className="demo-trigger-content">
@@ -105,11 +112,13 @@ function DemoCard({
           </FilterBar.Trigger>
           <FilterBar.Clear
             render={
-              styled ? (
-                <Button variant="outline" />
-              ) : (
-                <button type="button" className="demo-button" />
-              )
+              styled
+                ? (
+                    <Button variant="outline" />
+                  )
+                : (
+                    <button type="button" className="demo-button" />
+                  )
             }
           >
             Clear
@@ -122,31 +131,34 @@ function DemoCard({
         </FilterBar.Content>
       </FilterBar.Root>
     </section>
-  );
+  )
 }
 
 function NuqsDemoCard({
   fields,
   storageKey,
 }: {
-  fields: ReturnType<typeof useFiltroFields>;
-  storageKey: string;
+  fields: ReturnType<typeof useFiltroFields>
+  storageKey: string
 }) {
   const { onChange, value } = useNuqsFilterBarState({
     fields,
-  });
-  const currentSearch = typeof window === "undefined" ? "" : window.location.search;
+  })
+  const currentSearch = typeof window === 'undefined' ? '' : window.location.search
 
   return (
     <section className="demo-card demo-card-accent">
       <div className="demo-card-header">
         <h2>nuqs URL Sync</h2>
         <p>
-          This FilterBar is controlled by <code>filtro/nuqs</code>. Add, edit, clear,
+          This FilterBar is controlled by
+          {' '}
+          <code>filtro/nuqs</code>
+          . Add, edit, clear,
           refresh, and use browser back/forward to verify URL round-tripping.
         </p>
       </div>
-      <div className="demo-url-preview">{currentSearch || "?demo_=..."}</div>
+      <div className="demo-url-preview">{currentSearch || '?demo_=...'}</div>
       <FilterBar.Root
         fields={fields}
         theme={defaultFilterBarTheme}
@@ -184,29 +196,29 @@ function NuqsDemoCard({
         </FilterBar.Content>
       </FilterBar.Root>
     </section>
-  );
+  )
 }
 
 function useFiltroFields() {
   return useMemo(
     () => [
-      filtro.group("Basic", [
-        filtro.string("keyword")
-          .label("Keyword")
-          .placeholder("Search name or email")
+      filtro.group('Basic', [
+        filtro.string('keyword')
+          .label('Keyword')
+          .placeholder('Search name or email')
           .suggest({
             seed: {
-              operator: "contains",
-              value: "",
+              operator: 'contains',
+              value: '',
             },
           }),
-        filtro.number("amount")
-          .label("Amount")
-          .placeholder("Enter amount"),
-        filtro.date("createdAt")
-          .label("Created At"),
-        filtro.date("releaseWindow")
-          .label("Release Window")
+        filtro.number('amount')
+          .label('Amount')
+          .placeholder('Enter amount'),
+        filtro.date('createdAt')
+          .label('Created At'),
+        filtro.date('releaseWindow')
+          .label('Release Window')
           .render(({ op, value, onChange }) => (
             <PlaygroundCalendarDateEditor
               op={op}
@@ -215,129 +227,128 @@ function useFiltroFields() {
             />
           )),
       ]),
-      filtro.group("Attributes", [
-        filtro.select("status")
-          .label("Status")
+      filtro.group('Attributes', [
+        filtro.select('status')
+          .label('Status')
           .pin()
           .options([
-            { label: "Open", value: "open" },
-            { label: "Closed", value: "closed" },
-            { label: "Pending", value: "pending" },
+            { label: 'Open', value: 'open' },
+            { label: 'Closed', value: 'closed' },
+            { label: 'Pending', value: 'pending' },
           ]),
-        filtro.select("owner")
-          .label("Owner")
-          .placeholder("Async options after 5s")
+        filtro.select('owner')
+          .label('Owner')
+          .placeholder('Async options after 5s')
           .options(async () => loadAsyncOwners())
-          .loadOptions("open"),
-        filtro.multiSelect("tags")
-          .label("Tags")
-          .renderValueLabel((values) => `${values.length} tags`)
+          .loadOptions('open'),
+        filtro.multiSelect('tags')
+          .label('Tags')
+          .renderValueLabel(values => `${values.length} tags`)
           .options([
-            { label: "VIP", value: "vip" },
-            { label: "Trial", value: "trial" },
-            { label: "Churn Risk", value: "churn-risk" },
+            { label: 'VIP', value: 'vip' },
+            { label: 'Trial', value: 'trial' },
+            { label: 'Churn Risk', value: 'churn-risk' },
           ]),
-        filtro.multiSelect("reviewers")
-          .label("Reviewers")
-          .placeholder("Pick up to 3 reviewers")
+        filtro.multiSelect('reviewers')
+          .label('Reviewers')
+          .placeholder('Pick up to 3 reviewers')
           .maxSelections(3)
           .options([
             {
-              label: "Alice Johnson",
-              value: "alice",
+              label: 'Alice Johnson',
+              value: 'alice',
               icon: <DemoAvatar initials="AJ" tone="amber" />,
             },
             {
-              label: "Ben Carter",
-              value: "ben",
+              label: 'Ben Carter',
+              value: 'ben',
               icon: <DemoAvatar initials="BC" tone="emerald" />,
             },
             {
-              label: "Chris Wong",
-              value: "chris",
+              label: 'Chris Wong',
+              value: 'chris',
               icon: <DemoAvatar initials="CW" tone="sky" />,
             },
             {
-              label: "Diana Ross",
-              value: "diana",
+              label: 'Diana Ross',
+              value: 'diana',
               icon: <DemoAvatar initials="DR" tone="rose" />,
             },
           ])
-          .renderValueLabel((options) => `${options.length} reviewers`),
-        filtro.boolean("archived").label("Archived").options([
-          { label: "Archived", value: true },
-          { label: "Not Archived", value: false },
-        ])
-          .suggest({
-            showInMenu: false,
-          }),
+          .renderValueLabel(options => `${options.length} reviewers`),
+        filtro.boolean('archived').label('Archived').options([
+          { label: 'Archived', value: true },
+          { label: 'Not Archived', value: false },
+        ]).suggest({
+          showInMenu: false,
+        }),
       ]),
     ],
     [],
-  );
+  )
 }
 
 function useValidationFields() {
   return useMemo(
     () => [
-      filtro.group("Validation", [
-        filtro.string("validatedKeyword")
-          .label("Keyword")
-          .placeholder("At least 3 characters")
+      filtro.group('Validation', [
+        filtro.string('validatedKeyword')
+          .label('Keyword')
+          .placeholder('At least 3 characters')
           .validate(({ value }) => {
             if (value == null) {
-              return null;
+              return null
             }
 
-            return value.trim().length >= 3 ? null : "Use at least 3 characters";
+            return value.trim().length >= 3 ? null : 'Use at least 3 characters'
           }),
-        filtro.number("validatedAmount")
-          .label("Amount")
-          .placeholder("Zero or greater")
+        filtro.number('validatedAmount')
+          .label('Amount')
+          .placeholder('Zero or greater')
           .validate(({ op, value }) => {
             if (value == null) {
-              return null;
+              return null
             }
 
-            if (op === "between" || op === "notBetween") {
-              return value[0] <= value[1] ? null : "Min must be less than or equal to max";
+            if (op === 'between' || op === 'notBetween') {
+              return value[0] <= value[1] ? null : 'Min must be less than or equal to max'
             }
 
-            return value >= 0 ? null : "Amount must be zero or greater";
+            return value >= 0 ? null : 'Amount must be zero or greater'
           }),
-        filtro.date("validatedCreatedAt")
-          .label("Created At")
+        filtro.date('validatedCreatedAt')
+          .label('Created At')
           .validate(({ op, value }) => {
             if (value == null) {
-              return null;
+              return null
             }
 
-            if (op === "between" || op === "notBetween") {
+            if (op === 'between' || op === 'notBetween') {
               return value[0] <= value[1]
                 ? null
-                : "Start date must be before or equal to end date";
+                : 'Start date must be before or equal to end date'
             }
 
-            if (op === "lastNDays" || op === "nextNDays") {
-              return value > 0 ? null : "Days must be greater than 0";
+            if (op === 'lastNDays' || op === 'nextNDays') {
+              return value > 0 ? null : 'Days must be greater than 0'
             }
 
-            return value >= "2024-01-01"
+            return value >= '2024-01-01'
               ? null
-              : "Date must be on or after 2024-01-01";
+              : 'Date must be on or after 2024-01-01'
           }),
       ]),
     ],
     [],
-  );
+  )
 }
 
 export function PlaygroundApp() {
-  const fields = useFiltroFields();
-  const validationFields = useValidationFields();
-  const [view, setView] = useState<DemoView>("both");
-  const showHeadless = view === "headless" || view === "both";
-  const showDefault = view === "default" || view === "both";
+  const fields = useFiltroFields()
+  const validationFields = useValidationFields()
+  const [view, setView] = useState<DemoView>('both')
+  const showHeadless = view === 'headless' || view === 'both'
+  const showDefault = view === 'default' || view === 'both'
 
   return (
     <main className="playground">
@@ -351,48 +362,52 @@ export function PlaygroundApp() {
       <div className="view-switcher" role="group" aria-label="Choose playground view">
         <button
           type="button"
-          className={view === "headless" ? "switch-button active" : "switch-button"}
-          onClick={() => setView("headless")}
+          className={view === 'headless' ? 'switch-button active' : 'switch-button'}
+          onClick={() => setView('headless')}
         >
           Base Only
         </button>
         <button
           type="button"
-          className={view === "default" ? "switch-button active" : "switch-button"}
-          onClick={() => setView("default")}
+          className={view === 'default' ? 'switch-button active' : 'switch-button'}
+          onClick={() => setView('default')}
         >
           Default Theme Only
         </button>
         <button
           type="button"
-          className={view === "both" ? "switch-button active" : "switch-button"}
-          onClick={() => setView("both")}
+          className={view === 'both' ? 'switch-button active' : 'switch-button'}
+          onClick={() => setView('both')}
         >
           Show Both
         </button>
       </div>
 
       <section className="card">
-        <div className={view === "both" ? "demo-grid" : "demo-stack"}>
-          {showHeadless ? (
-            <DemoCard
-              title="Base FilterBar"
-              description="No FilterBar theme preset. You get the FilterBar structure and internal Base UI wrappers without the default preset layer."
-              fields={fields}
-              storageKey="playground:headless"
-              styled={false}
-            />
-          ) : null}
-          {showDefault ? (
-            <DemoCard
-              title="Default Theme"
-              description="Uses defaultFilterBarTheme to layer the preset slot styles on top of the base FilterBar primitives."
-              fields={fields}
-              storageKey="playground:default-theme"
-              theme={defaultFilterBarTheme}
-              styled
-            />
-          ) : null}
+        <div className={view === 'both' ? 'demo-grid' : 'demo-stack'}>
+          {showHeadless
+            ? (
+                <DemoCard
+                  title="Base FilterBar"
+                  description="No FilterBar theme preset. You get the FilterBar structure and internal Base UI wrappers without the default preset layer."
+                  fields={fields}
+                  storageKey="playground:headless"
+                  styled={false}
+                />
+              )
+            : null}
+          {showDefault
+            ? (
+                <DemoCard
+                  title="Default Theme"
+                  description="Uses defaultFilterBarTheme to layer the preset slot styles on top of the base FilterBar primitives."
+                  fields={fields}
+                  storageKey="playground:default-theme"
+                  theme={defaultFilterBarTheme}
+                  styled
+                />
+              )
+            : null}
         </div>
       </section>
 
@@ -400,31 +415,44 @@ export function PlaygroundApp() {
         <div className="demo-card-header">
           <h2>Validation Examples</h2>
           <p>
-            Try short text, negative numbers, reversed ranges, or <code>last N
-            days</code> set to <code>0</code>. Invalid raw input stays in the editor
+            Try short text, negative numbers, reversed ranges, or
+            {' '}
+            <code>
+              last N
+              days
+            </code>
+            {' '}
+            set to
+            {' '}
+            <code>0</code>
+            . Invalid raw input stays in the editor
             while only valid values are committed.
           </p>
         </div>
-        <div className={view === "both" ? "demo-grid" : "demo-stack"}>
-          {showHeadless ? (
-            <DemoCard
-              title="Base Validation"
-              description="Uses builder-level validate() rules with only the base FilterBar primitives."
-              fields={validationFields}
-              storageKey="playground:validation-headless"
-              styled={false}
-            />
-          ) : null}
-          {showDefault ? (
-            <DemoCard
-              title="Default Theme Validation"
-              description="Same rules with the default themed preset and inline error UI."
-              fields={validationFields}
-              storageKey="playground:validation-default-theme"
-              theme={defaultFilterBarTheme}
-              styled
-            />
-          ) : null}
+        <div className={view === 'both' ? 'demo-grid' : 'demo-stack'}>
+          {showHeadless
+            ? (
+                <DemoCard
+                  title="Base Validation"
+                  description="Uses builder-level validate() rules with only the base FilterBar primitives."
+                  fields={validationFields}
+                  storageKey="playground:validation-headless"
+                  styled={false}
+                />
+              )
+            : null}
+          {showDefault
+            ? (
+                <DemoCard
+                  title="Default Theme Validation"
+                  description="Same rules with the default themed preset and inline error UI."
+                  fields={validationFields}
+                  storageKey="playground:validation-default-theme"
+                  theme={defaultFilterBarTheme}
+                  styled
+                />
+              )
+            : null}
         </div>
       </section>
 
@@ -432,5 +460,5 @@ export function PlaygroundApp() {
         <NuqsDemoCard fields={fields} storageKey="playground:nuqs" />
       </section>
     </main>
-  );
+  )
 }
